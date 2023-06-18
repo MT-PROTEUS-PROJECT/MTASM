@@ -1,3 +1,9 @@
 .vs
 _build
 _intermediate
+Lexer.cpp
+Parser.h
+Parser.output
+Parser.tab.hh
+Parser.tab.cc
+location.hh

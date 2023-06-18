@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -74,21 +74,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)_build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)_intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)MTASM\;$(SolutionDir)ThirdParty\flex\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)_build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)_intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)MTASM\;$(SolutionDir)ThirdParty\flex\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)_build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)_intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)MTASM\;$(SolutionDir)ThirdParty\flex\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)_build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)_intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)MTASM\;$(SolutionDir)ThirdParty\flex\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,7 +100,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -112,7 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -128,7 +132,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -144,7 +148,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -155,61 +159,52 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Lexer.c" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Parser.tab.c" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="Lexer.l">
+    <CustomBuild Include="Lexer\Lexer.l">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)ThirdParty\flex\bin\flex" -oLexer.c Lexer.l</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)ThirdParty\flex\bin\flex" -oLexer.c Lexer.l</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)ThirdParty\flex\bin\flex" -oLexer.c Lexer.l</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)ThirdParty\flex\bin\flex" -oLexer.c Lexer.l</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)ThirdParty\flex\win_flex.exe -v -+ -o Lexer.cpp $(SolutionDir)MTASM\Lexer\Lexer.l</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Сборка Лексера</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Lexer.cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)ThirdParty\flex\win_flex.exe -v -+ -o Lexer.cpp $(SolutionDir)MTASM\Lexer\Lexer.l</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Сборка Лексера</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Lexer.cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)ThirdParty\flex\win_flex.exe -v -+ -o Lexer.cpp $(SolutionDir)MTASM\Lexer\Lexer.l</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Сборка Лексера</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Lexer.cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)ThirdParty\flex\win_flex.exe -v -+ -o Lexer.cpp $(SolutionDir)MTASM\Lexer\Lexer.l</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Сборка Лексера</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Lexer.c</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Lexer.c</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Lexer.c</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Lexer.c</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Lexer.cpp</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="Parser.y">
+    <ClInclude Include="Lexer\Lexer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Parser\Parser.y">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">set PATH="$(SolutionDir)ThirdParty\bison\bin";%PATH%
-bison -d Parser.y</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)ThirdParty\bison\win_bison.exe -v -L c++ -d $(SolutionDir)\MTASM\Parser\Parser.y</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Сборка Парсера</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Parser.tab.h;Parser.tab.c;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set PATH="$(SolutionDir)ThirdParty\bison\bin";%PATH%
-bison -d Parser.y</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Parser.tab.cc;Parser.tab.hh;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)ThirdParty\bison\win_bison.exe -v -L c++ -d $(SolutionDir)\MTASM\Parser\Parser.y</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Сборка Парсера</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Parser.tab.h;Parser.tab.c;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">set PATH="$(SolutionDir)ThirdParty\bison\bin";%PATH%
-bison -d Parser.y</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Parser.tab.cc;Parser.tab.hh;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)ThirdParty\bison\win_bison.exe -v -L c++ -d $(SolutionDir)\MTASM\Parser\Parser.y</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Сборка Парсера</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Parser.tab.h;Parser.tab.c;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">set PATH="$(SolutionDir)ThirdParty\bison\bin";%PATH%
-bison -d Parser.y</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Parser.tab.cc;Parser.tab.hh;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)ThirdParty\bison\win_bison.exe -v -L c++ -d $(SolutionDir)\MTASM\Parser\Parser.y</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Сборка Парсера</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Parser.tab.h;Parser.tab.c;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Parser.tab.cc;Parser.tab.hh;%(Outputs)</Outputs>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="location.hh" />
-    <ClInclude Include="Parser.tab.h" />
-    <ClInclude Include="position.hh" />
-    <ClInclude Include="stack.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

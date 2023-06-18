@@ -9,34 +9,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Lexer.c">
-      <Filter>Lexer</Filter>
-    </ClCompile>
-    <ClCompile Include="Parser.tab.c">
-      <Filter>Parser</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="Lexer.l">
-      <Filter>Lexer</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Parser.y">
-      <Filter>Parser</Filter>
-    </CustomBuild>
+    <ClInclude Include="Lexer\Lexer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="position.hh">
-      <Filter>Parser</Filter>
-    </ClInclude>
-    <ClInclude Include="stack.hh">
-      <Filter>Parser</Filter>
-    </ClInclude>
-    <ClInclude Include="location.hh">
-      <Filter>Parser</Filter>
-    </ClInclude>
-    <ClInclude Include="Parser.tab.h">
-      <Filter>Parser</Filter>
-    </ClInclude>
+    <CustomBuild Include="Lexer\Lexer.l" />
+    <CustomBuild Include="Parser\Parser.y" />
   </ItemGroup>
 </Project>
