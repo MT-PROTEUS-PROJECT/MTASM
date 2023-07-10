@@ -1,6 +1,12 @@
-//extern "C" int parser_main(int argc, char* argv[]);
+#include "Parser.tab.hh"
+#include <Lexer/Lexer.h>
 
-int main(int argc, char* argv[])
+int main()
 {
-	//return parser_main(argc, argv);
+    yy::Lexer lexer(std::cin);
+    yy::parser parser{ lexer };
+    int ok = parser();
+    if (!ok)
+        std::cout << "Parse error";
+    return 0;
 }

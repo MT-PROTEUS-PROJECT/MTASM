@@ -10,9 +10,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Parser.tab.cc" />
+    <ClCompile Include="Lexer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lexer\Lexer.h" />
+    <ClInclude Include="Parser.tab.hh" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="location.hh" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Lexer\Lexer.l" />

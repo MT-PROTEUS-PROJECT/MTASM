@@ -7,3 +7,4 @@ Parser.output
 Parser.tab.hh
 Parser.tab.cc
 location.hh
+stack.hh
