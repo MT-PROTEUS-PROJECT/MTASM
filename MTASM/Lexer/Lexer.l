@@ -5,6 +5,7 @@
 %{
 	#include "Parser.tab.hh"
 	#include "Lexer.h"
+	#include "../ASM/TypeDefs.h"
 %}
 
 %option c++
@@ -27,7 +28,7 @@ DIGIT1 [1-9]
 
 "//"					BEGIN(comment);
 {WS}+					yyloc->step();
-{DIGIT1}{DIGIT}*	    { yylval->emplace<uint32_t>(std::stoul(yytext)); return yy::parser::token::TOKEN_NUM; }
+{DIGIT1}{DIGIT}*	    { yylval->emplace<Value>(std::stoul(yytext)); return yy::parser::token::TOKEN_NUM; }
 "R"{REG}				{ yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_REG; }
 "ADD"					return yy::parser::token::TOKEN_ADD;
 ","						return yy::parser::token::TOKEN_COMMA;
