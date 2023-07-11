@@ -65,8 +65,9 @@ uint32_t ArOpIn::ToMtemuFmt() const
     }
     bits <<= 4;
 
-    uint8_t ops = 0;
     // Выбор операндов R и S (I0-I2)
+    int8_t ops = -1;
+
     if (!_hasRQ && _nullPos == -1) // РОН(А) РОН(В)
     {
         bits += 1;
@@ -76,6 +77,10 @@ uint32_t ArOpIn::ToMtemuFmt() const
     {
         bits += 5;
         ops = 2;
+    }
+    else if (_hasRQ && _nullPos == -1) // РОН(А) PQ
+    {
+        ops = 0;
     }
     else if (_hasRQ && _nullPos != -1) // D PQ
     {
@@ -90,6 +95,10 @@ uint32_t ArOpIn::ToMtemuFmt() const
 
     // Тип операции I3-I5 (заполняется в другом классе)
     bits <<= WORD_SIZE;
+    
+    // Оставляем младшие WORD_SIZE бита у _value
+    _value <<= (sizeof(_value) * 8) - WORD_SIZE;
+    _value >>= (sizeof(_value) * 8) - WORD_SIZE;
 
     // А B D
     if (ops == 0)
@@ -107,8 +116,8 @@ uint32_t ArOpIn::ToMtemuFmt() const
         if (_load && !_regs[0]->isRQ())
         {
             bits += _regs[0]->addr().value();
-            bits <<= WORD_SIZE;
         }
+        bits <<= WORD_SIZE;
     }
     else if (ops == 1)
     {
@@ -155,10 +164,8 @@ uint32_t ArOpIn::ToMtemuFmt() const
         if (_load && !_regs[0]->isRQ())
         {
             bits += _regs[0]->addr().value();
-            bits <<= WORD_SIZE;
         }
-
-        // TODO: Брать младшие 4 бита
+        bits <<= WORD_SIZE;
         bits += _value;
     }
     else
@@ -167,9 +174,8 @@ uint32_t ArOpIn::ToMtemuFmt() const
         if (_load && !_regs[0]->isRQ())
         {
             bits += _regs[0]->addr().value();
-            bits <<= WORD_SIZE;
         }
-        // TODO: Брать младшие 4 бита
+        bits <<= WORD_SIZE;
         bits += _value;
     }
     return bits;

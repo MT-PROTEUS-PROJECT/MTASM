@@ -23,7 +23,7 @@ private:
     bool _load;
     bool _hasRQ;
     int _nullPos;
-    Value _value;
+    mutable Value _value;
     std::vector<std::unique_ptr<Register>> _regs;
     
 public:

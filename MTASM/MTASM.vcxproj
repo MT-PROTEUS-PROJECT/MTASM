@@ -72,26 +72,26 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)_build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)_intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)_build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)_intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)MTASM\Lexer;$(SolutionDir)MTASM\;$(SolutionDir)ThirdParty\flex\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)_build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)_intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)_build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)_intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)MTASM\Lexer;$(SolutionDir)MTASM\;$(SolutionDir)ThirdParty\flex\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)_build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)_intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)_build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)_intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)MTASM\Lexer;$(SolutionDir)MTASM\;$(SolutionDir)ThirdParty\flex\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)_build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)_intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)_build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)_intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)MTASM\Lexer;$(SolutionDir)MTASM\;$(SolutionDir)ThirdParty\flex\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

@@ -71,7 +71,13 @@ aexprf:	REG COMMA REG COMMA REG {
                                 }
 |       REG COMMA REG COMMA NUM { input.emplace_back(new ArOpIn(Register(std::get<std::string>($1)), Register(std::get<std::string>($3)), std::get<Value>($5))); }
 |       REG COMMA NUM COMMA REG { input.emplace_back(new ArOpIn(Register(std::get<std::string>($1)), std::get<Value>($3), Register(std::get<std::string>($5)))); }
-|       REG COMMA REG           { input.emplace_back(new ArOpIn(Register(std::get<std::string>($1)), Register(std::get<std::string>($3)))); }
+|       REG COMMA REG           {
+                                    Register r1(std::get<std::string>($1));
+                                    Register r2(std::get<std::string>($3));
+                                    if (r1.isRQ() && r2.isRQ())
+                                        throw yy::parser::syntax_error(@$, "Регистр Q не может быть одновременно левым и правым операндом арифметической операции!");
+                                    input.emplace_back(new ArOpIn(r1, r2));
+                                }
 |       REG COMMA NUM           { input.emplace_back(new ArOpIn(Register(std::get<std::string>($1)), std::get<Value>($3))); }
 |       NUM COMMA REG           { input.emplace_back(new ArOpIn(std::get<Value>($1), Register(std::get<std::string>($3)))); };
 

@@ -1,6 +1,7 @@
 .vs
 _build
 _intermediate
+packages
 Lexer.cpp
 Parser.h
 Parser.output
