@@ -20,7 +20,7 @@ public:
 
 public:
     Address addr() const;
-    bool isPQ() const;
+    bool isRQ() const;
 
     friend bool operator==(const Register &lhs, const Register &rhs);
 };

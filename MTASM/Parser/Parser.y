@@ -27,6 +27,7 @@
     #include <vector>
     #include <memory>
     #include "../ASM/Input.h"
+    #include "../ASM/Expressions.h"
     std::vector<std::unique_ptr<Input>> input;
 }
 
@@ -49,16 +50,23 @@
 block:  expr { std::cout << "1\n"; }
 |       error {};
 
-expr:   aexpr { std::cout << "2\n"; };
+expr:   aexpr {};
 
-aexpr:  ADD aexprf { std::cout << "3\n"; };
+aexpr:  ADD aexprf { 
+                        ArOp tmp(ArOp::Op::ADD, *(dynamic_cast<ArOpIn *>(input.back().get())));
+                        input.pop_back();
+                        std::cout << "MTEMU ADD: " << tmp.ToMtemuFmt() << std::endl;
+                    };
 
 aexprf:	REG COMMA REG COMMA REG {
                                     Register r1(std::get<std::string>($1));
                                     Register r2(std::get<std::string>($3));
                                     Register r3(std::get<std::string>($5));
-                                    //if (r1 != r2 && r2 != r3)
-                                    //    yyerror();
+                                    if (r1 != r2 && r2 != r3 && !r1.isRQ() && !r2.isRQ() && !r3.isRQ())
+                                        throw yy::parser::syntax_error(@$, "Использование 3 различных регистров общего назначения в арифиметических операциях не поддерживается!");
+                                    if (r2.isRQ() && r3.isRQ())
+                                        throw yy::parser::syntax_error(@$, "Регистр Q не может быть одновременно левым и правым операндом арифметической операции!");
+                                    
                                     input.emplace_back(new ArOpIn(r1, r2, r3));
                                 }
 |       REG COMMA REG COMMA NUM { input.emplace_back(new ArOpIn(Register(std::get<std::string>($1)), Register(std::get<std::string>($3)), std::get<Value>($5))); }

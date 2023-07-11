@@ -9,7 +9,7 @@
 class Address final
 {
 private:
-    std::string _addr;
+    AddrValue _addr;
 
 public:
     explicit Address(std::string addr);
@@ -17,7 +17,7 @@ public:
     Address(AddrValue addr);
 
     template <size_t N>
-    Address(const std::bitset<N> &addr): _addr(addr.to_string()) {};
+    Address(const std::bitset<N> &addr): _addr(addr.to_ulong()) {};
 
     Address(const Address &) = default;
     Address &operator=(const Address &) = default;
@@ -28,9 +28,7 @@ public:
     ~Address() = default;
 
 public:
-    size_t size() const;
-    std::string str() const;
-    std::string_view view() const;
+    AddrValue value() const;
 
     template <size_t N>
     std::bitset<N> bits() const
