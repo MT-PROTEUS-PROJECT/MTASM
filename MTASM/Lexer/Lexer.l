@@ -31,6 +31,9 @@ DIGIT1 [1-9]
 {DIGIT1}{DIGIT}*	    { yylval->emplace<Value>(std::stoul(yytext)); return yy::parser::token::TOKEN_NUM; }
 "R"{REG}				{ yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_REG; }
 "ADD"					return yy::parser::token::TOKEN_ADD;
+"SUB"					return yy::parser::token::TOKEN_SUB;
+"MUL"					return yy::parser::token::TOKEN_MUL;
+"DIV"					return yy::parser::token::TOKEN_DIV;
 ","						return yy::parser::token::TOKEN_COMMA;
 ";"						return yy::parser::token::TOKEN_SEMICOLON;
 .						throw yy::parser::syntax_error(*yyloc, "invalid character: " + std::string(YYText()));

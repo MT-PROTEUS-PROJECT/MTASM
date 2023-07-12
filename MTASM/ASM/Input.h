@@ -9,23 +9,33 @@
 
 class Input
 {
+protected:
+    uint32_t _mtemuFmt = 0;
+
+protected:
+    virtual void calcMtemu() = 0;
+
 public:
     Input() = default;
     
-    virtual uint32_t ToMtemuFmt() const = 0;
+    uint32_t ToMtemuFmt() const;
     
     virtual ~Input() = default;
 };
 
 class ArOpIn final: public Input
 {
+public:
+    using RegContainer = std::vector<std::shared_ptr<Register>>;
+
 private:
     bool _load;
     bool _hasRQ;
     int _nullPos;
-    mutable Value _value;
-    std::vector<std::unique_ptr<Register>> _regs;
+    Value _value;
+    RegContainer _regs;
     
+    void calcMtemu() override;
 public:
     ArOpIn(Register r1, Register r2, Register r3);
     ArOpIn(Register r1, Register r2, Value v);
@@ -34,7 +44,8 @@ public:
     ArOpIn(Register r1, Value v);
     ArOpIn(Value v, Register r1);
 
-    uint32_t ToMtemuFmt() const override;
+    int GetNullPos() const noexcept;
+    const RegContainer &GetRegs() const noexcept;
 
     ~ArOpIn() = default;
 };

@@ -15,7 +15,7 @@ int main()
     }
     catch (const InternalCompilerError &ice)
     {
-        std::cerr << "Внутрення ошибка компилятора: " << ice.what() << std::endl;
+        std::cerr << "Внутренняя ошибка компилятора: " << ice.what() << std::endl;
     }
     catch (const std::exception &ex)
     {

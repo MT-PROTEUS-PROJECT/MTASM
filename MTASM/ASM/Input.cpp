@@ -1,151 +1,162 @@
 #include "Input.h"
 #include "Exceptions.h"
 
+uint32_t Input::ToMtemuFmt() const
+{
+    return _mtemuFmt;
+}
+
 ArOpIn::ArOpIn(Register r1, Register r2, Register r3) : _load(true), _hasRQ(r2.isRQ() || r3.isRQ()), _nullPos(-1), _value(0)
 {
-    _regs.push_back(std::make_unique<Register>(std::move(r1)));
-    _regs.push_back(std::make_unique<Register>(std::move(r2)));
-    _regs.push_back(std::make_unique<Register>(std::move(r3)));
+    _regs.push_back(std::make_shared<Register>(std::move(r1)));
+    _regs.push_back(std::make_shared<Register>(std::move(r2)));
+    _regs.push_back(std::make_shared<Register>(std::move(r3)));
+    calcMtemu();
 }
 
 ArOpIn::ArOpIn(Register r1, Register r2, Value v) : _load(true), _hasRQ(r2.isRQ()), _nullPos(2), _value(v)
 {
-    _regs.push_back(std::make_unique<Register>(std::move(r1)));
-    _regs.push_back(std::make_unique<Register>(std::move(r2)));
+    _regs.push_back(std::make_shared<Register>(std::move(r1)));
+    _regs.push_back(std::make_shared<Register>(std::move(r2)));
     _regs.push_back(nullptr);
+    calcMtemu();
 }
 
 ArOpIn::ArOpIn(Register r1, Value v, Register r2) : _load(true), _hasRQ(r2.isRQ()), _nullPos(1), _value(v)
 {
-    _regs.push_back(std::make_unique<Register>(std::move(r1)));
+    _regs.push_back(std::make_shared<Register>(std::move(r1)));
     _regs.push_back(nullptr);
-    _regs.push_back(std::make_unique<Register>(std::move(r2)));
+    _regs.push_back(std::make_shared<Register>(std::move(r2)));
+    calcMtemu();
 }
 
 ArOpIn::ArOpIn(Register r1, Register r2) : _load(false), _hasRQ(r1.isRQ() || r2.isRQ()), _nullPos(-1), _value(0)
 {
     _regs.push_back(nullptr);
-    _regs.push_back(std::make_unique<Register>(std::move(r1)));
-    _regs.push_back(std::make_unique<Register>(std::move(r2)));
+    _regs.push_back(std::make_shared<Register>(std::move(r1)));
+    _regs.push_back(std::make_shared<Register>(std::move(r2)));
+    calcMtemu();
 }
 
 ArOpIn::ArOpIn(Register r1, Value v) : _load(false), _hasRQ(r1.isRQ()), _nullPos(2), _value(v)
 {
     _regs.push_back(nullptr);
-    _regs.push_back(std::make_unique<Register>(std::move(r1)));
+    _regs.push_back(std::make_shared<Register>(std::move(r1)));
     _regs.push_back(nullptr);
+    calcMtemu();
 }
 
 ArOpIn::ArOpIn(Value v, Register r1) : _load(false), _hasRQ(r1.isRQ()), _nullPos(1), _value(v)
 {
     _regs.push_back(nullptr);
     _regs.push_back(nullptr);
-    _regs.push_back(std::make_unique<Register>(std::move(r1)));
+    _regs.push_back(std::make_shared<Register>(std::move(r1)));
+    calcMtemu();
 }
 
-uint32_t ArOpIn::ToMtemuFmt() const
+void ArOpIn::calcMtemu()
 {
     //         M1 I6-I8                             M0 I0-I2                 C0 I3-I5                  A                  B            D
     //   8388608  4194304 2097152 1048576  524286 262144 131072 65536   32768 16384 8192 4096   2048 1024 512 256   128 64 32 16    8 4 2 1    
     //      0   '    0   '   0   '   0        0  '   0  '   0  '  0        0 '  0  ' 0 '  0       0 '  0 ' 0 ' 0     0 ' 0' 0' 0    0'0'0'0
-    uint32_t bits = 0;
+    _mtemuFmt = 0;
 
-    // Çàãðóçêà (I6-I8)
-    // 000 - Çàãðóçêà â PQ
-    // 001 - Íåò çàãðóçêè
-    // 011 - Çàãðóçêà â ÐÎÍ(Â)
+    // Ð—Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° (I6-I8)
+    // 000 - Ð—Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° Ð² PQ
+    // 001 - ÐÐµÑ‚ Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ¸
+    // 011 - Ð—Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° Ð² Ð ÐžÐ(Ð’)
     if (_load)
     {
         if (!_regs[0]->isRQ())
-            bits += 3;
+            _mtemuFmt += 3;
     }
     else
     {
-        bits += 1;
+        _mtemuFmt += 1;
     }
-    bits <<= 4;
+    _mtemuFmt <<= 4;
 
-    // Âûáîð îïåðàíäîâ R è S (I0-I2)
+    // Ð’Ñ‹Ð±Ð¾Ñ€ Ð¾Ð¿ÐµÑ€Ð°Ð½Ð´Ð¾Ð² R Ð¸ S (I0-I2)
     int8_t ops = -1;
 
-    if (!_hasRQ && _nullPos == -1) // ÐÎÍ(À) ÐÎÍ(Â)
+    if (!_hasRQ && _nullPos == -1) // Ð ÐžÐ(Ð) Ð ÐžÐ(Ð’)
     {
-        bits += 1;
+        _mtemuFmt += 1;
         ops = 1;
     }
-    else if (!_hasRQ && _nullPos != -1) // D ÐÎÍ(À)
+    else if (!_hasRQ && _nullPos != -1) // D Ð ÐžÐ(Ð)
     {
-        bits += 5;
+        _mtemuFmt += 5;
         ops = 2;
     }
-    else if (_hasRQ && _nullPos == -1) // ÐÎÍ(À) PQ
+    else if (_hasRQ && _nullPos == -1) // Ð ÐžÐ(Ð) PQ
     {
         ops = 0;
     }
     else if (_hasRQ && _nullPos != -1) // D PQ
     {
-        bits += 6;
+        _mtemuFmt += 6;
         ops = 3;
     }
     else
     {
-        throw InternalCompilerError("Íå óäàëîñü îïðåäåëèòü îïåðàíäû R è S (òåòðàäà I0-I2)");
+        throw InternalCompilerError("ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»Ð¸Ñ‚ÑŒ Ð¾Ð¿ÐµÑ€Ð°Ð½Ð´Ñ‹ R Ð¸ S (Ñ‚ÐµÑ‚Ñ€Ð°Ð´Ð° I0-I2)");
     }
-    bits <<= 4;
+    _mtemuFmt <<= 4;
 
-    // Òèï îïåðàöèè I3-I5 (çàïîëíÿåòñÿ â äðóãîì êëàññå)
-    bits <<= WORD_SIZE;
+    // Ð¢Ð¸Ð¿ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸ I3-I5 (Ð·Ð°Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ÑÑ Ð² Ð´Ñ€ÑƒÐ³Ð¾Ð¼ ÐºÐ»Ð°ÑÑÐµ)
+    _mtemuFmt <<= WORD_SIZE;
     
-    // Îñòàâëÿåì ìëàäøèå WORD_SIZE áèòà ó _value
+    // ÐžÑÑ‚Ð°Ð²Ð»ÑÐµÐ¼ Ð¼Ð»Ð°Ð´ÑˆÐ¸Ðµ WORD_SIZE Ð±Ð¸Ñ‚Ð° Ñƒ _value
     _value <<= (sizeof(_value) * 8) - WORD_SIZE;
     _value >>= (sizeof(_value) * 8) - WORD_SIZE;
 
-    // À B D
+    // Ð B D
     if (ops == 0)
     {
         if (!_regs[1]->isRQ())
         {
-            bits += _regs[1]->addr().value();
-            bits <<= WORD_SIZE;
+            _mtemuFmt += _regs[1]->addr().value();
+            _mtemuFmt <<= WORD_SIZE;
         }
         else
         {
-            bits += _regs[2]->addr().value();
-            bits <<= WORD_SIZE;
+            _mtemuFmt += _regs[2]->addr().value();
+            _mtemuFmt <<= WORD_SIZE;
         }
         if (_load && !_regs[0]->isRQ())
         {
-            bits += _regs[0]->addr().value();
+            _mtemuFmt += _regs[0]->addr().value();
         }
-        bits <<= WORD_SIZE;
+        _mtemuFmt <<= WORD_SIZE;
     }
     else if (ops == 1)
     {
         if (!_load)
         {
-            bits += _regs[1]->addr().value();
-            bits <<= WORD_SIZE;
+            _mtemuFmt += _regs[1]->addr().value();
+            _mtemuFmt <<= WORD_SIZE;
 
-            bits += _regs[2]->addr().value();
-            bits <<= WORD_SIZE;
+            _mtemuFmt += _regs[2]->addr().value();
+            _mtemuFmt <<= WORD_SIZE;
         }
         else
         {
             if ((*_regs[0].get()) == (*_regs[1].get()))
             {
-                bits += _regs[2]->addr().value();
-                bits <<= WORD_SIZE;
+                _mtemuFmt += _regs[2]->addr().value();
+                _mtemuFmt <<= WORD_SIZE;
 
-                bits += _regs[1]->addr().value();
-                bits <<= WORD_SIZE;
+                _mtemuFmt += _regs[1]->addr().value();
+                _mtemuFmt <<= WORD_SIZE;
             }
             else
             {
-                bits += _regs[1]->addr().value();
-                bits <<= WORD_SIZE;
+                _mtemuFmt += _regs[1]->addr().value();
+                _mtemuFmt <<= WORD_SIZE;
 
-                bits += _regs[2]->addr().value();
-                bits <<= WORD_SIZE;
+                _mtemuFmt += _regs[2]->addr().value();
+                _mtemuFmt <<= WORD_SIZE;
             }
         }
     }
@@ -153,30 +164,39 @@ uint32_t ArOpIn::ToMtemuFmt() const
     {
         if (_nullPos == 1)
         {
-            bits += _regs[2]->addr().value();
-            bits <<= WORD_SIZE;
+            _mtemuFmt += _regs[2]->addr().value();
+            _mtemuFmt <<= WORD_SIZE;
         }
         else
         {
-            bits += _regs[1]->addr().value();
-            bits <<= WORD_SIZE;
+            _mtemuFmt += _regs[1]->addr().value();
+            _mtemuFmt <<= WORD_SIZE;
         }
         if (_load && !_regs[0]->isRQ())
         {
-            bits += _regs[0]->addr().value();
+            _mtemuFmt += _regs[0]->addr().value();
         }
-        bits <<= WORD_SIZE;
-        bits += _value;
+        _mtemuFmt <<= WORD_SIZE;
+        _mtemuFmt += _value;
     }
     else
     {
-        bits <<= WORD_SIZE;
+        _mtemuFmt <<= WORD_SIZE;
         if (_load && !_regs[0]->isRQ())
         {
-            bits += _regs[0]->addr().value();
+            _mtemuFmt += _regs[0]->addr().value();
         }
-        bits <<= WORD_SIZE;
-        bits += _value;
+        _mtemuFmt <<= WORD_SIZE;
+        _mtemuFmt += _value;
     }
-    return bits;
+}
+
+int ArOpIn::GetNullPos() const noexcept
+{
+    return _nullPos;
+}
+
+const ArOpIn::RegContainer &ArOpIn::GetRegs() const noexcept
+{
+    return _regs;
 }

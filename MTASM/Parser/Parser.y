@@ -41,6 +41,9 @@
     COMMA
     SEMICOLON
     ADD
+    SUB
+    MUL
+    DIV
     NUM
     REG
 
@@ -56,6 +59,21 @@ aexpr:  ADD aexprf {
                         ArOp tmp(ArOp::Op::ADD, *(dynamic_cast<ArOpIn *>(input.back().get())));
                         input.pop_back();
                         std::cout << "MTEMU ADD: " << tmp.ToMtemuFmt() << std::endl;
+                    }
+|       SUB aexprf  {
+                        ArOp tmp(ArOp::Op::SUB, *(dynamic_cast<ArOpIn *>(input.back().get())));
+                        input.pop_back();
+                        std::cout << "MTEMU SUB: " << tmp.ToMtemuFmt() << std::endl;
+                    }
+|       MUL aexprf  {
+                        ArOp tmp(ArOp::Op::MUL, *(dynamic_cast<ArOpIn *>(input.back().get())));
+                        input.pop_back();
+                        std::cout << "MTEMU MUL: " << tmp.ToMtemuFmt() << std::endl;
+                    }
+|       DIV aexprf  {
+                        ArOp tmp(ArOp::Op::DIV, *(dynamic_cast<ArOpIn *>(input.back().get())));
+                        input.pop_back();
+                        std::cout << "MTEMU DIV: " << tmp.ToMtemuFmt() << std::endl;
                     };
 
 aexprf:	REG COMMA REG COMMA REG {

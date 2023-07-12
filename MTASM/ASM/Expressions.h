@@ -15,9 +15,11 @@ public:
 class ArOp final : public Expression
 {
 private:
-    uint32_t _mtemuFmt = 0;
+    uint32_t _mtemuFmt = 2; // JNXT
 
     void AddOp(const ArOpIn &in);
+
+    void SubOp(const ArOpIn &in);
 
 public:
     enum class Op
