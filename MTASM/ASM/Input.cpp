@@ -6,7 +6,7 @@ uint32_t Input::ToMtemuFmt() const
     return _mtemuFmt;
 }
 
-ArOpIn::ArOpIn(Register r1, Register r2, Register r3) : _load(true), _hasRQ(r2.isRQ() || r3.isRQ()), _nullPos(-1), _value(0)
+BinOpIn::BinOpIn(Register r1, Register r2, Register r3) : _load(true), _hasRQ(r2.isRQ() || r3.isRQ()), _nullPos(-1), _value(0)
 {
     _regs.push_back(std::make_shared<Register>(std::move(r1)));
     _regs.push_back(std::make_shared<Register>(std::move(r2)));
@@ -14,7 +14,7 @@ ArOpIn::ArOpIn(Register r1, Register r2, Register r3) : _load(true), _hasRQ(r2.i
     calcMtemu();
 }
 
-ArOpIn::ArOpIn(Register r1, Register r2, Value v) : _load(true), _hasRQ(r2.isRQ()), _nullPos(2), _value(v)
+BinOpIn::BinOpIn(Register r1, Register r2, Value v) : _load(true), _hasRQ(r2.isRQ()), _nullPos(2), _value(v)
 {
     _regs.push_back(std::make_shared<Register>(std::move(r1)));
     _regs.push_back(std::make_shared<Register>(std::move(r2)));
@@ -22,7 +22,7 @@ ArOpIn::ArOpIn(Register r1, Register r2, Value v) : _load(true), _hasRQ(r2.isRQ(
     calcMtemu();
 }
 
-ArOpIn::ArOpIn(Register r1, Value v, Register r2) : _load(true), _hasRQ(r2.isRQ()), _nullPos(1), _value(v)
+BinOpIn::BinOpIn(Register r1, Value v, Register r2) : _load(true), _hasRQ(r2.isRQ()), _nullPos(1), _value(v)
 {
     _regs.push_back(std::make_shared<Register>(std::move(r1)));
     _regs.push_back(nullptr);
@@ -30,7 +30,7 @@ ArOpIn::ArOpIn(Register r1, Value v, Register r2) : _load(true), _hasRQ(r2.isRQ(
     calcMtemu();
 }
 
-ArOpIn::ArOpIn(Register r1, Register r2) : _load(false), _hasRQ(r1.isRQ() || r2.isRQ()), _nullPos(-1), _value(0)
+BinOpIn::BinOpIn(Register r1, Register r2) : _load(false), _hasRQ(r1.isRQ() || r2.isRQ()), _nullPos(-1), _value(0)
 {
     _regs.push_back(nullptr);
     _regs.push_back(std::make_shared<Register>(std::move(r1)));
@@ -38,7 +38,7 @@ ArOpIn::ArOpIn(Register r1, Register r2) : _load(false), _hasRQ(r1.isRQ() || r2.
     calcMtemu();
 }
 
-ArOpIn::ArOpIn(Register r1, Value v) : _load(false), _hasRQ(r1.isRQ()), _nullPos(2), _value(v)
+BinOpIn::BinOpIn(Register r1, Value v) : _load(false), _hasRQ(r1.isRQ()), _nullPos(2), _value(v)
 {
     _regs.push_back(nullptr);
     _regs.push_back(std::make_shared<Register>(std::move(r1)));
@@ -46,7 +46,7 @@ ArOpIn::ArOpIn(Register r1, Value v) : _load(false), _hasRQ(r1.isRQ()), _nullPos
     calcMtemu();
 }
 
-ArOpIn::ArOpIn(Value v, Register r1) : _load(false), _hasRQ(r1.isRQ()), _nullPos(1), _value(v)
+BinOpIn::BinOpIn(Value v, Register r1) : _load(false), _hasRQ(r1.isRQ()), _nullPos(1), _value(v)
 {
     _regs.push_back(nullptr);
     _regs.push_back(nullptr);
@@ -54,7 +54,7 @@ ArOpIn::ArOpIn(Value v, Register r1) : _load(false), _hasRQ(r1.isRQ()), _nullPos
     calcMtemu();
 }
 
-void ArOpIn::calcMtemu()
+void BinOpIn::calcMtemu()
 {
     //         M1 I6-I8                             M0 I0-I2                 C0 I3-I5                  A                  B            D
     //   8388608  4194304 2097152 1048576  524286 262144 131072 65536   32768 16384 8192 4096   2048 1024 512 256   128 64 32 16    8 4 2 1    
@@ -191,12 +191,12 @@ void ArOpIn::calcMtemu()
     }
 }
 
-int ArOpIn::GetNullPos() const noexcept
+int BinOpIn::GetNullPos() const noexcept
 {
     return _nullPos;
 }
 
-const ArOpIn::RegContainer &ArOpIn::GetRegs() const noexcept
+const BinOpIn::RegContainer &BinOpIn::GetRegs() const noexcept
 {
     return _regs;
 }

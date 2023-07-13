@@ -34,8 +34,11 @@ DIGIT1 [1-9]
 "SUB"					return yy::parser::token::TOKEN_SUB;
 "MUL"					return yy::parser::token::TOKEN_MUL;
 "DIV"					return yy::parser::token::TOKEN_DIV;
+"OR"					return yy::parser::token::TOKEN_OR;
+"AND"					return yy::parser::token::TOKEN_AND;
+"XOR"					return yy::parser::token::TOKEN_XOR;
+"NXOR"					return yy::parser::token::TOKEN_NXOR;
 ","						return yy::parser::token::TOKEN_COMMA;
-";"						return yy::parser::token::TOKEN_SEMICOLON;
 .						throw yy::parser::syntax_error(*yyloc, "invalid character: " + std::string(YYText()));
 <<EOF>>					return yy::parser::token::TOKEN_END;
 

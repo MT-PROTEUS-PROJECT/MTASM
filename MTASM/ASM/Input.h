@@ -23,7 +23,7 @@ public:
     virtual ~Input() = default;
 };
 
-class ArOpIn final: public Input
+class BinOpIn final: public Input
 {
 public:
     using RegContainer = std::vector<std::shared_ptr<Register>>;
@@ -37,15 +37,15 @@ private:
     
     void calcMtemu() override;
 public:
-    ArOpIn(Register r1, Register r2, Register r3);
-    ArOpIn(Register r1, Register r2, Value v);
-    ArOpIn(Register r1, Value v, Register r2);
-    ArOpIn(Register r1, Register r2);
-    ArOpIn(Register r1, Value v);
-    ArOpIn(Value v, Register r1);
+    BinOpIn(Register r1, Register r2, Register r3);
+    BinOpIn(Register r1, Register r2, Value v);
+    BinOpIn(Register r1, Value v, Register r2);
+    BinOpIn(Register r1, Register r2);
+    BinOpIn(Register r1, Value v);
+    BinOpIn(Value v, Register r1);
 
     int GetNullPos() const noexcept;
     const RegContainer &GetRegs() const noexcept;
 
-    ~ArOpIn() = default;
+    ~BinOpIn() = default;
 };

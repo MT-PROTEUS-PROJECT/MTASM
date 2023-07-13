@@ -29,6 +29,7 @@
     #include "../ASM/Input.h"
     #include "../ASM/Expressions.h"
     std::vector<std::unique_ptr<Input>> input;
+    uint64_t lineNumber = 1;
 }
 
 %define parse.trace
@@ -46,58 +47,83 @@
     DIV
     NUM
     REG
+    OR
+    AND
+    XOR
+    NXOR;
 
 %start block
 
 %%
-block:  expr { std::cout << "1\n"; }
-|       error {};
+block:      block expr { ++lineNumber; }
+|           error
+|           %empty;
 
-expr:   aexpr {};
+expr:       binexpr;
 
-aexpr:  ADD aexprf { 
-                        ArOp tmp(ArOp::Op::ADD, *(dynamic_cast<ArOpIn *>(input.back().get())));
-                        input.pop_back();
-                        std::cout << "MTEMU ADD: " << tmp.ToMtemuFmt() << std::endl;
-                    }
-|       SUB aexprf  {
-                        ArOp tmp(ArOp::Op::SUB, *(dynamic_cast<ArOpIn *>(input.back().get())));
-                        input.pop_back();
-                        std::cout << "MTEMU SUB: " << tmp.ToMtemuFmt() << std::endl;
-                    }
-|       MUL aexprf  {
-                        ArOp tmp(ArOp::Op::MUL, *(dynamic_cast<ArOpIn *>(input.back().get())));
-                        input.pop_back();
-                        std::cout << "MTEMU MUL: " << tmp.ToMtemuFmt() << std::endl;
-                    }
-|       DIV aexprf  {
-                        ArOp tmp(ArOp::Op::DIV, *(dynamic_cast<ArOpIn *>(input.back().get())));
-                        input.pop_back();
-                        std::cout << "MTEMU DIV: " << tmp.ToMtemuFmt() << std::endl;
-                    };
+binexpr:    ADD binexprf    {
+                                BinOp tmp(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(input.back().get())));
+                                input.pop_back();
+                                std::cout << lineNumber << " MTEMU ADD:\t" << tmp.ToMtemuFmt() << std::endl;
+                            }
+|           SUB binexprf    {
+                                BinOp tmp(BinOp::Op::SUB, *(dynamic_cast<BinOpIn *>(input.back().get())));
+                                input.pop_back();
+                                std::cout << lineNumber << " MTEMU SUB:\t" << tmp.ToMtemuFmt() << std::endl;
+                            }
+|           MUL binexprf    {
+                                BinOp tmp(BinOp::Op::MUL, *(dynamic_cast<BinOpIn *>(input.back().get())));
+                                input.pop_back();
+                                std::cout << lineNumber << " MTEMU MUL:\t" << tmp.ToMtemuFmt() << std::endl;
+                            }
+|           DIV binexprf    {
+                                BinOp tmp(BinOp::Op::DIV, *(dynamic_cast<BinOpIn *>(input.back().get())));
+                                input.pop_back();
+                                std::cout << lineNumber << " MTEMU DIV:\t" << tmp.ToMtemuFmt() << std::endl;
+                            }
+|           OR binexprf     {
+                                BinOp tmp(BinOp::Op::OR, *(dynamic_cast<BinOpIn *>(input.back().get())));
+                                input.pop_back();
+                                std::cout << lineNumber << " MTEMU OR:\t" << tmp.ToMtemuFmt() << std::endl;
+                            }
+|           AND binexprf    {
+                                BinOp tmp(BinOp::Op::AND, *(dynamic_cast<BinOpIn *>(input.back().get())));
+                                input.pop_back();
+                                std::cout << lineNumber << " MTEMU AND:\t" << tmp.ToMtemuFmt() << std::endl;
+                            }
+|           XOR binexprf    {
+                                BinOp tmp(BinOp::Op::XOR, *(dynamic_cast<BinOpIn *>(input.back().get())));
+                                input.pop_back();
+                                std::cout << lineNumber << " MTEMU XOR:\t" << tmp.ToMtemuFmt() << std::endl;
+                            }
+|           NXOR binexprf   {
+                                BinOp tmp(BinOp::Op::NXOR, *(dynamic_cast<BinOpIn *>(input.back().get())));
+                                input.pop_back();
+                                std::cout << lineNumber << " MTEMU NXOR:\t" << tmp.ToMtemuFmt() << std::endl;
+                            };
 
-aexprf:	REG COMMA REG COMMA REG {
-                                    Register r1(std::get<std::string>($1));
-                                    Register r2(std::get<std::string>($3));
-                                    Register r3(std::get<std::string>($5));
-                                    if (r1 != r2 && r2 != r3 && !r1.isRQ() && !r2.isRQ() && !r3.isRQ())
-                                        throw yy::parser::syntax_error(@$, "Использование 3 различных регистров общего назначения в арифиметических операциях не поддерживается!");
-                                    if (r2.isRQ() && r3.isRQ())
-                                        throw yy::parser::syntax_error(@$, "Регистр Q не может быть одновременно левым и правым операндом арифметической операции!");
+binexprf:	REG COMMA REG COMMA REG     {
+                                            Register r1(std::get<std::string>($1));
+                                            Register r2(std::get<std::string>($3));
+                                            Register r3(std::get<std::string>($5));
+                                            if (r1 != r2 && r2 != r3 && !r1.isRQ() && !r2.isRQ() && !r3.isRQ())
+                                                throw yy::parser::syntax_error(@$, "Использование 3 различных регистров общего назначения в арифиметических операциях не поддерживается!");
+                                            if (r2.isRQ() && r3.isRQ())
+                                                throw yy::parser::syntax_error(@$, "Регистр Q не может быть одновременно левым и правым операндом арифметической операции!");
                                     
-                                    input.emplace_back(new ArOpIn(r1, r2, r3));
-                                }
-|       REG COMMA REG COMMA NUM { input.emplace_back(new ArOpIn(Register(std::get<std::string>($1)), Register(std::get<std::string>($3)), std::get<Value>($5))); }
-|       REG COMMA NUM COMMA REG { input.emplace_back(new ArOpIn(Register(std::get<std::string>($1)), std::get<Value>($3), Register(std::get<std::string>($5)))); }
-|       REG COMMA REG           {
-                                    Register r1(std::get<std::string>($1));
-                                    Register r2(std::get<std::string>($3));
-                                    if (r1.isRQ() && r2.isRQ())
-                                        throw yy::parser::syntax_error(@$, "Регистр Q не может быть одновременно левым и правым операндом арифметической операции!");
-                                    input.emplace_back(new ArOpIn(r1, r2));
-                                }
-|       REG COMMA NUM           { input.emplace_back(new ArOpIn(Register(std::get<std::string>($1)), std::get<Value>($3))); }
-|       NUM COMMA REG           { input.emplace_back(new ArOpIn(std::get<Value>($1), Register(std::get<std::string>($3)))); };
+                                            input.emplace_back(new BinOpIn(r1, r2, r3));
+                                        }
+|           REG COMMA REG COMMA NUM { input.emplace_back(new BinOpIn(Register(std::get<std::string>($1)), Register(std::get<std::string>($3)), std::get<Value>($5))); }
+|           REG COMMA NUM COMMA REG { input.emplace_back(new BinOpIn(Register(std::get<std::string>($1)), std::get<Value>($3), Register(std::get<std::string>($5)))); }
+|           REG COMMA REG           {
+                                        Register r1(std::get<std::string>($1));
+                                        Register r2(std::get<std::string>($3));
+                                        if (r1.isRQ() && r2.isRQ())
+                                            throw yy::parser::syntax_error(@$, "Регистр Q не может быть одновременно левым и правым операндом арифметической операции!");
+                                        input.emplace_back(new BinOpIn(r1, r2));
+                                    }
+|           REG COMMA NUM           { input.emplace_back(new BinOpIn(Register(std::get<std::string>($1)), std::get<Value>($3))); }
+|           NUM COMMA REG           { input.emplace_back(new BinOpIn(std::get<Value>($1), Register(std::get<std::string>($3)))); };
 
 %%
 

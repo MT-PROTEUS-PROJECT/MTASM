@@ -4,36 +4,39 @@
 
 class Expression
 {
+protected:
+    uint32_t _mtemuFmt = 2; // JNXT
 public:
     Expression() = default;
 
-    virtual uint32_t ToMtemuFmt() const = 0;
+    uint32_t ToMtemuFmt() const noexcept;
 
     virtual ~Expression() = default;
 };
 
-class ArOp final : public Expression
+class BinOp final : public Expression
 {
-private:
-    uint32_t _mtemuFmt = 2; // JNXT
-
-    void AddOp(const ArOpIn &in);
-
-    void SubOp(const ArOpIn &in);
-
 public:
-    enum class Op
+    enum Op
     {
-        ADD,
-        SUB,
+    // Arithmetic
+        ADD = 0,
+        SUB = 9,
         MUL,
-        DIV
+        DIV,
+    // Logical
+        OR = 3,
+        AND = 4,
+        XOR = 6,
+        NXOR = 7
     };
 
+private:
+    void CommutativeOp(BinOp::Op opTag, const BinOpIn &in);
+
+    void SubOp(const BinOpIn &in);
 public:
-    ArOp(ArOp::Op opTag, const ArOpIn &in);
+    BinOp(BinOp::Op opTag, const BinOpIn &in);
 
-    uint32_t ToMtemuFmt() const override;
-
-    ~ArOp() = default;
+    ~BinOp() = default;
 };

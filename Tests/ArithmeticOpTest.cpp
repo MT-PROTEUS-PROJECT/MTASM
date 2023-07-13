@@ -53,7 +53,7 @@ TEST(ArithmeticOp, _Add)
     Register rq("RQ");
     // 1.1
     {
-        ArOp t_1_1(ArOp::Op::ADD, ArOpIn(rq, r2, 30));
+        BinOp t_1_1(BinOp::Op::ADD, BinOpIn(rq, r2, 30));
         auto t_1_1_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0 });
         EXPECT_EQ(t_1_1_ans, t_1_1.ToMtemuFmt());
     }
@@ -67,139 +67,139 @@ TEST(ArithmeticOp, _Sub)
     Register rq("RQ");
     // 2.1
     {
-        ArOp t_2_1(ArOp::Op::SUB, ArOpIn(r1, r1, r2));
+        BinOp t_2_1(BinOp::Op::SUB, BinOpIn(r1, r1, r2));
         auto t_2_1_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0 });
         EXPECT_EQ(t_2_1_ans, t_2_1.ToMtemuFmt());
     }
     // 2.2
     {
-        ArOp t_2_2(ArOp::Op::SUB, ArOpIn(r1, r2, r1));
+        BinOp t_2_2(BinOp::Op::SUB, BinOpIn(r1, r2, r1));
         auto t_2_2_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0 });
         EXPECT_EQ(t_2_2_ans, t_2_2.ToMtemuFmt());
     }
     // 2.3
     {
-        ArOp t_2_3(ArOp::Op::SUB, ArOpIn(r1, r1, rq));
+        BinOp t_2_3(BinOp::Op::SUB, BinOpIn(r1, r1, rq));
         auto t_2_3_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 });
         EXPECT_EQ(t_2_3_ans, t_2_3.ToMtemuFmt());
     }
     // 2.4
     {
-        ArOp t_2_4(ArOp::Op::SUB, ArOpIn(r1, rq, r1));
+        BinOp t_2_4(BinOp::Op::SUB, BinOpIn(r1, rq, r1));
         auto t_2_4_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 });
         EXPECT_EQ(t_2_4_ans, t_2_4.ToMtemuFmt());
     }
     // 2.5
     {
-        ArOp t_2_5(ArOp::Op::SUB, ArOpIn(rq, r1, r2));
+        BinOp t_2_5(BinOp::Op::SUB, BinOpIn(rq, r1, r2));
         auto t_2_5_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0 });
         EXPECT_EQ(t_2_5_ans, t_2_5.ToMtemuFmt());
     }
     // 2.6
     {
-        ArOp t_2_6(ArOp::Op::SUB, ArOpIn(rq, rq, r1));
+        BinOp t_2_6(BinOp::Op::SUB, BinOpIn(rq, rq, r1));
         auto t_2_6_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
         EXPECT_EQ(t_2_6_ans, t_2_6.ToMtemuFmt());
     }
     // 2.7
     {
-        ArOp t_2_7(ArOp::Op::SUB, ArOpIn(rq, r1, rq));
+        BinOp t_2_7(BinOp::Op::SUB, BinOpIn(rq, r1, rq));
         auto t_2_7_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
         EXPECT_EQ(t_2_7_ans, t_2_7.ToMtemuFmt());
     }
     // 3.1
     {
-        ArOp t_3_1(ArOp::Op::SUB, ArOpIn(r1, r1, 10));
+        BinOp t_3_1(BinOp::Op::SUB, BinOpIn(r1, r1, 10));
         auto t_3_1_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0 });
         EXPECT_EQ(t_3_1_ans, t_3_1.ToMtemuFmt());
     }
     // 3.2
     {
-        ArOp t_3_2(ArOp::Op::SUB, ArOpIn(r1, 10, r1));
+        BinOp t_3_2(BinOp::Op::SUB, BinOpIn(r1, 10, r1));
         auto t_3_2_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0 });
         EXPECT_EQ(t_3_2_ans, t_3_2.ToMtemuFmt());
     }
     // 3.3
     {
-        ArOp t_3_3(ArOp::Op::SUB, ArOpIn(r1, rq, 10));
+        BinOp t_3_3(BinOp::Op::SUB, BinOpIn(r1, rq, 10));
         auto t_3_3_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0 });
         EXPECT_EQ(t_3_3_ans, t_3_3.ToMtemuFmt());
     }
     // 3.4
     {
-        ArOp t_3_4(ArOp::Op::SUB, ArOpIn(r1, 10, rq));
+        BinOp t_3_4(BinOp::Op::SUB, BinOpIn(r1, 10, rq));
         auto t_3_4_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0 });
         EXPECT_EQ(t_3_4_ans, t_3_4.ToMtemuFmt());
     }
     // 3.5
     {
-        ArOp t_3_5(ArOp::Op::SUB, ArOpIn(rq, r1, 3));
+        BinOp t_3_5(BinOp::Op::SUB, BinOpIn(rq, r1, 3));
         auto t_3_5_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1 });
         EXPECT_EQ(t_3_5_ans, t_3_5.ToMtemuFmt());
     }
     // 3.6
     {
-        ArOp t_3_6(ArOp::Op::SUB, ArOpIn(rq, 3, r1));
+        BinOp t_3_6(BinOp::Op::SUB, BinOpIn(rq, 3, r1));
         auto t_3_6_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1 });
         EXPECT_EQ(t_3_6_ans, t_3_6.ToMtemuFmt());
     }
     // 3.7
     {
-        ArOp t_3_7(ArOp::Op::SUB, ArOpIn(rq, 15, rq));
+        BinOp t_3_7(BinOp::Op::SUB, BinOpIn(rq, 15, rq));
         auto t_3_7_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 });
         EXPECT_EQ(t_3_7_ans, t_3_7.ToMtemuFmt());
     }
     // 3.8
     {
-        ArOp t_3_8(ArOp::Op::SUB, ArOpIn(rq, rq, 17));
+        BinOp t_3_8(BinOp::Op::SUB, BinOpIn(rq, rq, 17));
         auto t_3_8_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 });
         EXPECT_EQ(t_3_8_ans, t_3_8.ToMtemuFmt());
     }
     // 4.1
     {
-        ArOp t_4_1(ArOp::Op::SUB, ArOpIn(r1, r1));
+        BinOp t_4_1(BinOp::Op::SUB, BinOpIn(r1, r1));
         auto t_4_1_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 });
         EXPECT_EQ(t_4_1_ans, t_4_1.ToMtemuFmt());
     }
     // 4.2
     {
-        ArOp t_4_2(ArOp::Op::SUB, ArOpIn(r1, r2));
+        BinOp t_4_2(BinOp::Op::SUB, BinOpIn(r1, r2));
         auto t_4_2_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0 });
         EXPECT_EQ(t_4_2_ans, t_4_2.ToMtemuFmt());
     }
     // 4.3
     {
-        ArOp t_4_3(ArOp::Op::SUB, ArOpIn(r1, rq));
+        BinOp t_4_3(BinOp::Op::SUB, BinOpIn(r1, rq));
         auto t_4_3_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
         EXPECT_EQ(t_4_3_ans, t_4_3.ToMtemuFmt());
     }
     // 4.4
     {
-        ArOp t_4_4(ArOp::Op::SUB, ArOpIn(rq, r1));
+        BinOp t_4_4(BinOp::Op::SUB, BinOpIn(rq, r1));
         auto t_4_4_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
         EXPECT_EQ(t_4_4_ans, t_4_4.ToMtemuFmt());
     }
     // 5.1
     {
-        ArOp t_5_1(ArOp::Op::SUB, ArOpIn(r1, 128));
+        BinOp t_5_1(BinOp::Op::SUB, BinOpIn(r1, 128));
         auto t_5_1_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
         EXPECT_EQ(t_5_1_ans, t_5_1.ToMtemuFmt());
     }
     // 5.2
     {
-        ArOp t_5_2(ArOp::Op::SUB, ArOpIn(13, r1));
+        BinOp t_5_2(BinOp::Op::SUB, BinOpIn(13, r1));
         auto t_5_2_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1 });
         EXPECT_EQ(t_5_2_ans, t_5_2.ToMtemuFmt());
     }
     // 5.3
     {
-        ArOp t_5_3(ArOp::Op::SUB, ArOpIn(rq, 11));
+        BinOp t_5_3(BinOp::Op::SUB, BinOpIn(rq, 11));
         auto t_5_3_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1 });
         EXPECT_EQ(t_5_3_ans, t_5_3.ToMtemuFmt());
     }
     // 5.4
     {
-        ArOp t_5_4(ArOp::Op::SUB, ArOpIn(6, rq));
+        BinOp t_5_4(BinOp::Op::SUB, BinOpIn(6, rq));
         auto t_5_4_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0 });
         EXPECT_EQ(t_5_4_ans, t_5_4.ToMtemuFmt());
     }

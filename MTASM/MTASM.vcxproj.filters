@@ -31,4 +31,7 @@
     <CustomBuild Include="Lexer\Lexer.l" />
     <CustomBuild Include="Parser\Parser.y" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Debug\TestFile.txt" />
+  </ItemGroup>
 </Project>
