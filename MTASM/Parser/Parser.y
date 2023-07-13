@@ -6,6 +6,7 @@
 %code requires {
     #include <variant>
     #include "../ASM/TypeDefs.h"
+    #include "../ASM/Expressions.h"
     namespace yy
     {
         struct Lexer;
@@ -13,7 +14,7 @@
 }
 
 %define api.token.raw
-%define api.value.type{ std::variant<std::string, Value> }
+%define api.value.type{ std::variant<std::string, Value, UnOp::Op> }
 
 %parse-param{ Lexer & lexer }
 %code{
@@ -27,7 +28,6 @@
     #include <vector>
     #include <memory>
     #include "../ASM/Input.h"
-    #include "../ASM/Expressions.h"
     std::vector<std::unique_ptr<Input>> input;
     yy::position::counter_type lineNumber = 1;
 }
@@ -41,16 +41,25 @@
     END 0
     COMMA
     SEMICOLON
+    COLON
+    NUM
+    REG
+    LABEL
     ADD
     SUB
     MUL
     DIV
-    NUM
-    REG
     OR
     AND
     XOR
-    NXOR;
+    NXOR
+    JNZ
+    JMP
+    JZ
+    JF3
+    JOVR
+    JC4
+    ;
 
 %start block
 
@@ -59,7 +68,9 @@ block:      block expr
 |           error
 |           %empty;
 
-expr:       binexpr SEMICOLON;
+expr:       binexpr SEMICOLON
+|           unexpr  SEMICOLON
+|           LABEL   COLON;
 
 binexpr:    ADD binexprf                {
                                             BinOp tmp(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(input.back().get())));
@@ -124,6 +135,18 @@ binexprf:	REG COMMA REG COMMA REG     {
                                         }
 |           REG COMMA NUM               { input.emplace_back(new BinOpIn(Register(std::get<std::string>($1)), std::get<Value>($3))); }
 |           NUM COMMA REG               { input.emplace_back(new BinOpIn(std::get<Value>($1), Register(std::get<std::string>($3)))); };
+
+unexpr:     jumplbl LABEL               {
+                                            UnOp tmp(std::get<UnOp::Op>($1), std::get<std::string>($2));
+                                            std::cout << lineNumber << '.' << @$.begin.column << " MTEMU JUMP:\t" << tmp.ToMtemuFmt() << std::endl;
+                                        };
+
+jumplbl:    JNZ                         { $$.emplace<UnOp::Op>(UnOp::Op::JNZ); }
+|           JMP                         { $$.emplace<UnOp::Op>(UnOp::Op::JMP); }
+|           JZ                          { $$.emplace<UnOp::Op>(UnOp::Op::JZ); }
+|           JF3                         { $$.emplace<UnOp::Op>(UnOp::Op::JF3); }
+|           JOVR                        { $$.emplace<UnOp::Op>(UnOp::Op::JOVR); }
+|           JC4                         { $$.emplace<UnOp::Op>(UnOp::Op::JC4); };
 
 %%
 

@@ -1,5 +1,8 @@
-ADD R10, 10, R2;    SUB R1, R1, 5;
+ADD R10, 10, R2;
 SUB R1, R1, 5;
 OR 1, R2;
 AND R14, R14, R12;
 SUB R1, R2, R3;
+
+JMP L1;
+JZ low_LABEL3;

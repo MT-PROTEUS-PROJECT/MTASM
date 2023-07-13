@@ -40,3 +40,23 @@ public:
 
     ~BinOp() = default;
 };
+
+
+class UnOp final : public Expression
+{
+public:
+    enum Op
+    {
+        JNZ = 0,
+        JMP = 1,
+        JZ = 12,
+        JF3 = 13,
+        JOVR = 14,
+        JC4 = 15
+    };
+public:
+    explicit UnOp(UnOp::Op opTag, std::string lbl) noexcept;
+
+    ~UnOp() = default;
+};
+
