@@ -8,9 +8,17 @@
 constexpr const char *file = "TestFile.txt";
 #endif
 
+#include <Windows.h>
+
 int main(int argc, char **argv)
 {
+#ifndef _DEBUG
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
+#else
+    ShowWindow(GetConsoleWindow(), SW_SHOW);
+#endif
     setlocale(LC_ALL, "Russian");
+
     std::ifstream in;
     if (argc == 2)
     {
