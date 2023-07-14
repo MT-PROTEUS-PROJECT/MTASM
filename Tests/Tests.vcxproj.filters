@@ -18,7 +18,7 @@
     <ClCompile Include="..\MTASM\ASM\Register.cpp">
       <Filter>Dependencies</Filter>
     </ClCompile>
-    <ClCompile Include="ArithmeticOpTest.cpp" />
+    <ClCompile Include="BinOpTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -27,5 +27,8 @@
     <Filter Include="Dependencies">
       <UniqueIdentifier>{2f2b0d95-9105-4a6b-9922-d878b5b10e94}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MemLeakDetector.h" />
   </ItemGroup>
 </Project>

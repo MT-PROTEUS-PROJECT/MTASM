@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <array>
 #include "ASM/Input.h"
+#include "MemLeakDetector.h"
 
 static consteval uint32_t ToMtemuFmt(const std::array<uint8_t, 24> &bits)
 {
@@ -48,8 +49,10 @@ static consteval uint32_t ToMtemuFmt(const std::array<uint8_t, 24> &bits)
 // -----|------------|---------------------------------------------|
 
 // Test 1
-TEST(ArithmeticOpInput, _3Reg)
+TEST(BinOpInput, _3Reg)
 {
+    MemoryLeakDetector mld;
+
     Register r1("R1");
     Register r2("R2");
     Register rq("RQ");
@@ -104,8 +107,10 @@ TEST(ArithmeticOpInput, _3Reg)
 }
 
 // Test 2
-TEST(ArithmeticOpInput, _2RegNum)
+TEST(BinOpInput, _2RegNum)
 {
+    MemoryLeakDetector mld;
+
     Register r1("R1");
     Register r2("R2");
     Register rq("RQ");
@@ -179,8 +184,10 @@ TEST(ArithmeticOpInput, _2RegNum)
 }
 
 // Test 3
-TEST(ArithmeticOpInput, _2Reg)
+TEST(BinOpInput, _2Reg)
 {
+    MemoryLeakDetector mld;
+
     Register r1("R1");
     Register r2("R2");
     Register rq("RQ");
@@ -212,8 +219,10 @@ TEST(ArithmeticOpInput, _2Reg)
 }
 
 // Test 4
-TEST(ArithmeticOpInput, _RegNum)
+TEST(BinOpInput, _RegNum)
 {
+    MemoryLeakDetector mld;
+
     Register r1("R1");
     Register rq("RQ");
 
