@@ -1,6 +1,6 @@
 #include "Exceptions.h"
 
-InternalCompilerError::InternalCompilerError(std::string message) : _message(std::move(message))
+InternalCompilerError::InternalCompilerError(std::string message) : std::runtime_error(_message), _message(std::move(message))
 {}
 
 const char *InternalCompilerError::what() const noexcept

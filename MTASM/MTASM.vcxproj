@@ -131,7 +131,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>xcopy "$(SolutionDir)$(ProjectName)\Debug\TestFile.txt" "$(OutDir)" /F /Y</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -171,7 +172,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>xcopy "$(SolutionDir)$(ProjectName)\Debug\TestFile.txt" "$(OutDir)" /F /Y</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -179,10 +181,12 @@
     <ClCompile Include="ASM\Input.cpp" />
     <ClCompile Include="ASM\Exceptions.cpp" />
     <ClCompile Include="ASM\Expressions.cpp" />
+    <ClCompile Include="ASM\Label.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ASM\Register.cpp" />
     <ClCompile Include="Parser.tab.cc" />
+    <ClCompile Include="ASM\Publisher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Lexer\Lexer.l">
@@ -211,8 +215,10 @@
     <ClInclude Include="ASM\TypeDefs.h" />
     <ClInclude Include="ASM\Exceptions.h" />
     <ClInclude Include="ASM\Expressions.h" />
+    <ClInclude Include="ASM\Label.h" />
     <ClInclude Include="Lexer\Lexer.h" />
     <ClInclude Include="ASM\Register.h" />
+    <ClInclude Include="ASM\Publisher.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Parser\Parser.y">
@@ -221,13 +227,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)ThirdParty\bison\win_bison.exe -vv -L c++ -d $(SolutionDir)\MTASM\Parser\Parser.y</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)ThirdParty\bison\win_bison.exe -vv -t -L c++ -d $(SolutionDir)\MTASM\Parser\Parser.y</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Сборка Парсера</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Parser.tab.cc;Parser.tab.hh;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)ThirdParty\bison\win_bison.exe -vv -L c++ -d $(SolutionDir)\MTASM\Parser\Parser.y</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Сборка Парсера</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Parser.tab.cc;Parser.tab.hh;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)ThirdParty\bison\win_bison.exe -vv -L c++ -d $(SolutionDir)\MTASM\Parser\Parser.y</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)ThirdParty\bison\win_bison.exe -vv -t -L c++ -d $(SolutionDir)\MTASM\Parser\Parser.y</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Сборка Парсера</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Parser.tab.cc;Parser.tab.hh;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)ThirdParty\bison\win_bison.exe -vv -L c++ -d $(SolutionDir)\MTASM\Parser\Parser.y</Command>

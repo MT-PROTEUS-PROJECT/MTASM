@@ -60,7 +60,7 @@ void BinOp::CommutativeOp(BinOp::Op opTag, const BinOpIn &in)
     _mtemuFmt += in.ToMtemuFmt();
 }
 
-UnOp::UnOp(UnOp::Op opTag, std::string lbl) noexcept
+UnOp::UnOp(UnOp::Op opTag, const Label &lbl) : _lbl(lbl)
 {
     _mtemuFmt = opTag;
     _mtemuFmt <<= 24;

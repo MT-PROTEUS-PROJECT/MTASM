@@ -38,6 +38,9 @@ int main(int argc, char **argv)
 
     yy::Lexer lexer(in);
     yy::parser parser{ lexer };
+//#ifdef _DEBUG
+//    parser.set_debug_level(1);
+//#endif
     try
     {
         int err = parser();

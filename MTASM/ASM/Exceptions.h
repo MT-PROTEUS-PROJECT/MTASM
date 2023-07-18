@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-class InternalCompilerError final : public std::exception
+class InternalCompilerError final : public std::runtime_error
 {
 private:
     std::string _message;

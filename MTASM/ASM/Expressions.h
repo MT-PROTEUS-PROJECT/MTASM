@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Input.h"
+#include "Label.h"
 
 class Expression
 {
 protected:
     uint32_t _mtemuFmt = 2; // JNXT
+
 public:
     Expression() = default;
 
@@ -19,12 +21,12 @@ class BinOp final : public Expression
 public:
     enum Op
     {
-    // Arithmetic
+        // Arithmetic
         ADD = 0,
         SUB = 9,
         MUL,
         DIV,
-    // Logical
+        // Logical
         OR = 3,
         AND = 4,
         XOR = 6,
@@ -35,6 +37,7 @@ private:
     void CommutativeOp(BinOp::Op opTag, const BinOpIn &in);
 
     void SubOp(const BinOpIn &in);
+
 public:
     BinOp(BinOp::Op opTag, const BinOpIn &in);
 
@@ -44,6 +47,9 @@ public:
 
 class UnOp final : public Expression
 {
+private:
+    Label _lbl;
+
 public:
     enum Op
     {
@@ -54,8 +60,9 @@ public:
         JOVR = 14,
         JC4 = 15
     };
+
 public:
-    explicit UnOp(UnOp::Op opTag, std::string lbl) noexcept;
+    explicit UnOp(UnOp::Op opTag, const Label &lbl);
 
     ~UnOp() = default;
 };
