@@ -30,6 +30,7 @@
     <ClInclude Include="ASM\Expressions.h" />
     <ClInclude Include="ASM\Label.h" />
     <ClInclude Include="ASM\Publisher.h" />
+    <ClInclude Include="Utils\Logger.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Lexer\Lexer.l" />

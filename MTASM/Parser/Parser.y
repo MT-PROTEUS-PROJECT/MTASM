@@ -34,6 +34,7 @@
     #include <string>
     #include "../ASM/Input.h"
     #include "../ASM/Publisher.h"
+    #include "../Utils/Logger.h"
 
     namespace details
     {
@@ -130,42 +131,42 @@ expr:       binexpr SEMICOLON           { flushExprs(); }
 binexpr:    ADD binexprf                {
                                             details::exprs.push(std::make_shared<BinOp>(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
-                                            std::cout << details::lineNumber << '.' << @$.begin.column << "\tMTEMU ADD:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                            LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU ADD:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           SUB binexprf                {
                                             details::exprs.push(std::make_shared<BinOp>(BinOp::Op::SUB, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
-                                            std::cout << details::lineNumber << '.' << @$.begin.column << "\tMTEMU SUB:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                            LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU SUB:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           MUL binexprf                {
                                             details::exprs.push(std::make_shared<BinOp>(BinOp::Op::MUL, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
-                                            std::cout << details::lineNumber << '.' << @$.begin.column << "\tMTEMU MUL:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                            LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU MUL:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           DIV binexprf                {
                                             details::exprs.push(std::make_shared<BinOp>(BinOp::Op::DIV, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
-                                            std::cout << details::lineNumber << '.' << @$.begin.column << "\tMTEMU DIV:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                            LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU DIV:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           OR binexprf                 {
                                             details::exprs.push(std::make_shared<BinOp>(BinOp::Op::OR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
-                                            std::cout << details::lineNumber << '.' << @$.begin.column << "\tMTEMU OR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                            LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU OR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           AND binexprf                {
                                             details::exprs.push(std::make_shared<BinOp>(BinOp::Op::AND, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
-                                            std::cout << details::lineNumber << '.' << @$.begin.column << "\tMTEMU AND:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                            LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU AND:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           XOR binexprf                {
                                             details::exprs.emplace(std::make_shared<BinOp>(BinOp::Op::XOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
-                                            std::cout << details::lineNumber << '.' << @$.begin.column << "\tMTEMU XOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                            LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU XOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           NXOR binexprf               {
                                             details::exprs.push(std::make_shared<BinOp>(BinOp::Op::NXOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
-                                            std::cout << details::lineNumber << '.' << @$.begin.column << "\tMTEMU NXOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                            LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU NXOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 ;
 
@@ -205,7 +206,7 @@ unexpr:     jumplbl LABEL               {
                                                 auto node = details::labels.extract(lbl);
                                                 details::exprs.push(std::make_shared<UnOp>(std::get<UnOp::Op>($1), node.key()));
                                             }
-                                            std::cout << details::lineNumber << '.' << @$.begin.column << "\tMTEMU JUMP:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                            LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU JUMP:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           jumpnolbl                   { details::exprs.push(std::make_shared<UnOp>(std::get<UnOp::Op>($1))); }
 ;

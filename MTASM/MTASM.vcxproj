@@ -219,6 +219,7 @@
     <ClInclude Include="Lexer\Lexer.h" />
     <ClInclude Include="ASM\Register.h" />
     <ClInclude Include="ASM\Publisher.h" />
+    <ClInclude Include="Utils\Logger.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Parser\Parser.y">

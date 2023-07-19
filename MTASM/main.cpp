@@ -1,6 +1,7 @@
 #include "Parser.tab.hh"
 #include <Lexer/Lexer.h>
 #include <ASM/Exceptions.h>
+#include <Utils/Logger.h>
 
 #include <fstream>
 
@@ -36,6 +37,7 @@ int main(int argc, char **argv)
     if (!in.is_open())
         throw std::runtime_error("Не удалось открыть файл для чтения");
 
+    AixLog::Log::init<AixLog::SinkCout>(AixLog::Severity::trace);
     yy::Lexer lexer(in);
     yy::parser parser{ lexer };
 //#ifdef _DEBUG
