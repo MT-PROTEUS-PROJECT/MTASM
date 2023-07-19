@@ -4,9 +4,9 @@ OR 1, R2;
 AND R14, R14, R12;
 
 L1:
-SUB R1, R2, R3;
+SUB R2, R2, R3;
 
 JMP L1;
 
-JZ low_LABEL3;
-L1:
+low_LABEL3:
+JMP low_LABEL3;

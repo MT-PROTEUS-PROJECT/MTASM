@@ -1,13 +1,9 @@
 #include "Publisher.h"
-
 #include "Exceptions.h"
-
-constexpr char delim = '\n';
-constexpr size_t maxQSize = 1024;
 
 constexpr const char *outName = "out.mtasm";
 
-Publisher::Publisher() : _out(outName, std::ios::out | std::ios::binary)
+Publisher::Publisher() : _cexprs(0), _out(outName, std::ios::out | std::ios::binary)
 {
     if (!_out)
         throw InternalCompilerError("Не удалось открыть файл для записи двоичных данных");
@@ -16,17 +12,21 @@ Publisher::Publisher() : _out(outName, std::ios::out | std::ios::binary)
 void Publisher::Push(const std::shared_ptr<Expression> &expr)
 {
     _qexpr.push(expr);
-    if (_qexpr.size() >= maxQSize)
-        Write();
+    ++_cexprs;
 }
 
 void Publisher::Write()
 {
     while (!_qexpr.empty())
     {
-        _out << std::hex << _qexpr.front()->ToMtemuFmt() << delim;
+        _out << std::hex << _qexpr.front()->NextAddr().value() << ' ' << std::hex << _qexpr.front()->ToMtemuFmt() << '\n';
         _qexpr.pop();
     }
+}
+
+uint32_t Publisher::Size() const noexcept
+{
+    return _cexprs;
 }
 
 Publisher *Publisher::GetInstance()

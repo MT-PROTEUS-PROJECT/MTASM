@@ -6,7 +6,7 @@
     #include "Parser.tab.hh"
     #include "Lexer.h"
     #include "../ASM/TypeDefs.h"
-    namespace detail
+    namespace details
     {
         extern yy::position::counter_type lineNumber;
     }
@@ -30,7 +30,7 @@ LABEL [a-zA-Z_][a-zA-Z_0-9]*
     yyloc->step();
 %}
 
-"\n"					{ ++detail::lineNumber; yyloc->step(); }
+"\n"					{ ++details::lineNumber; yyloc->step(); }
 {WS}+                   yyloc->step();
 "R"{REG}                { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_REG; }
 {DIGIT1}{DIGIT}*        { yylval->emplace<Value>(std::stoul(yytext)); return yy::parser::token::TOKEN_NUM; }

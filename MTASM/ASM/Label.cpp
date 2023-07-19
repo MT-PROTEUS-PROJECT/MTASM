@@ -5,21 +5,36 @@ size_t Label::Hash::operator()(const Label &lbl) const
     return std::hash<std::string>()(lbl._lbl);
 }
 
-Label::Label(std::string lbl, uint32_t addr) : _lbl(std::move(lbl)), _addr(addr) {}
+size_t Label::PtrHash::operator()(const std::shared_ptr<Label> &lbl) const
+{
+    return Label::Hash()(*lbl.get());
+}
+
+bool Label::PtrEqual::operator()(const std::shared_ptr<Label> &lhs, const std::shared_ptr<Label> &rhs) const
+{
+    return (*lhs.get()) == (*rhs.get());
+}
+
+Label::Label(std::string lbl, Address addr) : _lbl(std::move(lbl)), _addr(addr) {}
 
 std::string Label::GetStr() const noexcept
 {
     return _lbl;
 }
 
-uint32_t Label::GetAddr() const noexcept
+Address Label::GetAddr() const noexcept
 {
     return _addr;
 }
 
-void Label::SetAddr(uint32_t addr) noexcept
+void Label::SetAddr(const Address &addr) noexcept
 {
     _addr = addr;
+}
+
+void Label::IncrAddr(const Address &addr) noexcept
+{
+    _addr += addr;
 }
 
 bool operator==(const Label &lhs, const Label &rhs)

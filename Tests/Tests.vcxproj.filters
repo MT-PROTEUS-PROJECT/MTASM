@@ -19,6 +19,9 @@
       <Filter>Dependencies</Filter>
     </ClCompile>
     <ClCompile Include="BinOpTest.cpp" />
+    <ClCompile Include="..\MTASM\ASM\Label.cpp">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

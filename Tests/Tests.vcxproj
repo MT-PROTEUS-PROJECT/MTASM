@@ -57,6 +57,7 @@
     <ClCompile Include="..\MTASM\ASM\Exceptions.cpp" />
     <ClCompile Include="..\MTASM\ASM\Expressions.cpp" />
     <ClCompile Include="..\MTASM\ASM\Input.cpp" />
+    <ClCompile Include="..\MTASM\ASM\Label.cpp" />
     <ClCompile Include="..\MTASM\ASM\Register.cpp" />
     <ClCompile Include="BinOpTest.cpp" />
     <ClCompile Include="InputTest.cpp" />

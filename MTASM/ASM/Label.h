@@ -1,12 +1,15 @@
 #pragma once
 
 #include <string>
+#include <memory>
+
+#include "Address.h"
 
 class Label final
 {
 private:
     std::string _lbl;
-    uint32_t _addr;
+    Address _addr;
 
 public:
     struct Hash
@@ -14,19 +17,32 @@ public:
         size_t operator()(const Label &lbl) const;
     };
 
+    struct PtrHash
+    {
+        size_t operator()(const std::shared_ptr<Label> &lbl) const;
+    };
+
+    struct PtrEqual
+    {
+        bool operator()(const std::shared_ptr<Label> &lhs, const std::shared_ptr<Label> &rhs) const;
+    };
+
     friend bool operator==(const Label &lhs, const Label &rhs);
 
 public:
-    Label(std::string lbl, uint32_t addr = 1u);
+    Label(std::string lbl, Address addr = {});
 
     Label(const Label &) = default;
     Label &operator=(const Label &) = default;
     Label(Label &&) = default;
     Label &operator=(Label &&) = default;
 
-    std::string GetStr() const noexcept;
-    uint32_t GetAddr() const noexcept;
-    void SetAddr(uint32_t addr) noexcept;
-
     ~Label() = default;
+
+public:
+    std::string GetStr() const noexcept;
+
+    Address GetAddr() const noexcept;
+    void SetAddr(const Address &addr) noexcept;
+    void IncrAddr(const Address &addr) noexcept;
 };

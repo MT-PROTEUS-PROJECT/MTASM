@@ -6,6 +6,11 @@ uint32_t Expression::ToMtemuFmt() const noexcept
     return _mtemuFmt;
 }
 
+Address Expression::NextAddr() const noexcept
+{
+    return { 0 };
+}
+
 BinOp::BinOp(BinOp::Op opTag, const BinOpIn &in)
 {
     switch (opTag)
@@ -60,8 +65,13 @@ void BinOp::CommutativeOp(BinOp::Op opTag, const BinOpIn &in)
     _mtemuFmt += in.ToMtemuFmt();
 }
 
-UnOp::UnOp(UnOp::Op opTag, const Label &lbl) : _lbl(lbl)
+UnOp::UnOp(UnOp::Op opTag, const std::shared_ptr<Label> &lbl) : _lbl(lbl)
 {
     _mtemuFmt = opTag;
     _mtemuFmt <<= 24;
+}
+
+Address UnOp::NextAddr() const noexcept
+{
+    return _lbl->GetAddr();
 }

@@ -12,8 +12,8 @@ private:
     AddrValue _addr;
 
 public:
-    explicit Address(std::string addr);
-    
+    Address();
+    Address(std::string addr);
     Address(AddrValue addr);
 
     template <size_t N>
@@ -24,6 +24,8 @@ public:
 
     Address(Address &&) = default;
     Address &operator=(Address &&) = default;
+
+    Address &operator+=(const Address &rhs);
 
     ~Address() = default;
 

@@ -11,6 +11,8 @@ protected:
 public:
     Expression() = default;
 
+    virtual Address NextAddr() const noexcept;
+
     uint32_t ToMtemuFmt() const noexcept;
 
     virtual ~Expression() = default;
@@ -48,7 +50,7 @@ public:
 class UnOp final : public Expression
 {
 private:
-    Label _lbl;
+    std::shared_ptr<Label> _lbl;
 
 public:
     enum Op
@@ -62,8 +64,9 @@ public:
     };
 
 public:
-    explicit UnOp(UnOp::Op opTag, const Label &lbl);
+    explicit UnOp(UnOp::Op opTag, const std::shared_ptr<Label> &lbl);
+
+    Address NextAddr() const noexcept override;
 
     ~UnOp() = default;
 };
-
