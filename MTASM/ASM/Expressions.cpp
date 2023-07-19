@@ -67,11 +67,21 @@ void BinOp::CommutativeOp(BinOp::Op opTag, const BinOpIn &in)
 
 UnOp::UnOp(UnOp::Op opTag, const std::shared_ptr<Label> &lbl) : _lbl(lbl)
 {
+    Init(opTag);
+}
+
+UnOp::UnOp(UnOp::Op opTag, std::shared_ptr<Label> &&lbl) : _lbl(std::move(lbl))
+{
+    Init(opTag);
+}
+
+void UnOp::Init(UnOp::Op opTag) noexcept
+{
     _mtemuFmt = opTag;
     _mtemuFmt <<= 24;
 }
 
 Address UnOp::NextAddr() const noexcept
 {
-    return _lbl->GetAddr();
+    return _lbl ? _lbl->GetAddr() : 0;
 }

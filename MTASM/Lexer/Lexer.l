@@ -48,6 +48,15 @@ LABEL [a-zA-Z_][a-zA-Z_0-9]*
 "JF3"                   return yy::parser::token::TOKEN_JF3;
 "JOVR"                  return yy::parser::token::TOKEN_JOVR;
 "JC4"                   return yy::parser::token::TOKEN_JC4;
+"CALL"                  return yy::parser::token::TOKEN_CALL;
+"CLNZ"                  return yy::parser::token::TOKEN_CLNZ;
+"JSP"                   return yy::parser::token::TOKEN_JSP;
+"JSNZ"                  return yy::parser::token::TOKEN_JSNZ;
+"JSNC4"                 return yy::parser::token::TOKEN_JSNC4;
+"RET"                   return yy::parser::token::TOKEN_RET;
+"PUSH"                  return yy::parser::token::TOKEN_PUSH;
+"POP"                   return yy::parser::token::TOKEN_POP;
+"END_LDM"               return yy::parser::token::TOKEN_END_LDM;
 {LABEL}                 { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_LABEL; }
 ","						return yy::parser::token::TOKEN_COMMA;
 ";"                     return yy::parser::token::TOKEN_SEMICOLON;

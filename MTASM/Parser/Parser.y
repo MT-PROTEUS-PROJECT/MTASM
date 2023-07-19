@@ -73,7 +73,16 @@
     JF3
     JOVR
     JC4
-    ;
+    CALL
+    CLNZ
+    JSP
+    JSNZ
+    JSNC4
+    RET
+    PUSH
+    POP
+    END_LDM
+;
 
 %destructor                             {
                                             for (const auto &[lbl, pos] : details::labels)
@@ -198,6 +207,7 @@ unexpr:     jumplbl LABEL               {
                                             }
                                             std::cout << details::lineNumber << '.' << @$.begin.column << "\tMTEMU JUMP:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
+|           jumpnolbl                   { details::exprs.push(std::make_shared<UnOp>(std::get<UnOp::Op>($1))); }
 ;
 
 jumplbl:    JNZ                         { $$.emplace<UnOp::Op>(UnOp::Op::JNZ); }
@@ -206,6 +216,17 @@ jumplbl:    JNZ                         { $$.emplace<UnOp::Op>(UnOp::Op::JNZ); }
 |           JF3                         { $$.emplace<UnOp::Op>(UnOp::Op::JF3); }
 |           JOVR                        { $$.emplace<UnOp::Op>(UnOp::Op::JOVR); }
 |           JC4                         { $$.emplace<UnOp::Op>(UnOp::Op::JC4); }
+|           CALL                        { $$.emplace<UnOp::Op>(UnOp::Op::CALL); }
+|           CLNZ                        { $$.emplace<UnOp::Op>(UnOp::Op::CLNZ); }
+;
+
+jumpnolbl:  JSP                         { $$.emplace<UnOp::Op>(UnOp::Op::JSP); }
+|           JSNZ                        { $$.emplace<UnOp::Op>(UnOp::Op::JSNZ); }
+|           JSNC4                       { $$.emplace<UnOp::Op>(UnOp::Op::JSNC4); }
+|           RET                         { $$.emplace<UnOp::Op>(UnOp::Op::RET); }
+|           PUSH                        { $$.emplace<UnOp::Op>(UnOp::Op::PUSH); }
+|           POP                         { $$.emplace<UnOp::Op>(UnOp::Op::POP); }
+|           END_LDM                     { $$.emplace<UnOp::Op>(UnOp::Op::END_LDM); }
 ;
 
 %%

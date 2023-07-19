@@ -55,16 +55,31 @@ private:
 public:
     enum Op
     {
+        // С метками
         JNZ = 0,
         JMP = 1,
         JZ = 12,
         JF3 = 13,
         JOVR = 14,
-        JC4 = 15
+        JC4 = 15,
+        CLNZ = 4,
+        CALL = 5,
+        // Без меток
+        JSP = 7,
+        JSNZ = 8,
+        JSNC4 = 11,
+        RET = 6,
+        PUSH = 9,
+        POP = 10,
+        END_LDM = 3
     };
 
+private:
+    void Init(UnOp::Op opTag) noexcept;
+
 public:
-    explicit UnOp(UnOp::Op opTag, const std::shared_ptr<Label> &lbl);
+    UnOp(UnOp::Op opTag, const std::shared_ptr<Label> &lbl = nullptr);
+    UnOp(UnOp::Op opTag, std::shared_ptr<Label> &&lbl);
 
     Address NextAddr() const noexcept override;
 
