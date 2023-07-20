@@ -101,6 +101,7 @@
     CDSRQ
     ADSLQ
     ADSRQ
+    SET
 ;
 
 %destructor                             {
@@ -234,6 +235,8 @@ unexpr:     jumplbl LABEL               {
                                             details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Shift>($1), r));
                                             LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU SHIFT:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
+|           SET REG COMMA REG           { details::exprs.push(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4)))); }
+|           SET REG COMMA NUM           { details::exprs.push(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4))); }
 ;
 
 jumplbl:    JNZ                         { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JNZ); }

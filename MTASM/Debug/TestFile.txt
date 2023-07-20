@@ -12,3 +12,9 @@ low_LABEL3:
 JMP low_LABEL3;
 
 LSL R3;
+
+SET R1, 10;
+SET RQ, R12;
+SET R11, RQ;
+SET R9, 7;
+

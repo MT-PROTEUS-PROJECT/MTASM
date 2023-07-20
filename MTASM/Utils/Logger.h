@@ -59,6 +59,8 @@
 #pragma push_macro("DEBUG")
 #undef ERROR
 #undef DEBUG
+#pragma warning(disable:4100)
+#pragma warning(disable:4505)
 #endif
 
 #ifdef HAS_APPLE_UNIFIED_LOG_

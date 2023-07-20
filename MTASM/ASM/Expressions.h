@@ -23,7 +23,7 @@ public:
 class BinOp final : public Expression
 {
 public:
-    enum Op
+    enum class Op : uint8_t
     {
         // Arithmetic
         ADD = 0,
@@ -53,7 +53,7 @@ private:
     std::shared_ptr<Label> _lbl;
 
 public:
-    enum Jmp
+    enum class Jmp : uint8_t
     {
         // С метками
         JNZ = 0,
@@ -74,7 +74,7 @@ public:
         END_LDM = 3
     };
 
-    enum Shift
+    enum class Shift : uint8_t
     {
         LSL = 14, // LOGICAL SHIFT LEFT
         LSR = 10, // LOGICAL SHIFT RIGHT
@@ -95,6 +95,9 @@ public:
         ADSRQ = 25
     };
 
+    struct SetOpT { explicit SetOpT() = default; };
+    static inline constexpr SetOpT SetOp {};
+
 private:
     void Init(UnOp::Jmp jmpTag) noexcept;
     
@@ -103,6 +106,9 @@ public:
     UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl) noexcept;
 
     UnOp(UnOp::Shift shiftTag, const Register &r) noexcept;
+
+    UnOp(UnOp::SetOpT, const Register &r1, const Register &r2) noexcept;
+    UnOp(UnOp::SetOpT, const Register &r, Value v) noexcept;
 
     Address NextAddr() const noexcept override;
 

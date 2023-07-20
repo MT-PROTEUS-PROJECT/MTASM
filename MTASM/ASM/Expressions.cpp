@@ -45,11 +45,11 @@ void BinOp::SubOp(const BinOpIn &in)
     bool reverseOps = (in.GetNullPos() == 2) || (in.GetNullPos() == -1 && regs[0] && ((*regs[0].get()) == (*regs[1].get())) && !regs[2]->isRQ()) || (regs[1] && regs[1]->isRQ());
     if (reverseOps)
     {
-        _mtemuFmt += BinOp::Op::SUB; // S - R - 1 + C0; C0 = 1
+        _mtemuFmt += etoi(BinOp::Op::SUB); // S - R - 1 + C0; C0 = 1
     }
     else
     {
-        _mtemuFmt += BinOp::Op::SUB + 1; // R - S - 1 + C0; C0 = 1
+        _mtemuFmt += etoi(BinOp::Op::SUB) + 1; // R - S - 1 + C0; C0 = 1
     }
     _mtemuFmt <<= 3 * WORD_SIZE;
     _mtemuFmt += in.ToMtemuFmt();
@@ -58,7 +58,7 @@ void BinOp::SubOp(const BinOpIn &in)
 void BinOp::CommutativeOp(BinOp::Op opTag, const BinOpIn &in)
 {
     _mtemuFmt <<= 12;
-    _mtemuFmt += opTag;
+    _mtemuFmt += etoi(opTag);
     _mtemuFmt <<= 3 * WORD_SIZE;
     _mtemuFmt += in.ToMtemuFmt();
 }
@@ -76,7 +76,7 @@ UnOp::UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl) noexcept : _lbl(std::
 UnOp::UnOp(UnOp::Shift shiftTag, const Register &r) noexcept
 {
     _mtemuFmt <<= 5;
-    _mtemuFmt += shiftTag;
+    _mtemuFmt += etoi(shiftTag);
     _mtemuFmt <<= 3;
     _mtemuFmt += 3;
     _mtemuFmt <<= 12;
@@ -84,9 +84,57 @@ UnOp::UnOp(UnOp::Shift shiftTag, const Register &r) noexcept
     _mtemuFmt <<= 4;
 }
 
+UnOp::UnOp(UnOp::SetOpT, const Register &r1, const Register &r2) noexcept
+{
+    _mtemuFmt <<= 4;
+    if (!r1.isRQ())
+    {
+        _mtemuFmt += 3;
+    }
+    _mtemuFmt <<= 4;
+    if (r2.isRQ())
+    {
+        _mtemuFmt += 2;
+        _mtemuFmt <<= 4;
+        _mtemuFmt <<= WORD_SIZE;
+    }
+    else
+    {
+        _mtemuFmt += 4;
+        _mtemuFmt <<= 4;
+        _mtemuFmt <<= WORD_SIZE;
+        _mtemuFmt += r2.addr().value();
+    }
+    _mtemuFmt <<= WORD_SIZE;
+    if (!r1.isRQ())
+    {
+        _mtemuFmt += r1.addr().value();
+    }
+    _mtemuFmt <<= WORD_SIZE;
+}
+
+UnOp::UnOp(UnOp::SetOpT, const Register &r, Value v) noexcept
+{
+    _mtemuFmt <<= 4;
+    if (!r.isRQ())
+    {
+        _mtemuFmt += 3;
+    }
+    _mtemuFmt <<= 4;
+    _mtemuFmt += 7;
+    _mtemuFmt <<= 4;
+    _mtemuFmt <<= WORD_SIZE * 2;
+    _mtemuFmt += r.addr().value();
+    _mtemuFmt <<= WORD_SIZE;
+    
+    v <<= (sizeof(v) * 8) - WORD_SIZE;
+    v >>= (sizeof(v) * 8) - WORD_SIZE;
+    _mtemuFmt += v;
+}
+
 void UnOp::Init(UnOp::Jmp jmpTag) noexcept
 {
-    _mtemuFmt = jmpTag;
+    _mtemuFmt = etoi(jmpTag);
     _mtemuFmt <<= 24;
 }
 

@@ -73,6 +73,7 @@ LABEL [a-zA-Z_][a-zA-Z_0-9]*
 "CDSRQ"                 return yy::parser::token::TOKEN_CDSRQ;
 "ADSLQ"                 return yy::parser::token::TOKEN_ADSLQ;
 "ADSRQ"                 return yy::parser::token::TOKEN_ADSRQ;
+"SET"                   return yy::parser::token::TOKEN_SET;
 {LABEL}                 { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_LABEL; }
 ","						return yy::parser::token::TOKEN_COMMA;
 ";"                     return yy::parser::token::TOKEN_SEMICOLON;
