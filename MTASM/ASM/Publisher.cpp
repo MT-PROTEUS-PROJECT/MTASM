@@ -9,9 +9,9 @@ Publisher::Publisher() : _cexprs(0), _out(outName, std::ios::out | std::ios::bin
         throw InternalCompilerError("Не удалось открыть файл для записи двоичных данных");
 }
 
-void Publisher::Push(const std::shared_ptr<Expression> &expr)
+void Publisher::Push(std::unique_ptr<Expression> &&expr)
 {
-    _qexpr.push(expr);
+    _qexpr.push(std::move(expr));
     ++_cexprs;
 }
 

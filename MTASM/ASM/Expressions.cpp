@@ -33,10 +33,8 @@ BinOp::BinOp(BinOp::Op opTag, const BinOpIn &in)
     case BinOp::Op::NXOR:
         CommutativeOp(BinOp::Op::NXOR, in);
         break;
-    case BinOp::Op::MUL:
-    case BinOp::Op::DIV:
     default:
-        throw InternalCompilerError("Арифметическая операция не поддерживается!");
+        throw InternalCompilerError("Неизвестная арифметическая микрокоманда!");
     }
 }
 
@@ -65,19 +63,30 @@ void BinOp::CommutativeOp(BinOp::Op opTag, const BinOpIn &in)
     _mtemuFmt += in.ToMtemuFmt();
 }
 
-UnOp::UnOp(UnOp::Op opTag, const std::shared_ptr<Label> &lbl) : _lbl(lbl)
+UnOp::UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label> &lbl) noexcept : _lbl(lbl)
 {
-    Init(opTag);
+    Init(jmpTag);
 }
 
-UnOp::UnOp(UnOp::Op opTag, std::shared_ptr<Label> &&lbl) : _lbl(std::move(lbl))
+UnOp::UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl) noexcept : _lbl(std::move(lbl))
 {
-    Init(opTag);
+    Init(jmpTag);
 }
 
-void UnOp::Init(UnOp::Op opTag) noexcept
+UnOp::UnOp(UnOp::Shift shiftTag, const Register &r) noexcept
 {
-    _mtemuFmt = opTag;
+    _mtemuFmt <<= 5;
+    _mtemuFmt += shiftTag;
+    _mtemuFmt <<= 3;
+    _mtemuFmt += 3;
+    _mtemuFmt <<= 12;
+    _mtemuFmt += r.addr().value();
+    _mtemuFmt <<= 4;
+}
+
+void UnOp::Init(UnOp::Jmp jmpTag) noexcept
+{
+    _mtemuFmt = jmpTag;
     _mtemuFmt <<= 24;
 }
 

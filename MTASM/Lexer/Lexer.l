@@ -57,6 +57,22 @@ LABEL [a-zA-Z_][a-zA-Z_0-9]*
 "PUSH"                  return yy::parser::token::TOKEN_PUSH;
 "POP"                   return yy::parser::token::TOKEN_POP;
 "END_LDM"               return yy::parser::token::TOKEN_END_LDM;
+"LSL"                   return yy::parser::token::TOKEN_LSL;
+"LSR"                   return yy::parser::token::TOKEN_LSR;
+"CSL"                   return yy::parser::token::TOKEN_CSL;
+"CSR"                   return yy::parser::token::TOKEN_CSR;
+"CDSL"                  return yy::parser::token::TOKEN_CDSL;
+"CDSR"                  return yy::parser::token::TOKEN_CDSR;
+"ADSL"                  return yy::parser::token::TOKEN_ADSL;
+"ADSR"                  return yy::parser::token::TOKEN_ADSR;
+"LSLQ"                  return yy::parser::token::TOKEN_LSLQ;
+"LSRQ"                  return yy::parser::token::TOKEN_LSRQ;
+"CSLQ"                  return yy::parser::token::TOKEN_CSLQ;
+"CSRQ"                  return yy::parser::token::TOKEN_CSRQ;
+"CDSLQ"                 return yy::parser::token::TOKEN_CDSLQ;
+"CDSRQ"                 return yy::parser::token::TOKEN_CDSRQ;
+"ADSLQ"                 return yy::parser::token::TOKEN_ADSLQ;
+"ADSRQ"                 return yy::parser::token::TOKEN_ADSRQ;
 {LABEL}                 { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_LABEL; }
 ","						return yy::parser::token::TOKEN_COMMA;
 ";"                     return yy::parser::token::TOKEN_SEMICOLON;

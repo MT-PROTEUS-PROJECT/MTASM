@@ -3,6 +3,8 @@
 #include "Input.h"
 #include "Label.h"
 
+#include <queue>
+
 class Expression
 {
 protected:
@@ -26,8 +28,6 @@ public:
         // Arithmetic
         ADD = 0,
         SUB = 9,
-        MUL,
-        DIV,
         // Logical
         OR = 3,
         AND = 4,
@@ -53,7 +53,7 @@ private:
     std::shared_ptr<Label> _lbl;
 
 public:
-    enum Op
+    enum Jmp
     {
         // С метками
         JNZ = 0,
@@ -74,12 +74,35 @@ public:
         END_LDM = 3
     };
 
-private:
-    void Init(UnOp::Op opTag) noexcept;
+    enum Shift
+    {
+        LSL = 14, // LOGICAL SHIFT LEFT
+        LSR = 10, // LOGICAL SHIFT RIGHT
+        CSL = 15, // CYCLICAL SHIFT LEFT
+        CSR = 11, // CYCLICAL SHIFT RIGHT
+        CDSL = 30, // CYCLICAL DOUBLE SHIFT LEFT
+        CDSR = 26, // CYCLICAL DOUBLE SHIFT RIGHT
+        ADSL = 31, // ARITHMETIC DOUBLE SHIFT LEFT
+        ADSR = 27, // ARITHMETIC DOUBLE SHIFT RIGHT
 
+        LSLQ = 12,
+        LSRQ = 8,
+        CSLQ = 13,
+        CSRQ = 9,
+        CDSLQ = 28,
+        CDSRQ = 24,
+        ADSLQ = 29,
+        ADSRQ = 25
+    };
+
+private:
+    void Init(UnOp::Jmp jmpTag) noexcept;
+    
 public:
-    UnOp(UnOp::Op opTag, const std::shared_ptr<Label> &lbl = nullptr);
-    UnOp(UnOp::Op opTag, std::shared_ptr<Label> &&lbl);
+    UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label> &lbl = nullptr) noexcept;
+    UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl) noexcept;
+
+    UnOp(UnOp::Shift shiftTag, const Register &r) noexcept;
 
     Address NextAddr() const noexcept override;
 

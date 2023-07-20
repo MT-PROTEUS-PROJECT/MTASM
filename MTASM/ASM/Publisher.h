@@ -9,7 +9,7 @@
 class Publisher final
 {
 private:
-    std::queue<std::shared_ptr<Expression>> _qexpr;
+    std::queue<std::unique_ptr<Expression>> _qexpr;
     uint32_t _cexprs;
     std::ofstream _out;
 
@@ -28,7 +28,7 @@ public:
     ~Publisher();
 
 public:
-    void Push(const std::shared_ptr<Expression> &expr);
+    void Push(std::unique_ptr<Expression> &&expr);
 
     uint32_t Size() const noexcept;
 

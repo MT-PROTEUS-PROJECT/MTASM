@@ -15,7 +15,7 @@
 }
 
 %define api.token.raw
-%define api.value.type{ std::variant<std::string, Value, UnOp::Op> }
+%define api.value.type{ std::variant<std::string, Value, UnOp::Jmp, UnOp::Shift> }
 
 %parse-param{ Lexer & lexer }
 %code{
@@ -36,10 +36,12 @@
     #include "../ASM/Publisher.h"
     #include "../Utils/Logger.h"
 
+    #undef ERROR
+
     namespace details
     {
         std::vector<std::unique_ptr<Input>> input;
-        std::queue<std::shared_ptr<Expression>> exprs;
+        std::queue<std::unique_ptr<Expression>> exprs;
         std::unordered_map<std::shared_ptr<Label>, int32_t, Label::PtrHash, Label::PtrEqual> labels;
         std::string lastLabel;
         ::yy::position::counter_type lineNumber = 1;
@@ -83,6 +85,22 @@
     PUSH
     POP
     END_LDM
+    LSL
+    LSR
+    CSL
+    CSR
+    CDSL
+    CDSR
+    ADSL
+    ADSR
+    LSLQ
+    LSRQ
+    CSLQ
+    CSRQ
+    CDSLQ
+    CDSRQ
+    ADSLQ
+    ADSRQ
 ;
 
 %destructor                             {
@@ -98,7 +116,7 @@
 %%
 
 block:      block expr
-|           error                       { ++details::lineNumber; }
+|           error
 |           %empty                      { ++details::lineNumber; }
 ;
 
@@ -129,42 +147,42 @@ expr:       binexpr SEMICOLON           { flushExprs(); }
 ;
 
 binexpr:    ADD binexprf                {
-                                            details::exprs.push(std::make_shared<BinOp>(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                            details::exprs.push(std::make_unique<BinOp>(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
                                             LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU ADD:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           SUB binexprf                {
-                                            details::exprs.push(std::make_shared<BinOp>(BinOp::Op::SUB, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                            details::exprs.push(std::make_unique<BinOp>(BinOp::Op::SUB, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
                                             LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU SUB:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           MUL binexprf                {
-                                            details::exprs.push(std::make_shared<BinOp>(BinOp::Op::MUL, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                            details::exprs.push(std::make_unique<BinOp>(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
                                             LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU MUL:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           DIV binexprf                {
-                                            details::exprs.push(std::make_shared<BinOp>(BinOp::Op::DIV, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                            details::exprs.push(std::make_unique<BinOp>(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
                                             LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU DIV:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           OR binexprf                 {
-                                            details::exprs.push(std::make_shared<BinOp>(BinOp::Op::OR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                            details::exprs.push(std::make_unique<BinOp>(BinOp::Op::OR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
                                             LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU OR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           AND binexprf                {
-                                            details::exprs.push(std::make_shared<BinOp>(BinOp::Op::AND, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                            details::exprs.push(std::make_unique<BinOp>(BinOp::Op::AND, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
                                             LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU AND:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           XOR binexprf                {
-                                            details::exprs.emplace(std::make_shared<BinOp>(BinOp::Op::XOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                            details::exprs.emplace(std::make_unique<BinOp>(BinOp::Op::XOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
                                             LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU XOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
 |           NXOR binexprf               {
-                                            details::exprs.push(std::make_shared<BinOp>(BinOp::Op::NXOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                            details::exprs.push(std::make_unique<BinOp>(BinOp::Op::NXOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                             details::input.pop_back();
                                             LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU NXOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
@@ -199,49 +217,74 @@ unexpr:     jumplbl LABEL               {
                                             if (!details::labels.contains(lbl))
                                             {
                                                 details::labels.emplace(lbl, -1);
-                                                details::exprs.push(std::make_shared<UnOp>(std::get<UnOp::Op>($1), lbl));
+                                                details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), lbl));
                                             }
                                             else
                                             {
                                                 auto node = details::labels.extract(lbl);
-                                                details::exprs.push(std::make_shared<UnOp>(std::get<UnOp::Op>($1), node.key()));
+                                                details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), node.key()));
                                             }
                                             LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU JUMP:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                         }
-|           jumpnolbl                   { details::exprs.push(std::make_shared<UnOp>(std::get<UnOp::Op>($1))); }
+|           jumpnolbl                   { details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1))); }
+|           shift REG                   { 
+                                            Register r(std::get<std::string>($2));
+                                            if (r.isRQ())
+                                                throw yy::parser::syntax_error(@2, "Регистр Q не может быть операндом сдвига");
+                                            details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Shift>($1), r));
+                                            LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU SHIFT:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                        }
 ;
 
-jumplbl:    JNZ                         { $$.emplace<UnOp::Op>(UnOp::Op::JNZ); }
-|           JMP                         { $$.emplace<UnOp::Op>(UnOp::Op::JMP); }
-|           JZ                          { $$.emplace<UnOp::Op>(UnOp::Op::JZ); }
-|           JF3                         { $$.emplace<UnOp::Op>(UnOp::Op::JF3); }
-|           JOVR                        { $$.emplace<UnOp::Op>(UnOp::Op::JOVR); }
-|           JC4                         { $$.emplace<UnOp::Op>(UnOp::Op::JC4); }
-|           CALL                        { $$.emplace<UnOp::Op>(UnOp::Op::CALL); }
-|           CLNZ                        { $$.emplace<UnOp::Op>(UnOp::Op::CLNZ); }
+jumplbl:    JNZ                         { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JNZ); }
+|           JMP                         { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JMP); }
+|           JZ                          { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JZ); }
+|           JF3                         { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JF3); }
+|           JOVR                        { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JOVR); }
+|           JC4                         { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JC4); }
+|           CALL                        { $$.emplace<UnOp::Jmp>(UnOp::Jmp::CALL); }
+|           CLNZ                        { $$.emplace<UnOp::Jmp>(UnOp::Jmp::CLNZ); }
 ;
 
-jumpnolbl:  JSP                         { $$.emplace<UnOp::Op>(UnOp::Op::JSP); }
-|           JSNZ                        { $$.emplace<UnOp::Op>(UnOp::Op::JSNZ); }
-|           JSNC4                       { $$.emplace<UnOp::Op>(UnOp::Op::JSNC4); }
-|           RET                         { $$.emplace<UnOp::Op>(UnOp::Op::RET); }
-|           PUSH                        { $$.emplace<UnOp::Op>(UnOp::Op::PUSH); }
-|           POP                         { $$.emplace<UnOp::Op>(UnOp::Op::POP); }
-|           END_LDM                     { $$.emplace<UnOp::Op>(UnOp::Op::END_LDM); }
+jumpnolbl:  JSP                         { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JSP); }
+|           JSNZ                        { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JSNZ); }
+|           JSNC4                       { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JSNC4); }
+|           RET                         { $$.emplace<UnOp::Jmp>(UnOp::Jmp::RET); }
+|           PUSH                        { $$.emplace<UnOp::Jmp>(UnOp::Jmp::PUSH); }
+|           POP                         { $$.emplace<UnOp::Jmp>(UnOp::Jmp::POP); }
+|           END_LDM                     { $$.emplace<UnOp::Jmp>(UnOp::Jmp::END_LDM); }
+;
+
+shift:      LSL                         { $$.emplace<UnOp::Shift>(UnOp::Shift::LSL); }
+|           LSR                         { $$.emplace<UnOp::Shift>(UnOp::Shift::LSR); }
+|           CSL                         { $$.emplace<UnOp::Shift>(UnOp::Shift::CSL); }
+|           CSR                         { $$.emplace<UnOp::Shift>(UnOp::Shift::CSR); }
+|           CDSL                        { $$.emplace<UnOp::Shift>(UnOp::Shift::CDSL); }
+|           CDSR                        { $$.emplace<UnOp::Shift>(UnOp::Shift::CDSR); }
+|           ADSL                        { $$.emplace<UnOp::Shift>(UnOp::Shift::ADSL); }
+|           ADSR                        { $$.emplace<UnOp::Shift>(UnOp::Shift::ADSR); }
+|           LSLQ                        { $$.emplace<UnOp::Shift>(UnOp::Shift::LSLQ); }
+|           LSRQ                        { $$.emplace<UnOp::Shift>(UnOp::Shift::LSRQ); }
+|           CSLQ                        { $$.emplace<UnOp::Shift>(UnOp::Shift::CSLQ); }
+|           CSRQ                        { $$.emplace<UnOp::Shift>(UnOp::Shift::CSRQ); }
+|           CDSLQ                       { $$.emplace<UnOp::Shift>(UnOp::Shift::CDSLQ); }
+|           CDSRQ                       { $$.emplace<UnOp::Shift>(UnOp::Shift::CDSRQ); }
+|           ADSLQ                       { $$.emplace<UnOp::Shift>(UnOp::Shift::ADSLQ); }
+|           ADSRQ                       { $$.emplace<UnOp::Shift>(UnOp::Shift::ADSRQ); }
 ;
 
 %%
 
 void yy::parser::error(const location_type &loc, const std::string &err_message)
 {
-    std::cerr << "Стр: " << loc.begin.line + details::lineNumber - 1 << " стлб: " << loc.begin.column << ". Ошибка: " << err_message << std::endl;
+    LOG(ERROR) << "Стр: " << loc.begin.line + details::lineNumber - 1 << " стлб: " << loc.begin.column << ". Ошибка: " << err_message << std::endl;
 }
 
 void flushExprs()
 {
     while (!details::exprs.empty())
     {
-        Publisher::GetInstance()->Push(details::exprs.front());
+        Publisher::GetInstance()->Push(std::move(details::exprs.front()));
         details::exprs.pop();
     }
 }
