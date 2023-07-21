@@ -10,7 +10,7 @@
     #include "../ASM/Exceptions.h"
     namespace yy
     {
-        struct Lexer;
+        class Lexer;
     }
 }
 
@@ -44,7 +44,6 @@
         std::queue<Expr> exprs;
         std::unordered_map<std::shared_ptr<Label>, int32_t, Label::PtrHash, Label::PtrEqual> labels;
         std::string lastLabel;
-        ::yy::position::counter_type lineNumber = 1;
     }
     
     void flushExprs();
@@ -112,13 +111,19 @@
                                                         }
                                                     } END
 
-%start block
+%start program
 
 %%
 
-block:      block expr
+program:    blocks
+;
+
+blocks:     block blocks
+|           %empty
+;
+
+block:      expr
 |           error
-|           %empty                                  { ++details::lineNumber; }
 ;
 
 expr:       binexpr SEMICOLON                       { flushExprs(); }
@@ -129,10 +134,10 @@ expr:       binexpr SEMICOLON                       { flushExprs(); }
                                                         if (details::labels.contains(lbl))
                                                         {
                                                             if (details::labels[lbl] != -1)
-                                                                throw yy::parser::syntax_error(@1, "Метка '" + lbl->GetStr() +  "' уже существует!");
+                                                                throw yy::parser::syntax_error(lexer.getlocation(), "Метка '" + lbl->GetStr() +  "' уже существует!");
                                                             else
                                                             {
-                                                                details::labels[lbl] = details::lineNumber;
+                                                                details::labels[lbl] = lexer.getlocation().begin.line;
                                                                 auto node = details::labels.extract(lbl);
                                                                 node.key()->SetAddr(lbl->GetAddr());
                                                                 details::labels.insert(std::move(node));
@@ -140,7 +145,7 @@ expr:       binexpr SEMICOLON                       { flushExprs(); }
                                                         }
                                                         else
                                                         {
-                                                            auto [it, ok] = details::labels.emplace(std::move(lbl), details::lineNumber);
+                                                            auto [it, ok] = details::labels.emplace(std::move(lbl), lexer.getlocation().begin.line);
                                                             if (!ok)
                                                                 throw InternalCompilerError("Не удалось добавить метку в хэш-таблицу");
                                                         }
@@ -150,12 +155,12 @@ expr:       binexpr SEMICOLON                       { flushExprs(); }
 binexpr:    ADD binexprf                            {
                                                         details::exprs.push(std::make_unique<BinOp>(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU ADD:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << lexer.getlocation() << "\tMTEMU ADD:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           SUB binexprf                            {
                                                         details::exprs.push(std::make_unique<BinOp>(BinOp::Op::SUB, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU SUB:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << lexer.getlocation() << "\tMTEMU SUB:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           MUL REG COMMA REG COMMA REG COMMA REG   {
                                                         Register r1(std::get<std::string>($2));
@@ -163,34 +168,34 @@ binexpr:    ADD binexprf                            {
                                                         Register r3(std::get<std::string>($6));
                                                         Register r4(std::get<std::string>($8));
                                                         if (r1 == r2 || r1 == r3 || r1 == r4 || r2 == r3 || r2 == r4 || r3 == r4)
-                                                            throw yy::parser::syntax_error(@1, "Все регистры в команде умножения должны быть различны!");
+                                                            throw yy::parser::syntax_error(lexer.getlocation(), "Все регистры в команде умножения должны быть различны!");
                                                         if (r1.isRQ() || r2.isRQ() || r3.isRQ() || r4.isRQ())
-                                                            throw yy::parser::syntax_error(@1, "Использование регистра Q в команде умножения не поддерживается!");
+                                                            throw yy::parser::syntax_error(lexer.getlocation(), "Использование регистра Q в команде умножения не поддерживается!");
                                                         BinCmd cmd(BinCmd::MulCmd, r1, r2, r3, r4);
                                                         details::exprs.swap(cmd.Get());
                                                     }
 |           DIV binexprf                            {
-                                                        throw yy::parser::syntax_error(@1, "Команда деления не поддерживается!");
+                                                        throw yy::parser::syntax_error(lexer.getlocation(), "Команда деления не поддерживается!");
                                                     }
 |           OR binexprf                             {
                                                         details::exprs.push(std::make_unique<BinOp>(BinOp::Op::OR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU OR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << lexer.getlocation() << "\tMTEMU OR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           AND binexprf                            {
                                                         details::exprs.push(std::make_unique<BinOp>(BinOp::Op::AND, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU AND:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << lexer.getlocation() << "\tMTEMU AND:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           XOR binexprf                            {
                                                         details::exprs.emplace(std::make_unique<BinOp>(BinOp::Op::XOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU XOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << lexer.getlocation() << "\tMTEMU XOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           NXOR binexprf                           {
                                                         details::exprs.push(std::make_unique<BinOp>(BinOp::Op::NXOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU NXOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << lexer.getlocation() << "\tMTEMU NXOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 ;
 
@@ -199,9 +204,9 @@ binexprf:	REG COMMA REG COMMA REG                 {
                                                         Register r2(std::get<std::string>($3));
                                                         Register r3(std::get<std::string>($5));
                                                         if (r1 != r2 && r2 != r3 && !r1.isRQ() && !r2.isRQ() && !r3.isRQ())
-                                                            throw yy::parser::syntax_error(@1, "Использование 3 различных регистров общего назначения в бинарных операциях не поддерживается!");
+                                                            throw yy::parser::syntax_error(lexer.getlocation(), "Использование 3 различных регистров общего назначения в бинарных операциях не поддерживается!");
                                                         if (r2.isRQ() && r3.isRQ())
-                                                            throw yy::parser::syntax_error(@1,"Регистр Q не может быть одновременно левым и правым операндом бинарной операции!");
+                                                            throw yy::parser::syntax_error(lexer.getlocation(),"Регистр Q не может быть одновременно левым и правым операндом бинарной операции!");
                                     
                                                         details::input.push_back(std::make_unique<BinOpIn>(r1, r2, r3));
                                                     }
@@ -211,7 +216,7 @@ binexprf:	REG COMMA REG COMMA REG                 {
                                                         Register r1(std::get<std::string>($1));
                                                         Register r2(std::get<std::string>($3));
                                                         if (r1.isRQ() && r2.isRQ())
-                                                            throw yy::parser::syntax_error(@1, "Регистр Q не может быть одновременно левым и правым операндом бинарной операции!");
+                                                            throw yy::parser::syntax_error(lexer.getlocation(), "Регистр Q не может быть одновременно левым и правым операндом бинарной операции!");
                                                         details::input.push_back(std::make_unique<BinOpIn>(r1, r2));
                                                     }
 |           REG COMMA NUM                           { details::input.push_back(std::make_unique<BinOpIn>(Register(std::get<std::string>($1)), std::get<Value>($3))); }
@@ -230,15 +235,15 @@ unexpr:     jumplbl LABEL                           {
                                                             auto node = details::labels.extract(lbl);
                                                             details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), node.key()));
                                                         }
-                                                        LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU JUMP:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << lexer.getlocation() << "\tMTEMU JUMP:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           jumpnolbl                               { details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1))); }
 |           shift REG                               { 
                                                         Register r(std::get<std::string>($2));
                                                         if (r.isRQ())
-                                                            throw yy::parser::syntax_error(@2, "Регистр Q не может быть операндом сдвига");
+                                                            throw yy::parser::syntax_error(lexer.getlocation(), "Регистр Q не может быть операндом сдвига");
                                                         details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Shift>($1), r));
-                                                        LOG(INFO) << details::lineNumber << '.' << @$.begin.column << "\tMTEMU SHIFT:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << lexer.getlocation() << "\tMTEMU SHIFT:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           SET REG COMMA REG                       { details::exprs.push(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4)))); }
 |           SET REG COMMA NUM                       { details::exprs.push(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4))); }
@@ -285,7 +290,7 @@ shift:      LSL                                     { $$.emplace<UnOp::Shift>(Un
 
 void yy::parser::error(const location_type &loc, const std::string &err_message)
 {
-    LOG(ERROR) << "Стр: " << loc.begin.line + details::lineNumber - 1 << " стлб: " << loc.begin.column << ". Ошибка: " << err_message << std::endl;
+    LOG(ERROR) << "Стр: " << loc.begin.line << " стлб: " << loc.begin.column << ". Ошибка: " << err_message << std::endl;
 }
 
 void flushExprs()
