@@ -4,6 +4,8 @@
 %locations
 
 %code requires {
+    #pragma warning(disable:4127)
+
     #include <variant>
     #include "../ASM/TypeDefs.h"
     #include "../ASM/Expressions.h"
