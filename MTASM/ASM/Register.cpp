@@ -1,5 +1,10 @@
 #include "Register.h"
 
+size_t Register::Hash::operator()(const Register &r) const
+{
+    return std::hash<std::string>()(r._reg);
+}
+
 Register::Register(std::string reg): _reg(std::move(reg)) {}
 
 Address Register::addr() const
@@ -14,6 +19,13 @@ Address Register::addr() const
 bool Register::isRQ() const
 {
     return (_reg[1] == 'Q');
+}
+
+Register Register::Next(const Register &r)
+{
+    if (r.isRQ())
+        return Register("RQ");
+    return Register("R" + std::to_string((r.addr().value() + 1) % 16));
 }
 
 bool operator==(const Register &lhs, const Register &rhs)

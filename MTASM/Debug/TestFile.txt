@@ -18,3 +18,5 @@ SET RQ, R12;
 SET R11, RQ;
 SET R9, 7;
 
+MUL R4, R5, R0, R1;
+

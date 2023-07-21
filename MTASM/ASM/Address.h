@@ -26,6 +26,7 @@ public:
     Address &operator=(Address &&) = default;
 
     Address &operator+=(const Address &rhs);
+    friend Address operator+(const Address &lhs, const Address &rhs);
 
     ~Address() = default;
 

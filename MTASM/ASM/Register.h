@@ -6,7 +6,15 @@
 
 class Register final
 {
+private:
     std::string _reg;
+
+public:
+    struct Hash
+    {
+        size_t operator()(const Register &r) const;
+    };
+
 public:
     explicit Register(std::string reg);
     
@@ -21,6 +29,8 @@ public:
 public:
     Address addr() const;
     bool isRQ() const;
+
+    static Register Next(const Register &r);
 
     friend bool operator==(const Register &lhs, const Register &rhs);
 };

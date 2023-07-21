@@ -12,6 +12,11 @@ Address &Address::operator+=(const Address &rhs)
     return *this;
 }
 
+Address operator+(const Address &lhs, const Address &rhs)
+{
+    return { lhs._addr + rhs._addr };
+}
+
 AddrValue Address::value() const
 {
     return _addr;

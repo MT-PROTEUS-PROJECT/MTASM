@@ -1,9 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
+
+class Expression;
 
 using Value = uint32_t;
 using AddrValue = int32_t;
+using Expr = std::unique_ptr<Expression>;
 
 constexpr uint8_t WORD_SIZE = 4;
 

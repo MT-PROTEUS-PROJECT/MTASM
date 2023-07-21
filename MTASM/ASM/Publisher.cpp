@@ -9,17 +9,30 @@ Publisher::Publisher() : _cexprs(0), _out(outName, std::ios::out | std::ios::bin
         throw InternalCompilerError("Не удалось открыть файл для записи двоичных данных");
 }
 
-void Publisher::Push(std::unique_ptr<Expression> &&expr)
+void Publisher::Push(Expr &&expr)
 {
     _qexpr.push(std::move(expr));
     ++_cexprs;
+}
+
+void Publisher::Push(std::queue<Expr> &qexpr)
+{
+    auto blockBegin = _cexprs;
+    while (!qexpr.empty())
+    {
+        auto expr = std::move(qexpr.front());
+        expr->IncrAddr(blockBegin);
+        _qexpr.push(std::move(expr));
+        ++_cexprs;
+        qexpr.pop();
+    }
 }
 
 void Publisher::Write()
 {
     while (!_qexpr.empty())
     {
-        _out << std::hex << _qexpr.front()->NextAddr().value() << ' ' << std::hex << _qexpr.front()->ToMtemuFmt() << '\n';
+        _out << std::hex << _qexpr.front()->NextAddr().value() << '\t' << std::hex << _qexpr.front()->ToMtemuFmt() << '\n';
         _qexpr.pop();
     }
 }

@@ -4,16 +4,20 @@
 #include "Label.h"
 
 #include <queue>
+#include <unordered_set>
 
 class Expression
 {
 protected:
     uint32_t _mtemuFmt = 2; // JNXT
+    Address _addr;
 
 public:
     Expression() = default;
 
     virtual Address NextAddr() const noexcept;
+    void SetAddr(const Address &addr) noexcept;
+    void IncrAddr(const Address &addr) noexcept;
 
     uint32_t ToMtemuFmt() const noexcept;
 
@@ -96,11 +100,11 @@ public:
     };
 
     struct SetOpT { explicit SetOpT() = default; };
-    static inline constexpr SetOpT SetOp {};
+    static inline constexpr SetOpT SetOp{};
 
 private:
     void Init(UnOp::Jmp jmpTag) noexcept;
-    
+
 public:
     UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label> &lbl = nullptr) noexcept;
     UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl) noexcept;
@@ -113,4 +117,25 @@ public:
     Address NextAddr() const noexcept override;
 
     ~UnOp() = default;
+};
+
+
+class BinCmd final
+{
+private:
+    std::queue<Expr> _qexpr;
+
+private:
+    Register GetExtraReg(const std::unordered_set<Register, Register::Hash> &regs);
+
+public:
+    struct MulCmdT { explicit MulCmdT() = default; };
+    static inline constexpr MulCmdT MulCmd{};
+
+public:
+    BinCmd(BinCmd::MulCmdT, Register r1, Register r2, Register r3, Register r4);
+
+    std::queue<Expr> &Get();
+
+    ~BinCmd() = default;
 };

@@ -5,11 +5,12 @@
 #include <memory>
 
 #include "Expressions.h"
+#include "TypeDefs.h"
 
 class Publisher final
 {
 private:
-    std::queue<std::unique_ptr<Expression>> _qexpr;
+    std::queue<Expr> _qexpr;
     uint32_t _cexprs;
     std::ofstream _out;
 
@@ -28,7 +29,8 @@ public:
     ~Publisher();
 
 public:
-    void Push(std::unique_ptr<Expression> &&expr);
+    void Push(Expr &&expr);
+    void Push(std::queue<Expr> &qexpr);
 
     uint32_t Size() const noexcept;
 
