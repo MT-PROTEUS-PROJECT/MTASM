@@ -62,6 +62,7 @@
     <ClCompile Include="BinOpTest.cpp" />
     <ClCompile Include="InputTest.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="UnOpTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

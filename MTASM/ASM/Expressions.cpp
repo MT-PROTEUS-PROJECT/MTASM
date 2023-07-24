@@ -145,7 +145,13 @@ UnOp::UnOp(UnOp::SetOpT, const Register &r, Value v) noexcept
 void UnOp::Init(UnOp::Jmp jmpTag) noexcept
 {
     _mtemuFmt = etoi(jmpTag);
-    _mtemuFmt <<= 24;
+    _mtemuFmt <<= 4;
+    _mtemuFmt += 1;
+    _mtemuFmt <<= 4;
+    _mtemuFmt += 7;
+    _mtemuFmt <<= 4;
+    _mtemuFmt <<= 3 * WORD_SIZE;
+    _mtemuFmt += 1;
 }
 
 Address UnOp::NextAddr() const noexcept
