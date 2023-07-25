@@ -177,6 +177,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ASM\ASM.cpp" />
     <ClCompile Include="ASM\Address.cpp" />
     <ClCompile Include="ASM\Input.cpp" />
     <ClCompile Include="ASM\Exceptions.cpp" />
@@ -210,6 +211,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ASM\ASM.h" />
     <ClInclude Include="ASM\Address.h" />
     <ClInclude Include="ASM\Input.h" />
     <ClInclude Include="ASM\TypeDefs.h" />

@@ -19,6 +19,7 @@
     <ClCompile Include="ASM\Expressions.cpp" />
     <ClCompile Include="ASM\Label.cpp" />
     <ClCompile Include="ASM\Publisher.cpp" />
+    <ClCompile Include="ASM\ASM.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lexer\Lexer.h" />
@@ -31,6 +32,7 @@
     <ClInclude Include="ASM\Label.h" />
     <ClInclude Include="ASM\Publisher.h" />
     <ClInclude Include="Utils\Logger.h" />
+    <ClInclude Include="ASM\ASM.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Lexer\Lexer.l" />

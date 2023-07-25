@@ -42,12 +42,6 @@ uint32_t Publisher::Size() const noexcept
     return _cexprs;
 }
 
-Publisher *Publisher::GetInstance()
-{
-    static Publisher publisher;
-    return &publisher;
-}
-
 Publisher::~Publisher()
 {
     Write();

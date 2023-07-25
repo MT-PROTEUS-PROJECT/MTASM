@@ -1,5 +1,4 @@
-#include "Parser.tab.hh"
-#include <Lexer/Lexer.h>
+#include <ASM/ASM.h>
 #include <ASM/Exceptions.h>
 #include <Utils/Logger.h>
 
@@ -10,6 +9,7 @@ constexpr const char *file = "TestFile.txt";
 #endif
 
 #include <Windows.h>
+#undef ERROR
 
 int main(int argc, char **argv)
 {
@@ -38,24 +38,32 @@ int main(int argc, char **argv)
         throw std::runtime_error("Не удалось открыть файл для чтения");
 
     AixLog::Log::init<AixLog::SinkCout>(AixLog::Severity::trace);
-    yy::Lexer lexer(in);
-    yy::parser parser{ lexer };
-//#ifdef _DEBUG
-//    parser.set_debug_level(1);
-//#endif
-    try
+    
+    yy::ASM mtasm(in);
+    int res = mtasm.Parse();
+    LOG(INFO) << "Parse result: " << res << "\n";
+
+    auto se = mtasm.GetEC().Get(ExceptionContainer::Tag::SE);
+    auto ice = mtasm.GetEC().Get(ExceptionContainer::Tag::ICE);
+    auto other = mtasm.GetEC().Get(ExceptionContainer::Tag::OTHER);
+    if (!se.empty())
     {
-        int err = parser();
-        if (err)
-            std::cout << "Parse error";
+        LOG(ERROR) << "Синтаксические ошибки:\n";
+        for (const auto &ex : se)
+            LOG(ERROR) << "\t" << ex._msg << "\n";
     }
-    catch (const InternalCompilerError &ice)
+    if (!ice.empty())
     {
-        std::cerr << "Внутренняя ошибка компилятора: " << ice.what() << std::endl;
+        LOG(FATAL) << "Ошибки компилятора:\n";
+        for (const auto &ex : ice)
+            LOG(FATAL) << "\t" << ex._msg << "\n";
     }
-    catch (const std::exception &ex)
+    if (!other.empty())
     {
-        std::cerr << "Error: " << ex.what() << std::endl;
+        LOG(FATAL) << "Непредвиденные ошибки:\n";
+        for (const auto &ex : other)
+            LOG(FATAL) << "\t" << ex._msg << "\n";
     }
+
     return 0;
 }

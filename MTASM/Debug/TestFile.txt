@@ -9,7 +9,7 @@ L1:
 SUB R2, R2, R3;
 
 JMP L1;
-
+L1:
 low_LABEL3:
 JMP low_LABEL3;
 
@@ -20,5 +20,7 @@ SET RQ, R12;
 SET R11, RQ;
 SET R9, 7;
 
-MUL R4, R5, R0, R1;
+MULT R4, R5, R0, R1;
 
+
+MUL R4, R5, R0, R1;

@@ -7,9 +7,16 @@
 #include "Expressions.h"
 #include "TypeDefs.h"
 
+namespace yy
+{
+    class ASM;
+}
+
 class Publisher final
 {
 private:
+    friend yy::ASM;
+
     std::queue<Expr> _qexpr;
     uint32_t _cexprs;
     std::ofstream _out;
@@ -33,6 +40,4 @@ public:
     void Push(std::queue<Expr> &qexpr);
 
     uint32_t Size() const noexcept;
-
-    static Publisher *GetInstance();
 };
