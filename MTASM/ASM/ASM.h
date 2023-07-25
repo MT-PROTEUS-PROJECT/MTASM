@@ -14,8 +14,9 @@ namespace yy
         parser _parser;
         ::Publisher _publisher;
         ::ExceptionContainer _exceptions;
+
     public:
-        explicit ASM(std::istream &in);
+        ASM(std::istream &in, std::ostream &out);
 
         Lexer &GetLexer() noexcept;
         ::Publisher &GetPublisher() noexcept;

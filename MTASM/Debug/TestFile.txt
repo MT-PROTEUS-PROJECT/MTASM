@@ -1,26 +1,19 @@
-ADD R10, 10, R2;
-SUB R1, R1, 5;
-ADD R10, 10, R2;
-SUB R1, R1, 5;
-OR 1, R2;
-AND R14, R14, R12;
-
+    SET R0, 1;
+    SET R1, 15;
+    JZ L1;
+    AND 1, R1;
+    JNZ L2;
+    SUB R1, R1, 1;
+L2:
+    ADD R3, R0, R3;
+    JC4 L3;
+    JMP L4;
+L3:
+    ADD R2, R2, 1;
+L4:
+    SUB R0, R1;
+    JC4 L1;
+    ADD R0, 2, R0;
+    JMP L2;
 L1:
-SUB R2, R2, R3;
-
-JMP L1;
-L1:
-low_LABEL3:
-JMP low_LABEL3;
-
-LSL R3;
-
-SET R1, 10;
-SET RQ, R12;
-SET R11, RQ;
-SET R9, 7;
-
-MULT R4, R5, R0, R1;
-
-
-MUL R4, R5, R0, R1;
+    END_LDM;

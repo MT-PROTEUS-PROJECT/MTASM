@@ -1,13 +1,7 @@
 #include "Publisher.h"
 #include "Exceptions.h"
 
-constexpr const char *outName = "out.mtasm";
-
-Publisher::Publisher() : _cexprs(0), _out(outName, std::ios::out | std::ios::binary)
-{
-    if (!_out)
-        throw InternalCompilerError("Не удалось открыть файл для записи двоичных данных");
-}
+Publisher::Publisher(std::ostream &out) : _cexprs(0), _out(out.rdbuf()) {}
 
 void Publisher::Push(Expr &&expr)
 {
@@ -45,5 +39,4 @@ uint32_t Publisher::Size() const noexcept
 Publisher::~Publisher()
 {
     Write();
-    _out.close();
 }

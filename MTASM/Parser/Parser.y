@@ -162,14 +162,18 @@ expr:       binexpr SEMICOLON                       { flushExprs(mtasm); }
 ;
 
 binexpr:    ADD binexprf                            {
+                                                        if (details::input.empty())
+                                                            break;
                                                         details::exprs.push(std::make_unique<BinOp>(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTEMU ADD:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM ADD:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           SUB binexprf                            {
+                                                        if (details::input.empty())
+                                                            break;
                                                         details::exprs.push(std::make_unique<BinOp>(BinOp::Op::SUB, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTEMU SUB:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM SUB:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           MUL REG COMMA REG COMMA REG COMMA REG   {
                                                         Register r1(std::get<std::string>($2));
@@ -193,24 +197,32 @@ binexpr:    ADD binexprf                            {
                                                         syntaxError(mtasm, "Команда деления не поддерживается!");
                                                     }
 |           OR binexprf                             {
+                                                        if (details::input.empty())
+                                                            break;
                                                         details::exprs.push(std::make_unique<BinOp>(BinOp::Op::OR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTEMU OR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM OR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           AND binexprf                            {
+                                                        if (details::input.empty())
+                                                            break;
                                                         details::exprs.push(std::make_unique<BinOp>(BinOp::Op::AND, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTEMU AND:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM AND:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           XOR binexprf                            {
+                                                        if (details::input.empty())
+                                                            break;
                                                         details::exprs.emplace(std::make_unique<BinOp>(BinOp::Op::XOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTEMU XOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM XOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           NXOR binexprf                           {
+                                                        if (details::input.empty())
+                                                            break;
                                                         details::exprs.push(std::make_unique<BinOp>(BinOp::Op::NXOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTEMU NXOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM NXOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 ;
 
@@ -218,7 +230,7 @@ binexprf:	REG COMMA REG COMMA REG                 {
                                                         Register r1(std::get<std::string>($1));
                                                         Register r2(std::get<std::string>($3));
                                                         Register r3(std::get<std::string>($5));
-                                                        if (r1 != r2 && r2 != r3 && !r1.isRQ() && !r2.isRQ() && !r3.isRQ())
+                                                        if (r1 != r2 && r1 != r3 && r2 != r3 && !r1.isRQ() && !r2.isRQ() && !r3.isRQ())
                                                         {
                                                             syntaxError(mtasm, "Использование 3 различных регистров общего назначения в бинарных операциях не поддерживается!");
                                                             break;
@@ -260,7 +272,7 @@ unexpr:     jumplbl LABEL                           {
                                                             details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), node.key()));
                                                             details::labels.insert(std::move(node));
                                                         }
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTEMU JUMP:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM JUMP:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           jumpnolbl                               { details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1))); }
 |           shift REG                               { 
@@ -271,10 +283,16 @@ unexpr:     jumplbl LABEL                           {
                                                             break;
                                                         }
                                                         details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Shift>($1), r));
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTEMU SHIFT:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM SHIFT:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
-|           SET REG COMMA REG                       { details::exprs.push(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4)))); }
-|           SET REG COMMA NUM                       { details::exprs.push(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4))); }
+|           SET REG COMMA REG                       { 
+                                                        details::exprs.push(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4))));
+                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM SET:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                    }
+|           SET REG COMMA NUM                       { 
+                                                        details::exprs.push(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4)));
+                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM SET:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                    }
 ;
 
 jumplbl:    JNZ                                     { $$.emplace<UnOp::Jmp>(UnOp::Jmp::JNZ); }
@@ -318,16 +336,12 @@ shift:      LSL                                     { $$.emplace<UnOp::Shift>(Un
 
 void syntaxError(yy::ASM &mtasm, const std::string &msg)
 {
-    std::stringstream err;
-    err << "Стр: " << mtasm.GetLocation() << ". " << msg << std::endl;
-    mtasm.GetEC().Push(ExceptionContainer::Tag::SE, err.str());
+    mtasm.GetEC().Push(ExceptionContainer::Tag::SE, mtasm.GetLocation(), msg);
 }
 
 void yy::parser::error(const location_type &, const std::string &err_message)
 {
-    std::stringstream err;
-    err << "Стр: " << mtasm.GetLocation() << ". " << err_message << std::endl;
-    mtasm.GetEC().Push(ExceptionContainer::Tag::SE, err.str());
+    mtasm.GetEC().Push(ExceptionContainer::Tag::SE, mtasm.GetLocation(), err_message);
 }
 
 void flushExprs(yy::ASM &mtasm)

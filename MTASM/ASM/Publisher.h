@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fstream>
+#include <ostream>
 #include <queue>
 #include <memory>
 
@@ -19,10 +19,10 @@ private:
 
     std::queue<Expr> _qexpr;
     uint32_t _cexprs;
-    std::ofstream _out;
+    std::ostream _out;
 
 private:
-    Publisher();
+    Publisher(std::ostream &out);
 
     void Write();
 

@@ -9,9 +9,9 @@ const char *InternalCompilerError::what() const noexcept
 }
 
 
-void ExceptionContainer::Push(ExceptionContainer::Tag tag, std::string msg)
+void ExceptionContainer::Push(ExceptionContainer::Tag tag, std::optional<yy::location> loc, std::string msg)
 {
-    _exceptions.emplace_back(tag, std::move(msg));
+    _exceptions.emplace_back(tag, loc, std::move(msg));
 }
 
 std::vector<ExceptionContainer::Exception> ExceptionContainer::Get(ExceptionContainer::Tag tag)

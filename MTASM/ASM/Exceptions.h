@@ -1,7 +1,10 @@
 #pragma once
 
+#include "../location.hh"
+
 #include <stdexcept>
 #include <vector>
+#include <optional>
 
 class InternalCompilerError final : public std::runtime_error
 {
@@ -32,6 +35,7 @@ public:
     struct Exception
     {
         ExceptionContainer::Tag _tag;
+        std::optional<yy::location> _loc;
         std::string _msg;
     };
 
@@ -52,6 +56,6 @@ public:
     ~ExceptionContainer() = default;
 
 public:
-    void Push(ExceptionContainer::Tag tag, std::string msg);
+    void Push(ExceptionContainer::Tag tag, std::optional<yy::location> loc, std::string msg);
     std::vector<Exception> Get(ExceptionContainer::Tag tag);
 };
