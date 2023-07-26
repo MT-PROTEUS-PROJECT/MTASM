@@ -17,11 +17,12 @@ int main(int argc, char **argv)
     {
 #ifndef _DEBUG
         ShowWindow(GetConsoleWindow(), SW_HIDE);
+        AixLog::Log::init<AixLog::SinkCout>(AixLog::Severity::info);
 #else
         ShowWindow(GetConsoleWindow(), SW_SHOW);
+        AixLog::Log::init<AixLog::SinkCout>(AixLog::Severity::trace);
 #endif
         setlocale(LC_ALL, "Russian");
-        AixLog::Log::init<AixLog::SinkCout>(AixLog::Severity::trace);
 
         std::ifstream in;
         if (argc == 2)

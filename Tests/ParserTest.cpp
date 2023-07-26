@@ -1,6 +1,7 @@
 #include <sstream>
 #include <fstream>
 #include <filesystem>
+#include <format>
 #include <gtest/gtest.h>
 #include <ASM/ASM.h>
 #include "MemLeakDetector.h"
@@ -111,6 +112,56 @@ TEST(Parser, _RegExceptions)
     }
 }
 
+TEST(Parser, _LabelExceptions)
+{
+    MemoryLeakDetector mld;
+
+    // метка не найдена
+    {
+        std::istringstream in(R"(
+                                    AND R1, 10, R2;
+                                    SUB RQ, R1, RQ;
+                                    JZ L1;
+                                    ADD R0, R0, R2;
+
+
+                                    NXOR    R1,         R1,     R0;
+                                )");
+        std::ostringstream out;
+        yy::ASM mtasm(in, out);
+
+        EXPECT_EQ(mtasm.Parse(), 0);
+        EXPECT_TRUE(mtasm.GetEC().Get(ExceptionContainer::Tag::ICE).empty());
+        EXPECT_TRUE(mtasm.GetEC().Get(ExceptionContainer::Tag::OTHER).empty());
+        auto se = mtasm.GetEC().Get(ExceptionContainer::Tag::SE);
+        EXPECT_EQ(se.size(), 1);
+        EXPECT_EQ(se.front()._msg, std::format(SE::LBL_NOT_FOUND, "L1"));
+    }
+
+    // метка уже существует
+    {
+        std::istringstream in(R"(
+                                    LabelName:
+                                    AND R1, 10, R2;
+                                    SUB RQ, R1, RQ;
+                                    JZ LabelName;
+                                    ADD R0, R0, R2;
+                                    LabelName:
+
+                                    NXOR    R1,         R1,     R0;
+                                )");
+        std::ostringstream out;
+        yy::ASM mtasm(in, out);
+
+        EXPECT_EQ(mtasm.Parse(), 0);
+        EXPECT_TRUE(mtasm.GetEC().Get(ExceptionContainer::Tag::ICE).empty());
+        EXPECT_TRUE(mtasm.GetEC().Get(ExceptionContainer::Tag::OTHER).empty());
+        auto se = mtasm.GetEC().Get(ExceptionContainer::Tag::SE);
+        EXPECT_EQ(se.size(), 1);
+        EXPECT_EQ(se.front()._msg, std::format(SE::LBL_EXISTS, "LabelName"));
+    }
+}
+
 // Все примеры из папки examples корректны
 TEST(Parser, _Correct)
 {
@@ -118,12 +169,12 @@ TEST(Parser, _Correct)
 
     try
     {
-        std::ostringstream out;
         const std::filesystem::path examples{ std::filesystem::current_path() / "examples" };
         for (const auto &example : std::filesystem::directory_iterator(examples))
         {
             if (!std::filesystem::is_regular_file(example.path()))
                 continue;
+            std::ofstream out(examples / (example.path().stem().string() + ".mtasm"), std::ios::out | std::ios::binary);
             std::ifstream in(example.path(), std::ios::in | std::ios::binary);
             yy::ASM mtasm(in, out);
             EXPECT_EQ(mtasm.Parse(), 0);
