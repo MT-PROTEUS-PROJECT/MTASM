@@ -8,14 +8,15 @@
 
     #include <variant>
     #include <vector>
-    #include <queue>
     #include <memory>
     #include <unordered_map>
     #include <string>
     #include <sstream>
+    #include <format>
+    #include <string_view>
 
-    #include "../ASM/TypeDefs.h"
-    #include "../ASM/Expressions.h"
+    #include <ASM/TypeDefs.h>
+    #include <ASM/Expressions.h>
 
     namespace yy
     {
@@ -28,13 +29,13 @@
 
 %parse-param{ ASM &mtasm }
 %code{
-    #include "../ASM/ASM.h"
-    #include "../ASM/Exceptions.h"
-    #include "../ASM/Input.h"
-    #include "../ASM/Publisher.h"
-    #include "../Utils/Logger.h"
-    #include "../ASM/Register.h"
-    #include "../ASM/Label.h"
+    #include <ASM/ASM.h>
+    #include <ASM/Exceptions.h>
+    #include <ASM/Input.h>
+    #include <ASM/Publisher.h>
+    #include <Utils/Logger.h>
+    #include <ASM/Register.h>
+    #include <ASM/Label.h>
 
     #ifdef yylex
         #undef	yylex
@@ -46,13 +47,13 @@
     namespace details
     {
         std::vector<std::unique_ptr<Input>> input;
-        std::queue<Expr> exprs;
+        std::vector<Expr> exprs;
         std::unordered_map<std::shared_ptr<Label>, int32_t, Label::PtrHash, Label::PtrEqual> labels;
-        std::string lastLabel;
     }
     
     void flushExprs(yy::ASM &mtasm);
-    void syntaxError(yy::ASM &mtasm, const std::string &msg);
+    template <typename... Args>
+    void syntaxError(yy::ASM &mtasm, std::string_view fmt, Args&&... args);
 }
 
 %define parse.error verbose
@@ -113,8 +114,13 @@
                                                         for (const auto &[lbl, pos] : details::labels)
                                                         {
                                                             if (pos == -1)
-                                                                syntaxError(mtasm, "ћетка '" + lbl->GetStr() + "' не найдена!");
+                                                                syntaxError(mtasm, SE::LBL_NOT_FOUND, lbl->GetStr());
                                                         }
+                                                        details::input.clear();
+                                                        details::input.shrink_to_fit();
+                                                        flushExprs(mtasm);
+                                                        details::exprs.shrink_to_fit();
+                                                        details::labels.clear();
                                                     } END
 
 %start program
@@ -141,7 +147,7 @@ expr:       binexpr SEMICOLON                       { flushExprs(mtasm); }
                                                         {
                                                             if (details::labels[lbl] != -1)
                                                             {
-                                                                syntaxError(mtasm, "ћетка '" + lbl->GetStr() +  "' уже существует!");
+                                                                syntaxError(mtasm, SE::LBL_EXISTS, lbl->GetStr());
                                                                 break;
                                                             }
                                                             else
@@ -164,16 +170,16 @@ expr:       binexpr SEMICOLON                       { flushExprs(mtasm); }
 binexpr:    ADD binexprf                            {
                                                         if (details::input.empty())
                                                             break;
-                                                        details::exprs.push(std::make_unique<BinOp>(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                                        details::exprs.push_back(std::make_unique<BinOp>(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM ADD:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM ADD:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           SUB binexprf                            {
                                                         if (details::input.empty())
                                                             break;
-                                                        details::exprs.push(std::make_unique<BinOp>(BinOp::Op::SUB, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                                        details::exprs.push_back(std::make_unique<BinOp>(BinOp::Op::SUB, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM SUB:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SUB:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           MUL REG COMMA REG COMMA REG COMMA REG   {
                                                         Register r1(std::get<std::string>($2));
@@ -182,12 +188,12 @@ binexpr:    ADD binexprf                            {
                                                         Register r4(std::get<std::string>($8));
                                                         if (r1 == r2 || r1 == r3 || r1 == r4 || r2 == r3 || r2 == r4 || r3 == r4)
                                                         {
-                                                            syntaxError(mtasm, "¬се регистры в команде умножени€ должны быть различны!");
+                                                            syntaxError(mtasm, SE::MUL_DIFF_REG);
                                                             break;
                                                         }
                                                         if (r1.isRQ() || r2.isRQ() || r3.isRQ() || r4.isRQ())
                                                         {
-                                                            syntaxError(mtasm, "»спользование регистра Q в команде умножени€ не поддерживаетс€!");
+                                                            syntaxError(mtasm, SE::MUL_Q_REG);
                                                             break;
                                                         }
                                                         BinCmd cmd(BinCmd::MulCmd, r1, r2, r3, r4);
@@ -199,30 +205,30 @@ binexpr:    ADD binexprf                            {
 |           OR binexprf                             {
                                                         if (details::input.empty())
                                                             break;
-                                                        details::exprs.push(std::make_unique<BinOp>(BinOp::Op::OR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                                        details::exprs.push_back(std::make_unique<BinOp>(BinOp::Op::OR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM OR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM OR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           AND binexprf                            {
                                                         if (details::input.empty())
                                                             break;
-                                                        details::exprs.push(std::make_unique<BinOp>(BinOp::Op::AND, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                                        details::exprs.push_back(std::make_unique<BinOp>(BinOp::Op::AND, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM AND:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM AND:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           XOR binexprf                            {
                                                         if (details::input.empty())
                                                             break;
-                                                        details::exprs.emplace(std::make_unique<BinOp>(BinOp::Op::XOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                                        details::exprs.push_back(std::make_unique<BinOp>(BinOp::Op::XOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM XOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM XOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           NXOR binexprf                           {
                                                         if (details::input.empty())
                                                             break;
-                                                        details::exprs.push(std::make_unique<BinOp>(BinOp::Op::NXOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
+                                                        details::exprs.push_back(std::make_unique<BinOp>(BinOp::Op::NXOR, *(dynamic_cast<BinOpIn *>(details::input.back().get()))));
                                                         details::input.pop_back();
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM NXOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM NXOR:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 ;
 
@@ -232,12 +238,17 @@ binexprf:	REG COMMA REG COMMA REG                 {
                                                         Register r3(std::get<std::string>($5));
                                                         if (r1 != r2 && r1 != r3 && r2 != r3 && !r1.isRQ() && !r2.isRQ() && !r3.isRQ())
                                                         {
-                                                            syntaxError(mtasm, "»спользование 3 различных регистров общего назначени€ в бинарных операци€х не поддерживаетс€!");
+                                                            syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                            break;
+                                                        }
+                                                        if (r1 != r2 && r1 != r3 && r2 == r3)
+                                                        {
+                                                            syntaxError(mtasm, SE::BIN_1_L_R);
                                                             break;
                                                         }
                                                         if (r2.isRQ() && r3.isRQ())
                                                         {
-                                                            syntaxError(mtasm,"–егистр Q не может быть одновременно левым и правым операндом бинарной операции!");
+                                                            syntaxError(mtasm, SE::BIN_Q_L_R);
                                                             break;
                                                         }
                                     
@@ -250,7 +261,7 @@ binexprf:	REG COMMA REG COMMA REG                 {
                                                         Register r2(std::get<std::string>($3));
                                                         if (r1.isRQ() && r2.isRQ())
                                                         {
-                                                            syntaxError(mtasm, "–егистр Q не может быть одновременно левым и правым операндом бинарной операции!");
+                                                            syntaxError(mtasm, SE::BIN_Q_L_R);
                                                             break;
                                                         }
                                                         details::input.push_back(std::make_unique<BinOpIn>(r1, r2));
@@ -264,34 +275,34 @@ unexpr:     jumplbl LABEL                           {
                                                         if (!details::labels.contains(lbl))
                                                         {
                                                             details::labels.emplace(lbl, -1);
-                                                            details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), lbl));
+                                                            details::exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), lbl));
                                                         }
                                                         else
                                                         {
                                                             auto node = details::labels.extract(lbl);
-                                                            details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), node.key()));
+                                                            details::exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), node.key()));
                                                             details::labels.insert(std::move(node));
                                                         }
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM JUMP:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM JUMP:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
-|           jumpnolbl                               { details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1))); }
+|           jumpnolbl                               { details::exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1))); }
 |           shift REG                               { 
                                                         Register r(std::get<std::string>($2));
                                                         if (r.isRQ())
                                                         {
-                                                            syntaxError(mtasm, "–егистр Q не может быть операндом сдвига");
+                                                            syntaxError(mtasm, SE::SHIFT_Q);
                                                             break;
                                                         }
-                                                        details::exprs.push(std::make_unique<UnOp>(std::get<UnOp::Shift>($1), r));
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM SHIFT:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        details::exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Shift>($1), r));
+                                                        LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SHIFT:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           SET REG COMMA REG                       { 
-                                                        details::exprs.push(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4))));
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM SET:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        details::exprs.push_back(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4))));
+                                                        LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SET:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 |           SET REG COMMA NUM                       { 
-                                                        details::exprs.push(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4)));
-                                                        LOG(INFO) << mtasm.GetLocation() << "\tMTASM SET:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
+                                                        details::exprs.push_back(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4)));
+                                                        LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SET:\t" << details::exprs.front()->ToMtemuFmt() << std::endl;
                                                     }
 ;
 
@@ -334,9 +345,10 @@ shift:      LSL                                     { $$.emplace<UnOp::Shift>(Un
 
 %%
 
-void syntaxError(yy::ASM &mtasm, const std::string &msg)
+template <typename... Args>
+void syntaxError(yy::ASM &mtasm, std::string_view fmt, Args&&... args)
 {
-    mtasm.GetEC().Push(ExceptionContainer::Tag::SE, mtasm.GetLocation(), msg);
+    mtasm.GetEC().Push(ExceptionContainer::Tag::SE, mtasm.GetLocation(), std::vformat(fmt, std::make_format_args(args...)));
 }
 
 void yy::parser::error(const location_type &, const std::string &err_message)
@@ -353,9 +365,5 @@ void flushExprs(yy::ASM &mtasm)
         mtasm.GetPublisher().Push(std::move(details::exprs.front()));
     else
         mtasm.GetPublisher().Push(details::exprs);
-
-    while (!details::exprs.empty())
-    {    
-        details::exprs.pop();
-    }
+    details::exprs.clear();
 }

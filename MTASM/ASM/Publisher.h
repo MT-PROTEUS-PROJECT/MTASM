@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ostream>
-#include <queue>
+#include <vector>
 #include <memory>
 
 #include "Expressions.h"
@@ -17,7 +17,7 @@ class Publisher final
 private:
     friend yy::ASM;
 
-    std::queue<Expr> _qexpr;
+    std::vector<Expr> _qexpr;
     uint32_t _cexprs;
     std::ostream _out;
 
@@ -37,7 +37,7 @@ public:
 
 public:
     void Push(Expr &&expr);
-    void Push(std::queue<Expr> &qexpr);
+    void Push(std::vector<Expr> &qexpr);
 
     uint32_t Size() const noexcept;
 };

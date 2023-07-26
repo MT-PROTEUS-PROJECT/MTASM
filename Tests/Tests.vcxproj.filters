@@ -23,6 +23,19 @@
       <Filter>Dependencies</Filter>
     </ClCompile>
     <ClCompile Include="UnOpTest.cpp" />
+    <ClCompile Include="ParserTest.cpp" />
+    <ClCompile Include="..\MTASM\ASM\Publisher.cpp">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTASM\ASM\ASM.cpp">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTASM\Lexer.cpp">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTASM\Parser.tab.cc">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -34,5 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MemLeakDetector.h" />
+    <ClInclude Include="..\MTASM\Parser.tab.hh">
+      <Filter>Dependencies</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

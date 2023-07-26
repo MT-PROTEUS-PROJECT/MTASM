@@ -3,9 +3,9 @@
 }
 
 %{
-    #include "../ASM/TypeDefs.h"
+    #include <ASM/TypeDefs.h>
     #include "Parser.tab.hh"
-    #include "Lexer.h"
+    #include <Lexer/Lexer.h>
     namespace details
     {
         extern yy::position::counter_type lineNumber;
@@ -29,7 +29,7 @@ LABEL [a-zA-Z_][a-zA-Z_0-9]*
 
 {WS}+                   
 "R"{REG}                { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_REG; }
-{DIGIT1}{DIGIT}*        { yylval->emplace<Value>(std::stoul(yytext)); return yy::parser::token::TOKEN_NUM; }
+0|{DIGIT1}{DIGIT}*      { yylval->emplace<Value>(std::stoul(yytext)); return yy::parser::token::TOKEN_NUM; }
 "ADD"					return yy::parser::token::TOKEN_ADD;
 "SUB"					return yy::parser::token::TOKEN_SUB;
 "MUL"					return yy::parser::token::TOKEN_MUL;

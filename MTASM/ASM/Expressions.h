@@ -3,7 +3,7 @@
 #include "Input.h"
 #include "Label.h"
 
-#include <queue>
+#include <vector>
 #include <unordered_set>
 
 class Expression
@@ -123,7 +123,7 @@ public:
 class BinCmd final
 {
 private:
-    std::queue<Expr> _qexpr;
+    std::vector<Expr> _qexpr;
 
 private:
     Register GetExtraReg(const std::unordered_set<Register, Register::Hash> &regs);
@@ -135,7 +135,7 @@ public:
 public:
     BinCmd(BinCmd::MulCmdT, Register r1, Register r2, Register r3, Register r4);
 
-    std::queue<Expr> &Get();
+    std::vector<Expr> &Get();
 
     ~BinCmd() = default;
 };

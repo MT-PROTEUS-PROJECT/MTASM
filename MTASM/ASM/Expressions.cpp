@@ -175,23 +175,23 @@ BinCmd::BinCmd(BinCmd::MulCmdT, Register r1, Register r2, Register r3, Register 
     auto re1 = GetExtraReg({ r1, r2, r3, r4 });
     Register rq("RQ");
 
-    _qexpr.push(std::make_unique<UnOp>(UnOp::SetOp, re1, 4));
-    _qexpr.push(std::make_unique<BinOp>(BinOp::Op::ADD, BinOpIn(1, r4)));
-    _qexpr.push(std::make_unique<UnOp>(UnOp::Jmp::JMP, std::make_shared<Label>("L1", 3)));
-    _qexpr.push(std::make_unique<BinOp>(BinOp::Op::ADD, BinOpIn(rq, r3, rq)));
-    _qexpr.push(std::make_unique<UnOp>(UnOp::Jmp::JC4, std::make_shared<Label>("L2", 7)));
-    _qexpr.push(std::make_unique<UnOp>(UnOp::Shift::CDSRQ, r2));
-    _qexpr.push(std::make_unique<UnOp>(UnOp::Shift::LSR, r4));
-    _qexpr.push(std::make_unique<BinOp>(BinOp::Op::SUB, BinOpIn(re1, re1, 1)));
-    _qexpr.push(std::make_unique<UnOp>(UnOp::Jmp::JNZ, std::make_shared<Label>("L3", 1)));
-    _qexpr.push(std::make_unique<UnOp>(UnOp::SetOp, r1, rq));
-    _qexpr.push(std::make_unique<UnOp>(UnOp::Jmp::JMP, std::make_shared<Label>("L4", 9)));
-    _qexpr.push(std::make_unique<UnOp>(UnOp::Shift::CDSRQ, r2));
-    _qexpr.push(std::make_unique<BinOp>(BinOp::Op::OR, BinOpIn(rq, 8, rq)));
-    _qexpr.push(std::make_unique<UnOp>(UnOp::Jmp::JMP, std::make_shared<Label>("L5", 4)));
+    _qexpr.push_back(std::make_unique<UnOp>(UnOp::SetOp, re1, 4));
+    _qexpr.push_back(std::make_unique<BinOp>(BinOp::Op::ADD, BinOpIn(1, r4)));
+    _qexpr.push_back(std::make_unique<UnOp>(UnOp::Jmp::JMP, std::make_shared<Label>("L1", 3)));
+    _qexpr.push_back(std::make_unique<BinOp>(BinOp::Op::ADD, BinOpIn(rq, r3, rq)));
+    _qexpr.push_back(std::make_unique<UnOp>(UnOp::Jmp::JC4, std::make_shared<Label>("L2", 7)));
+    _qexpr.push_back(std::make_unique<UnOp>(UnOp::Shift::CDSRQ, r2));
+    _qexpr.push_back(std::make_unique<UnOp>(UnOp::Shift::LSR, r4));
+    _qexpr.push_back(std::make_unique<BinOp>(BinOp::Op::SUB, BinOpIn(re1, re1, 1)));
+    _qexpr.push_back(std::make_unique<UnOp>(UnOp::Jmp::JNZ, std::make_shared<Label>("L3", 1)));
+    _qexpr.push_back(std::make_unique<UnOp>(UnOp::SetOp, r1, rq));
+    _qexpr.push_back(std::make_unique<UnOp>(UnOp::Jmp::JMP, std::make_shared<Label>("L4", 9)));
+    _qexpr.push_back(std::make_unique<UnOp>(UnOp::Shift::CDSRQ, r2));
+    _qexpr.push_back(std::make_unique<BinOp>(BinOp::Op::OR, BinOpIn(rq, 8, rq)));
+    _qexpr.push_back(std::make_unique<UnOp>(UnOp::Jmp::JMP, std::make_shared<Label>("L5", 4)));
 }
 
-std::queue<Expr> &BinCmd::Get()
+std::vector<Expr> &BinCmd::Get()
 {
     return _qexpr;
 }

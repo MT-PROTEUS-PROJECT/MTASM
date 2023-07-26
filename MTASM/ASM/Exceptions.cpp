@@ -25,3 +25,8 @@ std::vector<ExceptionContainer::Exception> ExceptionContainer::Get(ExceptionCont
 
     return res;
 }
+
+bool ExceptionContainer::Empty() const noexcept
+{
+    return _exceptions.empty();
+}

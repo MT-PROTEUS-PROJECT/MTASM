@@ -58,4 +58,5 @@ public:
 public:
     void Push(ExceptionContainer::Tag tag, std::optional<yy::location> loc, std::string msg);
     std::vector<Exception> Get(ExceptionContainer::Tag tag);
+    bool Empty() const noexcept;
 };

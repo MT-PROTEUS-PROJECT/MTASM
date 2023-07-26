@@ -1,0 +1,12 @@
+	SET R1, 9;
+	JZ L1;
+	SET R0, 4;
+	JZ L2;
+	OR R1, 8, R1;
+	AND R1, 8, R1;
+	JMP L1;
+L2:
+	OR R1, 1, R1;
+	AND R1, 1, R1;
+L1:
+	END_LDM;
