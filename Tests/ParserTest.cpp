@@ -174,7 +174,11 @@ TEST(Parser, _Correct)
         {
             if (!std::filesystem::is_regular_file(example.path()))
                 continue;
+#ifdef WRITE_RESULT
             std::ofstream out(examples / (example.path().stem().string() + ".mtasm"), std::ios::out | std::ios::binary);
+#else
+            std::ostringstream out;
+#endif
             std::ifstream in(example.path(), std::ios::in | std::ios::binary);
             yy::ASM mtasm(in, out);
             EXPECT_EQ(mtasm.Parse(), 0);
