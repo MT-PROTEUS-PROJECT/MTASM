@@ -6,10 +6,6 @@
     #include <ASM/TypeDefs.h>
     #include "Parser.tab.hh"
     #include <Lexer/Lexer.h>
-    namespace details
-    {
-        extern yy::position::counter_type lineNumber;
-    }
 %}
 
 %option c++
@@ -23,7 +19,7 @@ WS [ \t\r\n]
 REG Q|[0-9]|1[0-5]
 DIGIT [0-9]
 DIGIT1 [1-9]
-LABEL [a-zA-Z_][a-zA-Z_0-9]*
+ID [a-zA-Z_][a-zA-Z_0-9]*
 
 %%
 
@@ -70,10 +66,13 @@ LABEL [a-zA-Z_][a-zA-Z_0-9]*
 "ADSLQ"                 return yy::parser::token::TOKEN_ADSLQ;
 "ADSRQ"                 return yy::parser::token::TOKEN_ADSRQ;
 "SET"                   return yy::parser::token::TOKEN_SET;
-{LABEL}                 { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_LABEL; }
+"MAIN"                  return yy::parser::token::TOKEN_MAIN;
 ","						return yy::parser::token::TOKEN_COMMA;
 ";"                     return yy::parser::token::TOKEN_SEMICOLON;
 ":"                     return yy::parser::token::TOKEN_COLON;
+"{"                     return yy::parser::token::TOKEN_LEFT_CURLY_BRACE;
+"}"                     return yy::parser::token::TOKEN_RIGHT_CURLY_BRACE;
+{ID}                    { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_ID; }
 .						throw yy::parser::syntax_error(*yyloc, "invalid character: " + std::string(YYText(), YYLeng()));
 <<EOF>>                 return yy::parser::token::TOKEN_END;
 

@@ -8,6 +8,7 @@
 class Label final
 {
 private:
+    std::shared_ptr<std::string> _cmd;
     std::string _lbl;
     Address _addr;
 
@@ -30,6 +31,7 @@ public:
     friend bool operator==(const Label &lhs, const Label &rhs);
 
 public:
+    Label(const std::shared_ptr<std::string> &cmd, std::string lbl, Address addr = {});
     Label(std::string lbl, Address addr = {});
 
     Label(const Label &) = default;

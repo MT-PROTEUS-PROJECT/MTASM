@@ -10,7 +10,7 @@
 class Input
 {
 protected:
-    uint32_t _mtemuFmt = 0;
+    Value _mtemuFmt = 0;
 
 protected:
     virtual void calcMtemu() = 0;
@@ -18,7 +18,7 @@ protected:
 public:
     Input() = default;
     
-    uint32_t ToMtemuFmt() const;
+    Value ToMtemuFmt() const;
     
     virtual ~Input() = default;
 };

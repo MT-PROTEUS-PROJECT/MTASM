@@ -6,15 +6,21 @@
 
 #include "TypeDefs.h"
 
+#pragma warning(disable:4245) // Address::INVALID (like std::string::npos)
+
 class Address final
 {
+public:
+    using Value = uint32_t;
+    static constexpr Value INVALID = -1;
+
 private:
-    AddrValue _addr;
+    Value _addr;
 
 public:
     Address();
     Address(std::string addr);
-    Address(AddrValue addr);
+    Address(Value addr);
 
     template <size_t N>
     Address(const std::bitset<N> &addr): _addr(addr.to_ulong()) {};
@@ -31,7 +37,7 @@ public:
     ~Address() = default;
 
 public:
-    AddrValue value() const;
+    Value value() const;
 
     template <size_t N>
     std::bitset<N> bits() const

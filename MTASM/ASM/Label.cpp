@@ -2,7 +2,9 @@
 
 size_t Label::Hash::operator()(const Label &lbl) const
 {
-    return std::hash<std::string>()(lbl._lbl);
+    if (!lbl._cmd)
+        return std::hash<std::string>()(lbl._lbl);
+    return std::hash<std::string>()(*(lbl._cmd.get()) + ":" + lbl._lbl);
 }
 
 size_t Label::PtrHash::operator()(const std::shared_ptr<Label> &lbl) const
@@ -14,6 +16,8 @@ bool Label::PtrEqual::operator()(const std::shared_ptr<Label> &lhs, const std::s
 {
     return (*lhs.get()) == (*rhs.get());
 }
+
+Label::Label(const std::shared_ptr<std::string> &cmd, std::string lbl, Address addr) : _cmd(cmd), _lbl(std::move(lbl)), _addr(addr) {}
 
 Label::Label(std::string lbl, Address addr) : _lbl(std::move(lbl)), _addr(addr) {}
 

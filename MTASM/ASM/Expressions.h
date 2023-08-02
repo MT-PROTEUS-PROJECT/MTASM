@@ -9,7 +9,7 @@
 class Expression
 {
 protected:
-    uint32_t _mtemuFmt = 2; // JNXT
+    Value _mtemuFmt = 2; // JNXT
     Address _addr;
 
 public:
@@ -19,7 +19,7 @@ public:
     void SetAddr(const Address &addr) noexcept;
     void IncrAddr(const Address &addr) noexcept;
 
-    uint32_t ToMtemuFmt() const noexcept;
+    Value ToMtemuFmt() const noexcept;
 
     virtual ~Expression() = default;
 };

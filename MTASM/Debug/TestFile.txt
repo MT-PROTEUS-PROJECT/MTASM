@@ -1,4 +1,11 @@
-    SET R0, 1;
+F1
+{
+	SET R0, 1;
+}
+
+MAIN
+{
+    F1;
     SET R1, 15;
     JZ L1;
     AND 1, R1;
@@ -17,3 +24,4 @@ L4:
     JMP L2;
 L1:
     END_LDM;
+}

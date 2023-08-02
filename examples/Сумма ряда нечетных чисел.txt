@@ -1,3 +1,5 @@
+MAIN
+{
     SET R0, 1;
     SET R1, 15;
     JZ L1;
@@ -17,3 +19,4 @@ L4:
     JMP L2;
 L1:
     END_LDM;
+}

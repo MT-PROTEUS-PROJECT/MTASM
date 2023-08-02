@@ -9,32 +9,33 @@ void Publisher::Push(Expr &&expr)
     ++_cexprs;
 }
 
-void Publisher::Push(std::vector<Expr> &qexpr)
+Address::Value Publisher::Push(std::vector<Expr> &qexpr, const std::string &cmd)
 {
     auto blockBegin = _cexprs;
+    _addrTocmd.emplace(blockBegin, cmd);
     for (auto &&expr : qexpr)
     {
         expr->IncrAddr(blockBegin);
         _qexpr.push_back(std::move(expr));
         ++_cexprs;
     }
+    return blockBegin;
 }
 
 void Publisher::Write()
 {
-    for (const auto &expr : _qexpr)
+    auto size = static_cast<Value>(_qexpr.size());
+    for (Value i = 0; i < size; ++i)
     {
-        _out << std::hex << expr->NextAddr().value() << '\t' << std::hex << expr->ToMtemuFmt() << '\n';
+        if (_addrTocmd.contains(i))
+            _out << ":" << _addrTocmd[i] << ":\n";
+        _out << std::hex << _qexpr[i]->NextAddr().value() << '\t' << std::hex << _qexpr[i]->ToMtemuFmt() << '\n';
     }
-}
-
-uint32_t Publisher::Size() const noexcept
-{
-    return _cexprs;
 }
 
 Publisher::~Publisher()
 {
     Write();
     _qexpr.clear();
+    _addrTocmd.clear();
 }

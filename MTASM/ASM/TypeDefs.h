@@ -6,7 +6,6 @@
 class Expression;
 
 using Value = uint32_t;
-using AddrValue = int32_t;
 using Expr = std::unique_ptr<Expression>;
 
 constexpr uint8_t WORD_SIZE = 4;
@@ -30,4 +29,8 @@ namespace SE
     constexpr auto BIN_Q_L_R = "–егистр Q не может быть одновременно левым и правым операндом бинарной (микро)команды!";
 
     constexpr auto SHIFT_Q = "–егистр Q не может быть операндом сдвига";
+
+    constexpr auto CMD_EXISTS = " оманда {} уже существует!";
+    constexpr auto CMD_NOT_FOUND = " оманда {} не найдена!";
+    constexpr auto CMD_INVALID_ADDR = "Ќе удалось вычислить адрес команды {}!";
 }

@@ -1,7 +1,7 @@
 #include "Input.h"
 #include "Exceptions.h"
 
-uint32_t Input::ToMtemuFmt() const
+Value Input::ToMtemuFmt() const
 {
     return _mtemuFmt;
 }

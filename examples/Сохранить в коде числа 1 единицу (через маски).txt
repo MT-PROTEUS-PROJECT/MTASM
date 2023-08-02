@@ -1,3 +1,5 @@
+MAIN
+{
 	SET R1, 9;
 	JZ L1;
 	SET R0, 4;
@@ -10,3 +12,4 @@ L2:
 	AND R1, 1, R1;
 L1:
 	END_LDM;
+}

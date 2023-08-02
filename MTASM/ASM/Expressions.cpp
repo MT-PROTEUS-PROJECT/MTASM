@@ -1,7 +1,7 @@
 #include "Exceptions.h"
 #include "Expressions.h"
 
-uint32_t Expression::ToMtemuFmt() const noexcept
+Value Expression::ToMtemuFmt() const noexcept
 {
     return _mtemuFmt;
 }

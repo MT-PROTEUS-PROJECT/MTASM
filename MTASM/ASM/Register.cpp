@@ -10,10 +10,10 @@ Register::Register(std::string reg): _reg(std::move(reg)) {}
 Address Register::addr() const
 {
     if (isRQ())
-        return {-1};
+        return {Address::INVALID};
     if (_reg.size() == 2)
-        return {_reg[1] - 48};
-    return {(_reg[1] - 48) * 10 + (_reg[2] - 48)};
+        return {static_cast<Address::Value>(_reg[1] - 48)};
+    return {static_cast<Address::Value>((_reg[1] - 48) * 10 + (_reg[2] - 48))};
 }
 
 bool Register::isRQ() const

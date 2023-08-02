@@ -3,6 +3,8 @@
 #include <ostream>
 #include <vector>
 #include <memory>
+#include <string>
+#include <unordered_map>
 
 #include "Expressions.h"
 #include "TypeDefs.h"
@@ -18,7 +20,8 @@ private:
     friend yy::ASM;
 
     std::vector<Expr> _qexpr;
-    uint32_t _cexprs;
+    Address::Value _cexprs;
+    std::unordered_map<Address::Value, std::string> _addrTocmd;
     std::ostream _out;
 
 private:
@@ -37,7 +40,5 @@ public:
 
 public:
     void Push(Expr &&expr);
-    void Push(std::vector<Expr> &qexpr);
-
-    uint32_t Size() const noexcept;
+    Address::Value Push(std::vector<Expr> &qexpr, const std::string &cmd);
 };
