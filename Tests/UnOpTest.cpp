@@ -49,6 +49,16 @@ static consteval uint32_t ToMtemuFmt(const std::array<uint8_t, 28> &bits)
 // 2.15 |     ADSLQ R14  | 0010  1   110  1   011  0   000  0000 1110 0000 |
 // 2.16 |     ADSRQ R15  | 0010  1   100  1   011  0   000  0000 1111 0000 |
 // -----|----------------|-------------------------------------------------|
+// 3.1  |   SET R1, RQ   | 0010  0   011  0   010  0   000  0000 0001 0000 |
+// 3.2  |   SET RQ, R2   | 0010  0   000  0   100  0   000  0010 0000 0000 |
+// 3.3  |   SET RQ, RQ   | 0010  0   000  0   010  0   000  0000 0000 0000 |
+// 3.4  |   SET R3, R4   | 0010  0   011  0   100  0   000  0100 0011 0000 |
+// 3.5  |   SET R3, 10   | 0010  0   011  0   111  0   000  0000 0011 1010 |
+// 3.6  |   SET RQ, 10   | 0010  0   000  0   111  0   000  0000 0000 1010 |
+// -----|----------------|-------------------------------------------------|
+// 4.1  |     GET R5     | 0010  0   001  0   011  0   000  0000 0101 0000 |
+// 4.2  |     GET RQ     | 0010  0   001  0   010  0   000  0000 0000 0000 |
+// -----|----------------|-------------------------------------------------|
 
 // Test 1
 TEST(UnOp, _Jmp)
@@ -247,5 +257,67 @@ TEST(UnOp, _Shift)
         UnOp t_2_16(UnOp::Shift::ADSRQ, Register("R15"));
         auto t_2_16_ans = ToMtemuFmt({ 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 });
         EXPECT_EQ(t_2_16_ans, t_2_16.ToMtemuFmt());
+    }
+}
+
+// Test 3
+TEST(UnOp, _Set)
+{
+    MemoryLeakDetector mld;
+
+    // 3.1
+    {
+        UnOp t_3_1(UnOp::SetOp, Register("R1"), Register("RQ"));
+        auto t_3_1_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 });
+        EXPECT_EQ(t_3_1_ans, t_3_1.ToMtemuFmt());
+    }
+    // 3.2
+    {
+        UnOp t_3_2(UnOp::SetOp, Register("RQ"), Register("R2"));
+        auto t_3_2_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_3_2_ans, t_3_2.ToMtemuFmt());
+    }
+    // 3.3
+    {
+        UnOp t_3_3(UnOp::SetOp, Register("RQ"), Register("RQ"));
+        auto t_3_3_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_3_3_ans, t_3_3.ToMtemuFmt());
+    }
+    // 3.4
+    {
+        UnOp t_3_4(UnOp::SetOp, Register("R3"), Register("R4"));
+        auto t_3_4_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 });
+        EXPECT_EQ(t_3_4_ans, t_3_4.ToMtemuFmt());
+    }
+    // 3.5
+    {
+        UnOp t_3_5(UnOp::SetOp, Register("R3"), 10);
+        auto t_3_5_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0 });
+        EXPECT_EQ(t_3_5_ans, t_3_5.ToMtemuFmt());
+    }
+    // 3.6
+    {
+        UnOp t_3_6(UnOp::SetOp, Register("RQ"), 10);
+        auto t_3_6_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 });
+        EXPECT_EQ(t_3_6_ans, t_3_6.ToMtemuFmt());
+    }
+}
+
+// Test 4
+TEST(UnOp, _Get)
+{
+    MemoryLeakDetector mld;
+
+    // 4.1
+    {
+        UnOp t_4_1(UnOp::GetOp, Register("R5"));
+        auto t_4_1_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0 });
+        EXPECT_EQ(t_4_1_ans, t_4_1.ToMtemuFmt());
+    }
+    // 4.2
+    {
+        UnOp t_4_2(UnOp::GetOp, Register("RQ"));
+        auto t_4_2_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_4_2_ans, t_4_2.ToMtemuFmt());
     }
 }

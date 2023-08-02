@@ -27,7 +27,9 @@ ID [a-zA-Z_][a-zA-Z_0-9]*
 "R"{REG}                { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_REG; }
 0|{DIGIT1}{DIGIT}*      { yylval->emplace<Value>(std::stoul(yytext)); return yy::parser::token::TOKEN_NUM; }
 "ADD"					return yy::parser::token::TOKEN_ADD;
+"ADDC"					return yy::parser::token::TOKEN_ADDC;
 "SUB"					return yy::parser::token::TOKEN_SUB;
+"SUBC"                  return yy::parser::token::TOKEN_SUBC;
 "MUL"					return yy::parser::token::TOKEN_MUL;
 "DIV"					return yy::parser::token::TOKEN_DIV;
 "OR"					return yy::parser::token::TOKEN_OR;
@@ -66,6 +68,7 @@ ID [a-zA-Z_][a-zA-Z_0-9]*
 "ADSLQ"                 return yy::parser::token::TOKEN_ADSLQ;
 "ADSRQ"                 return yy::parser::token::TOKEN_ADSRQ;
 "SET"                   return yy::parser::token::TOKEN_SET;
+"GET"                   return yy::parser::token::TOKEN_GET;
 "MAIN"                  return yy::parser::token::TOKEN_MAIN;
 ","						return yy::parser::token::TOKEN_COMMA;
 ";"                     return yy::parser::token::TOKEN_SEMICOLON;

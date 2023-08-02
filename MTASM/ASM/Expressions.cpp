@@ -28,8 +28,14 @@ BinOp::BinOp(BinOp::Op opTag, const BinOpIn &in)
     case BinOp::Op::ADD:
         CommutativeOp(BinOp::Op::ADD, in);
         break;
+    case BinOp::Op::ADDC:
+        CommutativeOp(BinOp::Op::ADDC, in);
+        break;
     case BinOp::Op::SUB:
         SubOp(in);
+        break;
+    case BinOp::Op::SUBC:
+        SubOp(in, true);
         break;
     case BinOp::Op::OR:
         CommutativeOp(BinOp::Op::OR, in);
@@ -48,18 +54,24 @@ BinOp::BinOp(BinOp::Op opTag, const BinOpIn &in)
     }
 }
 
-void BinOp::SubOp(const BinOpIn &in)
+void BinOp::SubOp(const BinOpIn &in, bool carry)
 {
     _mtemuFmt <<= 12;
     auto regs = in.GetRegs();
     bool reverseOps = (in.GetNullPos() == 2) || (in.GetNullPos() == -1 && regs[0] && ((*regs[0].get()) == (*regs[1].get())) && !regs[2]->isRQ()) || (regs[1] && regs[1]->isRQ());
     if (reverseOps)
     {
-        _mtemuFmt += etoi(BinOp::Op::SUB); // S - R - 1 + C0; C0 = 1
+        if (carry)
+            _mtemuFmt += etoi(BinOp::Op::SUBC); // S - R - 1 + C0; C0 = 0
+        else
+            _mtemuFmt += etoi(BinOp::Op::SUB); // S - R - 1 + C0; C0 = 1
     }
     else
     {
-        _mtemuFmt += etoi(BinOp::Op::SUB) + 1; // R - S - 1 + C0; C0 = 1
+        if (carry)
+            _mtemuFmt += etoi(BinOp::Op::SUBC) + 1; // R - S - 1 + C0; C0 = 0
+        else
+            _mtemuFmt += etoi(BinOp::Op::SUB) + 1; // R - S - 1 + C0; C0 = 1
     }
     _mtemuFmt <<= 3 * WORD_SIZE;
     _mtemuFmt += in.ToMtemuFmt();
@@ -127,19 +139,37 @@ UnOp::UnOp(UnOp::SetOpT, const Register &r, Value v) noexcept
 {
     _mtemuFmt <<= 4;
     if (!r.isRQ())
-    {
         _mtemuFmt += 3;
-    }
+
     _mtemuFmt <<= 4;
     _mtemuFmt += 7;
     _mtemuFmt <<= 4;
     _mtemuFmt <<= WORD_SIZE * 2;
-    _mtemuFmt += r.addr().value();
+
+    if (!r.isRQ())
+        _mtemuFmt += r.addr().value();
+
     _mtemuFmt <<= WORD_SIZE;
 
     v <<= (sizeof(v) * 8) - WORD_SIZE;
     v >>= (sizeof(v) * 8) - WORD_SIZE;
     _mtemuFmt += v;
+}
+
+UnOp::UnOp(UnOp::GetOpT, const Register &r) noexcept
+{
+    _mtemuFmt <<= 4;
+    _mtemuFmt += 1;
+    _mtemuFmt <<= 4;
+    if (r.isRQ())
+        _mtemuFmt += 2;
+    else
+        _mtemuFmt += 3;
+    _mtemuFmt <<= 4;
+    _mtemuFmt <<= 2 * WORD_SIZE;
+    if (!r.isRQ())
+        _mtemuFmt += r.addr().value();
+    _mtemuFmt <<= WORD_SIZE;
 }
 
 void UnOp::Init(UnOp::Jmp jmpTag) noexcept

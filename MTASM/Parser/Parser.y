@@ -67,7 +67,9 @@
     REG
     ID
     ADD
+    ADDC
     SUB
+    SUBC
     MUL
     DIV
     OR
@@ -106,6 +108,7 @@
     ADSLQ
     ADSRQ
     SET
+    GET
 ;
 
 %destructor                                                 {
@@ -181,12 +184,26 @@ binexpr:    ADD binexprf                                    {
                                                                 mtasm.details.input.reset();
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM ADD:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
+|           ADDC binexprf                                   {
+                                                                if (!mtasm.details.input)
+                                                                    break;
+                                                                mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::ADDC, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
+                                                                mtasm.details.input.reset();
+                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM ADDC:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                            }
 |           SUB binexprf                                    {
                                                                 if (!mtasm.details.input)
                                                                     break;
                                                                 mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::SUB, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
                                                                 mtasm.details.input.reset();
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SUB:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                            }
+|           SUBC binexprf                                   {
+                                                                if (!mtasm.details.input)
+                                                                    break;
+                                                                mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::SUBC, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
+                                                                mtasm.details.input.reset();
+                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SUBC:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           MUL REG COMMA REG COMMA REG COMMA REG           {
                                                                 Register r1(std::get<std::string>($2));
@@ -310,6 +327,10 @@ unexpr:     jumplbl ID                                      {
 |           SET REG COMMA NUM                               { 
                                                                 mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4)));
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SET:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                            }
+|           GET REG                                         {
+                                                                mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::GetOp, Register(std::get<std::string>($2))));
+                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM GET:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           ID                                              {
                                                                 auto cmd_id = std::get<std::string>($1);

@@ -20,6 +20,10 @@ static consteval uint32_t ToMtemuFmt(const std::array<uint8_t, 28> &bits)
 // 1.2  | ADD R1, R10, RQ| 0010  0   011  0   000  0   000  1010 0001 0000 |
 // 1.3  | ADD R3, R4     | 0010  0   001  0   001  0   000  0011 0100 0000 |
 // 1.4  | ADD 10, R6     | 0010  0   001  0   101  0   000  0110 0000 1010 |
+// 1.5  |ADDC RQ, R2, 30 | 0010  0   000  0   101  1   000  0010 0000 1110 |
+// 1.6  |ADDC R1, R10, RQ| 0010  0   011  0   000  1   000  1010 0001 0000 |
+// 1.7  |  ADDC R3, R4   | 0010  0   001  0   001  1   000  0011 0100 0000 |
+// 1.8  |  ADDC 10, R6   | 0010  0   001  0   101  1   000  0110 0000 1010 |
 // -----|----------------|-------------------------------------------------|
 // 2.1  | SUB R1, R1, R2 | 0010  0   011  0   001  1   001  0010 0001 0000 |
 // 2.2  | SUB R1, R2, R1 | 0010  0   011  0   001  1   010  0010 0001 0000 |
@@ -28,6 +32,13 @@ static consteval uint32_t ToMtemuFmt(const std::array<uint8_t, 28> &bits)
 // 2.5  | SUB RQ, R1, R2 | 0010  0   000  0   001  1   010  0001 0010 0000 |
 // 2.6  | SUB RQ, RQ, R1 | 0010  0   000  0   000  1   001  0001 0000 0000 |
 // 2.7  | SUB RQ, R1, RQ | 0010  0   000  0   000  1   010  0001 0000 0000 |
+// 2.8  | SUBC R1, R1, R2| 0010  0   011  0   001  0   001  0010 0001 0000 |
+// 2.9  | SUBC R1, R2, R1| 0010  0   011  0   001  0   010  0010 0001 0000 |
+// 2.10 | SUBC R1, R1, RQ| 0010  0   011  0   000  0   010  0001 0001 0000 |
+// 2.11 | SUBC R1, RQ, R1| 0010  0   011  0   000  0   001  0001 0001 0000 |
+// 2.12 | SUBC RQ, R1, R2| 0010  0   000  0   001  0   010  0001 0010 0000 |
+// 2.13 | SUBC RQ, RQ, R1| 0010  0   000  0   000  0   001  0001 0000 0000 |
+// 2.14 | SUBC RQ, R1, RQ| 0010  0   000  0   000  0   010  0001 0000 0000 |
 // -----|----------------|-------------------------------------------------|
 // 3.1  | SUB R1, R1, 10 | 0010  0   011  0   101  1   001  0001 0001 1010 |
 // 3.2  | SUB R1, 10, R1 | 0010  0   011  0   101  1   010  0001 0001 1010 |
@@ -37,16 +48,32 @@ static consteval uint32_t ToMtemuFmt(const std::array<uint8_t, 28> &bits)
 // 3.6  | SUB RQ, 5, R1  | 0010  0   000  0   101  1   010  0001 0000 0101 |
 // 3.7  | SUB RQ, 15, RQ | 0010  0   000  0   110  1   010  0000 0000 1111 |
 // 3.8  | SUB RQ, RQ, 17 | 0010  0   000  0   110  1   001  0000 0000 0001 |
+// 3.9  | SUBC R1, R1, 10| 0010  0   011  0   101  0   001  0001 0001 1010 |
+// 3.10 | SUBC R1, 10, R1| 0010  0   011  0   101  0   010  0001 0001 1010 |
+// 3.11 | SUBC R1, RQ, 10| 0010  0   011  0   110  0   001  0000 0001 1010 |
+// 3.12 | SUBC R1, 10, RQ| 0010  0   011  0   110  0   010  0000 0001 1010 |
+// 3.13 | SUBC RQ, R1, 3 | 0010  0   000  0   101  0   001  0001 0000 0011 |
+// 3.14 | SUBC RQ, 5, R1 | 0010  0   000  0   101  0   010  0001 0000 0101 |
+// 3.15 | SUBC RQ, 15, RQ| 0010  0   000  0   110  0   010  0000 0000 1111 |
+// 3.16 | SUBC RQ, RQ, 17| 0010  0   000  0   110  0   001  0000 0000 0001 |
 // -----|----------------|-------------------------------------------------|
 // 4.1  |   SUB R1, R1   | 0010  0   001  0   001  1   010  0001 0001 0000 |
 // 4.2  |   SUB R1, R2   | 0010  0   001  0   001  1   010  0001 0010 0000 |
 // 4.3  |   SUB R1, RQ   | 0010  0   001  0   000  1   010  0001 0000 0000 |
 // 4.4  |   SUB RQ, R1   | 0010  0   001  0   000  1   001  0001 0000 0000 |
+// 4.5  |   SUBC R1, R1  | 0010  0   001  0   001  0   010  0001 0001 0000 |
+// 4.6  |   SUBC R1, R2  | 0010  0   001  0   001  0   010  0001 0010 0000 |
+// 4.7  |   SUBC R1, RQ  | 0010  0   001  0   000  0   010  0001 0000 0000 |
+// 4.8  |   SUBC RQ, R1  | 0010  0   001  0   000  0   001  0001 0000 0000 |
 // -----|----------------|-------------------------------------------------|
 // 5.1  |   SUB R1, 128  | 0010  0   001  0   101  1   001  0001 0000 0000 |
 // 5.2  |   SUB 13, R1   | 0010  0   001  0   101  1   010  0001 0000 1101 |
 // 5.3  |   SUB RQ, 11   | 0010  0   001  0   110  1   001  0000 0000 1011 |
 // 5.4  |   SUB 6, RQ    | 0010  0   001  0   110  1   010  0000 0000 0110 |
+// 5.5  |   SUBC R1, 128 | 0010  0   001  0   101  0   001  0001 0000 0000 |
+// 5.6  |   SUBC 13, R1  | 0010  0   001  0   101  0   010  0001 0000 1101 |
+// 5.7  |   SUBC RQ, 11  | 0010  0   001  0   110  0   001  0000 0000 1011 |
+// 5.8  |   SUBC 6, RQ   | 0010  0   001  0   110  0   010  0000 0000 0110 |
 // -----|----------------|-------------------------------------------------|
 //                             LOGICAL
 // -----|----------------|-------------------------------------------------|
@@ -102,6 +129,30 @@ TEST(BinOp, _Add)
         auto t_1_4_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0 });
         EXPECT_EQ(t_1_4_ans, t_1_4.ToMtemuFmt());
     }
+    // 1.5
+    {
+        BinOp t_1_5(BinOp::Op::ADDC, BinOpIn(rq, r2, 30));
+        auto t_1_5_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0 });
+        EXPECT_EQ(t_1_5_ans, t_1_5.ToMtemuFmt());
+    }
+    // 1.6
+    {
+        BinOp t_1_6(BinOp::Op::ADDC, BinOpIn(Register("R1"), Register("R10"), rq));
+        auto t_1_6_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0 });
+        EXPECT_EQ(t_1_6_ans, t_1_6.ToMtemuFmt());
+    }
+    // 1.7
+    {
+        BinOp t_1_7(BinOp::Op::ADDC, BinOpIn(Register("R3"), Register("R4")));
+        auto t_1_7_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_1_7_ans, t_1_7.ToMtemuFmt());
+    }
+    // 1.8
+    {
+        BinOp t_1_8(BinOp::Op::ADDC, BinOpIn(10, Register("R6")));
+        auto t_1_8_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0 });
+        EXPECT_EQ(t_1_8_ans, t_1_8.ToMtemuFmt());
+    }
 }
 
 // Test 2-5
@@ -154,6 +205,48 @@ TEST(BinOp, _Sub)
         auto t_2_7_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
         EXPECT_EQ(t_2_7_ans, t_2_7.ToMtemuFmt());
     }
+    // 2.8
+    {
+        BinOp t_2_8(BinOp::Op::SUBC, BinOpIn(r1, r1, r2));
+        auto t_2_8_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0 });
+        EXPECT_EQ(t_2_8_ans, t_2_8.ToMtemuFmt());
+    }
+    // 2.9
+    {
+        BinOp t_2_9(BinOp::Op::SUBC, BinOpIn(r1, r2, r1));
+        auto t_2_9_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0 });
+        EXPECT_EQ(t_2_9_ans, t_2_9.ToMtemuFmt());
+    }
+    // 2.10
+    {
+        BinOp t_2_10(BinOp::Op::SUBC, BinOpIn(r1, r1, rq));
+        auto t_2_10_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 });
+        EXPECT_EQ(t_2_10_ans, t_2_10.ToMtemuFmt());
+    }
+    // 2.11
+    {
+        BinOp t_2_11(BinOp::Op::SUBC, BinOpIn(r1, rq, r1));
+        auto t_2_11_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 });
+        EXPECT_EQ(t_2_11_ans, t_2_11.ToMtemuFmt());
+    }
+    // 2.12
+    {
+        BinOp t_2_12(BinOp::Op::SUBC, BinOpIn(rq, r1, r2));
+        auto t_2_12_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_2_12_ans, t_2_12.ToMtemuFmt());
+    }
+    // 2.13
+    {
+        BinOp t_2_13(BinOp::Op::SUBC, BinOpIn(rq, rq, r1));
+        auto t_2_13_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_2_13_ans, t_2_13.ToMtemuFmt());
+    }
+    // 2.14
+    {
+        BinOp t_2_14(BinOp::Op::SUBC, BinOpIn(rq, r1, rq));
+        auto t_2_14_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_2_14_ans, t_2_14.ToMtemuFmt());
+    }
     // 3.1
     {
         BinOp t_3_1(BinOp::Op::SUB, BinOpIn(r1, r1, 10));
@@ -202,6 +295,54 @@ TEST(BinOp, _Sub)
         auto t_3_8_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 });
         EXPECT_EQ(t_3_8_ans, t_3_8.ToMtemuFmt());
     }
+    // 3.9
+    {
+        BinOp t_3_9(BinOp::Op::SUBC, BinOpIn(r1, r1, 10));
+        auto t_3_9_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0 });
+        EXPECT_EQ(t_3_9_ans, t_3_9.ToMtemuFmt());
+    }
+    // 3.10
+    {
+        BinOp t_3_10(BinOp::Op::SUBC, BinOpIn(r1, 10, r1));
+        auto t_3_10_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0 });
+        EXPECT_EQ(t_3_10_ans, t_3_10.ToMtemuFmt());
+    }
+    // 3.11
+    {
+        BinOp t_3_11(BinOp::Op::SUBC, BinOpIn(r1, rq, 10));
+        auto t_3_11_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0 });
+        EXPECT_EQ(t_3_11_ans, t_3_11.ToMtemuFmt());
+    }
+    // 3.12
+    {
+        BinOp t_3_12(BinOp::Op::SUBC, BinOpIn(r1, 10, rq));
+        auto t_3_12_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0 });
+        EXPECT_EQ(t_3_12_ans, t_3_12.ToMtemuFmt());
+    }
+    // 3.13
+    {
+        BinOp t_3_13(BinOp::Op::SUBC, BinOpIn(rq, r1, 3));
+        auto t_3_13_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1 });
+        EXPECT_EQ(t_3_13_ans, t_3_13.ToMtemuFmt());
+    }
+    // 3.14
+    {
+        BinOp t_3_14(BinOp::Op::SUBC, BinOpIn(rq, 3, r1));
+        auto t_3_14_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1 });
+        EXPECT_EQ(t_3_14_ans, t_3_14.ToMtemuFmt());
+    }
+    // 3.15
+    {
+        BinOp t_3_15(BinOp::Op::SUBC, BinOpIn(rq, 15, rq));
+        auto t_3_15_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 });
+        EXPECT_EQ(t_3_15_ans, t_3_15.ToMtemuFmt());
+    }
+    // 3.16
+    {
+        BinOp t_3_16(BinOp::Op::SUBC, BinOpIn(rq, rq, 17));
+        auto t_3_16_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 });
+        EXPECT_EQ(t_3_16_ans, t_3_16.ToMtemuFmt());
+    }
     // 4.1
     {
         BinOp t_4_1(BinOp::Op::SUB, BinOpIn(r1, r1));
@@ -226,6 +367,30 @@ TEST(BinOp, _Sub)
         auto t_4_4_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
         EXPECT_EQ(t_4_4_ans, t_4_4.ToMtemuFmt());
     }
+    // 4.5
+    {
+        BinOp t_4_5(BinOp::Op::SUBC, BinOpIn(r1, r1));
+        auto t_4_5_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 });
+        EXPECT_EQ(t_4_5_ans, t_4_5.ToMtemuFmt());
+    }
+    // 4.6
+    {
+        BinOp t_4_6(BinOp::Op::SUBC, BinOpIn(r1, r2));
+        auto t_4_6_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_4_6_ans, t_4_6.ToMtemuFmt());
+    }
+    // 4.7
+    {
+        BinOp t_4_7(BinOp::Op::SUBC, BinOpIn(r1, rq));
+        auto t_4_7_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_4_7_ans, t_4_7.ToMtemuFmt());
+    }
+    // 4.8
+    {
+        BinOp t_4_8(BinOp::Op::SUBC, BinOpIn(rq, r1));
+        auto t_4_8_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_4_8_ans, t_4_8.ToMtemuFmt());
+    }
     // 5.1
     {
         BinOp t_5_1(BinOp::Op::SUB, BinOpIn(r1, 128));
@@ -246,9 +411,33 @@ TEST(BinOp, _Sub)
     }
     // 5.4
     {
-        BinOp t_5_4(BinOp::Op::SUB, BinOpIn(6, rq));
-        auto t_5_4_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0 });
+        BinOp t_5_4(BinOp::Op::SUBC, BinOpIn(6, rq));
+        auto t_5_4_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0 });
         EXPECT_EQ(t_5_4_ans, t_5_4.ToMtemuFmt());
+    }
+    // 5.5
+    {
+        BinOp t_5_5(BinOp::Op::SUBC, BinOpIn(r1, 128));
+        auto t_5_5_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 });
+        EXPECT_EQ(t_5_5_ans, t_5_5.ToMtemuFmt());
+    }
+    // 5.6
+    {
+        BinOp t_5_6(BinOp::Op::SUBC, BinOpIn(13, r1));
+        auto t_5_6_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1 });
+        EXPECT_EQ(t_5_6_ans, t_5_6.ToMtemuFmt());
+    }
+    // 5.7
+    {
+        BinOp t_5_7(BinOp::Op::SUBC, BinOpIn(rq, 11));
+        auto t_5_7_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1 });
+        EXPECT_EQ(t_5_7_ans, t_5_7.ToMtemuFmt());
+    }
+    // 5.8
+    {
+        BinOp t_5_8(BinOp::Op::SUBC, BinOpIn(6, rq));
+        auto t_5_8_ans = ToMtemuFmt({ 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0 });
+        EXPECT_EQ(t_5_8_ans, t_5_8.ToMtemuFmt());
     }
 }
 

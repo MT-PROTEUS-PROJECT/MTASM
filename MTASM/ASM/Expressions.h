@@ -31,7 +31,9 @@ public:
     {
         // Arithmetic
         ADD = 0,
+        ADDC = 8,
         SUB = 9,
+        SUBC = 1,
         // Logical
         OR = 3,
         AND = 4,
@@ -42,7 +44,7 @@ public:
 private:
     void CommutativeOp(BinOp::Op opTag, const BinOpIn &in);
 
-    void SubOp(const BinOpIn &in);
+    void SubOp(const BinOpIn &in, bool carry = false);
 
 public:
     BinOp(BinOp::Op opTag, const BinOpIn &in);
@@ -102,6 +104,8 @@ public:
     struct SetOpT { explicit SetOpT() = default; };
     static inline constexpr SetOpT SetOp{};
 
+    struct GetOpT { explicit GetOpT() = default; };
+    static inline constexpr GetOpT GetOp{};
 private:
     void Init(UnOp::Jmp jmpTag) noexcept;
 
@@ -113,6 +117,8 @@ public:
 
     UnOp(UnOp::SetOpT, const Register &r1, const Register &r2) noexcept;
     UnOp(UnOp::SetOpT, const Register &r, Value v) noexcept;
+
+    UnOp(UnOp::GetOpT, const Register &r) noexcept;
 
     Address NextAddr() const noexcept override;
 
