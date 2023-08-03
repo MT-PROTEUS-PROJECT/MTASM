@@ -49,6 +49,7 @@
     void syntaxError(yy::ASM &mtasm, std::string_view fmt, Args&&... args);
     bool insertCmdId(yy::ASM &mtasm, const std::string &id);
     void pushCmd(yy::ASM &mtasm, const std::string &id);
+    void binOp(yy::ASM &mtasm, BinOp::Op tag);
 }
 
 %define parse.error verbose
@@ -178,32 +179,16 @@ expr:       binexpr SEMICOLON
 ;
 
 binexpr:    ADD binexprf                                    {
-                                                                if (!mtasm.details.input)
-                                                                    break;
-                                                                mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::ADD, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
-                                                                mtasm.details.input.reset();
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM ADD:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                binOp(mtasm, BinOp::Op::ADD);
                                                             }
 |           ADDC binexprf                                   {
-                                                                if (!mtasm.details.input)
-                                                                    break;
-                                                                mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::ADDC, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
-                                                                mtasm.details.input.reset();
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM ADDC:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                binOp(mtasm, BinOp::Op::ADDC);
                                                             }
 |           SUB binexprf                                    {
-                                                                if (!mtasm.details.input)
-                                                                    break;
-                                                                mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::SUB, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
-                                                                mtasm.details.input.reset();
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SUB:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                binOp(mtasm, BinOp::Op::SUB);
                                                             }
 |           SUBC binexprf                                   {
-                                                                if (!mtasm.details.input)
-                                                                    break;
-                                                                mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::SUBC, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
-                                                                mtasm.details.input.reset();
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SUBC:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                binOp(mtasm, BinOp::Op::SUBC);
                                                             }
 |           MUL REG COMMA REG COMMA REG COMMA REG           {
                                                                 Register r1(std::get<std::string>($2));
@@ -227,32 +212,16 @@ binexpr:    ADD binexprf                                    {
                                                                 syntaxError(mtasm, "Команда деления не поддерживается!");
                                                             }
 |           OR binexprf                                     {
-                                                                if (!mtasm.details.input)
-                                                                    break;
-                                                                mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::OR, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
-                                                                mtasm.details.input.reset();
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM OR:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                binOp(mtasm, BinOp::Op::OR);
                                                             }
 |           AND binexprf                                    {
-                                                                if (!mtasm.details.input)
-                                                                    break;
-                                                                mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::AND, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
-                                                                mtasm.details.input.reset();
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM AND:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                binOp(mtasm, BinOp::Op::AND);
                                                             }
 |           XOR binexprf                                    {
-                                                                if (!mtasm.details.input)
-                                                                    break;
-                                                                mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::XOR, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
-                                                                mtasm.details.input.reset();
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM XOR:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                binOp(mtasm, BinOp::Op::XOR);
                                                             }
 |           NXOR binexprf                                   {
-                                                                if (!mtasm.details.input)
-                                                                    break;
-                                                                mtasm.details.exprs.push_back(std::make_unique<BinOp>(BinOp::Op::NXOR, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
-                                                                mtasm.details.input.reset();
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM NXOR:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                binOp(mtasm, BinOp::Op::NXOR);
                                                             }
 ;
 
@@ -307,7 +276,7 @@ unexpr:     jumplbl ID                                      {
                                                                     mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), node.key()));
                                                                     mtasm.details.labels.insert(std::move(node));
                                                                 }
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM JUMP:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tJUMP\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           jumpnolbl                                       { mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1))); }
 |           shift REG                                       { 
@@ -318,19 +287,19 @@ unexpr:     jumplbl ID                                      {
                                                                     break;
                                                                 }
                                                                 mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Shift>($1), r));
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SHIFT:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tSHIFT\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           SET REG COMMA REG                               { 
                                                                 mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4))));
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SET:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tSET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           SET REG COMMA NUM                               { 
                                                                 mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4)));
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM SET:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tSET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           GET REG                                         {
                                                                 mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::GetOp, Register(std::get<std::string>($2))));
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM GET:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tGET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           ID                                              {
                                                                 auto cmd_id = std::get<std::string>($1);
@@ -345,7 +314,7 @@ unexpr:     jumplbl ID                                      {
                                                                     break;
                                                                 }
                                                                 mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::Jmp::CALL, std::make_shared<Label>(cmd_id, mtasm.details.cmdId[cmd_id])));
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tMTASM CMD CALL:\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tCALL\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 ;
 
@@ -432,4 +401,36 @@ Address::Value flushExprs(yy::ASM &mtasm, const std::string &cmd)
     mtasm.details.exprs.clear();
 
     return addr;
+}
+
+void binOp(yy::ASM &mtasm, BinOp::Op tag)
+{
+    if (!mtasm.details.input)
+        return;
+    mtasm.details.exprs.push_back(std::make_unique<BinOp>(tag, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
+    mtasm.details.input.reset();
+    LOG(DEBUG) << mtasm.GetLocation() << "\t" << [tag]()
+    {
+        switch (tag)
+        {
+        case BinOp::Op::ADD:
+            return "ADD";
+        case BinOp::Op::ADDC:
+            return "ADDC";
+        case BinOp::Op::SUB:
+            return "SUB";
+        case BinOp::Op::SUBC:
+            return "SUBC";
+        case BinOp::Op::OR:
+            return "OR";
+        case BinOp::Op::AND:
+            return "AND";
+        case BinOp::Op::XOR:
+            return "XOR";
+        case BinOp::Op::NXOR:
+            return "NXOR";
+        default:
+            return "UNKNOWN";
+        }
+    }() << "\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
 }

@@ -36,6 +36,4 @@ void Publisher::Write()
 Publisher::~Publisher()
 {
     Write();
-    _qexpr.clear();
-    _addrTocmd.clear();
 }
