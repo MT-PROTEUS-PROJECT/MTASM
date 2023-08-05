@@ -9,7 +9,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="ASM\Register.cpp" />
     <ClCompile Include="ASM\Address.cpp" />
     <ClCompile Include="ASM\Input.cpp" />

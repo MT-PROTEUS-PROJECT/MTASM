@@ -125,7 +125,6 @@
 %%
 
 program:    cmds main
-|           %empty
 ;
 
 main:       MAIN LEFT_CURLY_BRACE blocks RIGHT_CURLY_BRACE  {

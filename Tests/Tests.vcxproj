@@ -53,16 +53,6 @@
     <ExternalIncludePath>$(SolutionDir)ThirdParty\flex\;$(SolutionDir)MTASM\;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="..\MTASM\ASM\Address.cpp" />
-    <ClCompile Include="..\MTASM\ASM\ASM.cpp" />
-    <ClCompile Include="..\MTASM\ASM\Exceptions.cpp" />
-    <ClCompile Include="..\MTASM\ASM\Expressions.cpp" />
-    <ClCompile Include="..\MTASM\ASM\Input.cpp" />
-    <ClCompile Include="..\MTASM\ASM\Label.cpp" />
-    <ClCompile Include="..\MTASM\ASM\Publisher.cpp" />
-    <ClCompile Include="..\MTASM\ASM\Register.cpp" />
-    <ClCompile Include="..\MTASM\Lexer.cpp" />
-    <ClCompile Include="..\MTASM\Parser.tab.cc" />
     <ClCompile Include="BinOpTest.cpp" />
     <ClCompile Include="InputTest.cpp" />
     <ClCompile Include="main.cpp" />
@@ -73,7 +63,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\MTASM\Parser.tab.hh" />
     <ClInclude Include="MemLeakDetector.h" />
   </ItemGroup>
   <ItemDefinitionGroup />
@@ -97,7 +86,8 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>MTASM.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)_build\MTASM\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>xcopy $(SolutionDir)examples $(OutDir)examples /E /H /C /I /F /Y</Command>
@@ -119,7 +109,8 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>MTASM.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)_build\MTASM\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>xcopy $(SolutionDir)examples $(OutDir)examples /E /H /C /I /F /Y</Command>
@@ -142,7 +133,8 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>MTASM.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)_build\MTASM\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>xcopy $(SolutionDir)examples $(OutDir)examples /E /H /C /I</Command>
@@ -165,7 +157,8 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>MTASM.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)_build\MTASM\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>xcopy $(SolutionDir)examples $(OutDir)examples /E /H /C /I</Command>

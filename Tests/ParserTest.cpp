@@ -16,9 +16,8 @@ TEST(Parser, _EmptyInput)
     std::ostringstream out;
     yy::ASM mtasm(in, out);
 
-    EXPECT_EQ(mtasm.Parse(), 0);
-    EXPECT_TRUE(mtasm.GetEC().Empty());
-    EXPECT_EQ(out.tellp(), 0);
+    EXPECT_EQ(mtasm.Parse(), 1);
+    EXPECT_FALSE(mtasm.GetEC().Empty());
 }
 
 TEST(Parser, _RegExceptions)

@@ -3,52 +3,14 @@
   <ItemGroup>
     <ClCompile Include="InputTest.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="..\MTASM\ASM\Address.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
-    <ClCompile Include="..\MTASM\ASM\Exceptions.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
-    <ClCompile Include="..\MTASM\ASM\Expressions.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
-    <ClCompile Include="..\MTASM\ASM\Input.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
-    <ClCompile Include="..\MTASM\ASM\Register.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
     <ClCompile Include="BinOpTest.cpp" />
-    <ClCompile Include="..\MTASM\ASM\Label.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
     <ClCompile Include="UnOpTest.cpp" />
     <ClCompile Include="ParserTest.cpp" />
-    <ClCompile Include="..\MTASM\ASM\Publisher.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
-    <ClCompile Include="..\MTASM\ASM\ASM.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
-    <ClCompile Include="..\MTASM\Lexer.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
-    <ClCompile Include="..\MTASM\Parser.tab.cc">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Dependencies">
-      <UniqueIdentifier>{2f2b0d95-9105-4a6b-9922-d878b5b10e94}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="MemLeakDetector.h" />
-    <ClInclude Include="..\MTASM\Parser.tab.hh">
-      <Filter>Dependencies</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
