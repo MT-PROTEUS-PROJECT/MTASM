@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <msclr/marshal_cppstd.h>
 
+#include "RTBWithLineNumber.h"
 
 namespace GUI
 {
@@ -45,7 +46,7 @@ namespace GUI
                 delete components;
             }
         }
-    private: System::Windows::Forms::RichTextBox ^codeBox;
+    private: GUI::RTBWithLineNumber ^codeBox;
     private: System::Windows::Forms::MenuStrip ^menuStrip1;
     private: System::Windows::Forms::ToolStripMenuItem ^fileToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem ^compileToolStripMenuItem;
@@ -70,7 +71,9 @@ namespace GUI
         /// </summary>
         void InitializeComponent(void)
         {
-            this->codeBox = (gcnew System::Windows::Forms::RichTextBox());
+            this->BackColor = System::Drawing::ColorTranslator::FromHtml("#FFFFFF");
+
+            this->codeBox = (gcnew GUI::RTBWithLineNumber());
             this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
             this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
             this->openToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -83,11 +86,12 @@ namespace GUI
             this->menuStrip1->SuspendLayout();
             this->tableLayoutPanel1->SuspendLayout();
             this->SuspendLayout();
-            this->codeBox->AcceptsTab = true;
+            
+            this->codeBox->get()->AcceptsTab = true;
             this->codeBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
                 | System::Windows::Forms::AnchorStyles::Left)
                 | System::Windows::Forms::AnchorStyles::Right));
-            this->codeBox->Font = (gcnew System::Drawing::Font(L"Calibri Light", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+            this->codeBox->Font = (gcnew System::Drawing::Font(L"Calibri", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(204)));
             this->codeBox->Location = System::Drawing::Point(4, 4);
             this->codeBox->Margin = System::Windows::Forms::Padding(4);
@@ -95,7 +99,22 @@ namespace GUI
             this->codeBox->Size = System::Drawing::Size(1100, 598);
             this->codeBox->TabIndex = 0;
             this->codeBox->Text = L"";
-            this->codeBox->ZoomFactor = 1.4;
+
+            this->infoBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+                | System::Windows::Forms::AnchorStyles::Left)
+                | System::Windows::Forms::AnchorStyles::Right));
+            this->infoBox->Location = System::Drawing::Point(3, 609);
+            this->infoBox->Name = L"infoBox";
+            this->infoBox->ReadOnly = true;
+            this->infoBox->Font = (gcnew System::Drawing::Font(L"Calibri", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(204)));
+            this->infoBox->Size = System::Drawing::Size(1102, 101);
+            this->infoBox->TabIndex = 1;
+            this->infoBox->Text = L"";
+            this->infoBox->ZoomFactor = 2;
+            this->infoBox->BackColor = System::Drawing::ColorTranslator::FromHtml("#EEEDF2");
+            this->infoBox->ContentsResized += gcnew System::Windows::Forms::ContentsResizedEventHandler(this, &MainForm::infoBox_ContentsResized);
+
             this->menuStrip1->ImageScalingSize = System::Drawing::Size(20, 20);
             this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(2)
             {
@@ -107,6 +126,7 @@ namespace GUI
             this->menuStrip1->Size = System::Drawing::Size(1132, 28);
             this->menuStrip1->TabIndex = 1;
             this->menuStrip1->Text = L"menuStrip1";
+            
             this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(2)
             {
                 this->openToolStripMenuItem,
@@ -115,14 +135,17 @@ namespace GUI
             this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
             this->fileToolStripMenuItem->Size = System::Drawing::Size(59, 24);
             this->fileToolStripMenuItem->Text = L"Файл";
+            
             this->openToolStripMenuItem->Name = L"openToolStripMenuItem";
             this->openToolStripMenuItem->Size = System::Drawing::Size(150, 26);
             this->openToolStripMenuItem->Text = L"Открыть";
             this->openToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::openToolStripMenuItem_Click);
+            
             this->compileToolStripMenuItem->Name = L"compileToolStripMenuItem";
             this->compileToolStripMenuItem->Size = System::Drawing::Size(135, 26);
             this->compileToolStripMenuItem->Text = L"Компилировать";
             this->compileToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::compileToolStripMenuItem_Click);
+            
             this->tableLayoutPanel1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
                 | System::Windows::Forms::AnchorStyles::Left)
                 | System::Windows::Forms::AnchorStyles::Right));
@@ -138,16 +161,7 @@ namespace GUI
             this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 15)));
             this->tableLayoutPanel1->Size = System::Drawing::Size(1108, 713);
             this->tableLayoutPanel1->TabIndex = 2;
-            this->infoBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
-                | System::Windows::Forms::AnchorStyles::Left)
-                | System::Windows::Forms::AnchorStyles::Right));
-            this->infoBox->Location = System::Drawing::Point(3, 609);
-            this->infoBox->Name = L"infoBox";
-            this->infoBox->ReadOnly = true;
-            this->infoBox->Size = System::Drawing::Size(1102, 101);
-            this->infoBox->TabIndex = 1;
-            this->infoBox->Text = L"";
-            this->infoBox->ZoomFactor = 1.4;
+
             this->saveToolStripMenuItem->Name = L"saveToolStripMenuItem";
             this->saveToolStripMenuItem->Size = System::Drawing::Size(224, 26);
             this->saveToolStripMenuItem->Text = L"Сохранить";
@@ -172,7 +186,7 @@ namespace GUI
     {
         try
         {
-            std::istringstream in(msclr::interop::marshal_as<std::string>(this->codeBox->Text));
+            std::istringstream in(msclr::interop::marshal_as<std::string>(this->codeBox->get()->Text));
             if (!in)
             {
                 MessageBox::Show(this, "Не удалось прочитать код программы. Попробуйте снова.", "Ошибка", MessageBoxButtons::OK, MessageBoxIcon::Error);
@@ -256,7 +270,7 @@ namespace GUI
         {
             if (this->openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
             {
-                this->codeBox->Text = System::IO::File::ReadAllText(this->openFileDialog1->FileName);
+                this->codeBox->get()->Text = System::IO::File::ReadAllText(this->openFileDialog1->FileName);
                 this->openFileDialog1->FileName = System::String::Empty;
             }
         }
@@ -273,7 +287,7 @@ namespace GUI
             this->saveFileDialog1->FileName = "prog1.txt";
             if (this->saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
             {
-                this->codeBox->SaveFile(this->saveFileDialog1->FileName, RichTextBoxStreamType::UnicodePlainText);
+                this->codeBox->get()->SaveFile(this->saveFileDialog1->FileName, RichTextBoxStreamType::UnicodePlainText);
             }
         }
         catch (Exception ^ex)
@@ -284,7 +298,15 @@ namespace GUI
 
     private: System::Void LogToInfoBox(System::String ^msg)
     {
-        this->infoBox->Text += DateTime::Now.ToString("HH:mm:ss") + ". " + msg + "\n";
+        this->infoBox->Text += DateTime::Now.ToString("HH:mm:ss") + " " + msg + "\n";
+    }
+
+    private: System::Void infoBox_ContentsResized(System::Object ^sender, ContentsResizedEventArgs ^e)
+    {
+        if (this->infoBox->ZoomFactor > 3.f)
+            this->infoBox->ZoomFactor = 3.f;
+        else if (this->infoBox->ZoomFactor < 1.4f)
+            this->infoBox->ZoomFactor = 1.4f;
     }
     };
 }
