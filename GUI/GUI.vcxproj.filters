@@ -23,8 +23,10 @@
     <ClInclude Include="MainForm.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="RTBWithLineNumber.h">
+  </ItemGroup>
+  <ItemGroup>
+    <_EmbedManagedResourceFile Include="RTBWithLineNumber.h">
       <Filter>Файлы заголовков</Filter>
-    </ClInclude>
+    </_EmbedManagedResourceFile>
   </ItemGroup>
 </Project>
