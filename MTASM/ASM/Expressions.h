@@ -18,6 +18,7 @@ public:
     virtual Address NextAddr() const noexcept;
     void SetAddr(const Address &addr) noexcept;
     void IncrAddr(const Address &addr) noexcept;
+    bool DependOnAddr() const noexcept;
 
     Value ToMtemuFmt() const noexcept;
 
@@ -123,25 +124,4 @@ public:
     Address NextAddr() const noexcept override;
 
     ~UnOp() = default;
-};
-
-
-class BinCmd final
-{
-private:
-    std::vector<Expr> _qexpr;
-
-private:
-    Register GetExtraReg(const std::unordered_set<Register, Register::Hash> &regs);
-
-public:
-    struct MulCmdT { explicit MulCmdT() = default; };
-    static inline constexpr MulCmdT MulCmd{};
-
-public:
-    BinCmd(BinCmd::MulCmdT, Register r1, Register r2, Register r3, Register r4);
-
-    std::vector<Expr> &Get();
-
-    ~BinCmd() = default;
 };

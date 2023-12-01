@@ -30,8 +30,6 @@ ID [a-zA-Z_][a-zA-Z_0-9]*
 "ADDC"					return yy::parser::token::TOKEN_ADDC;
 "SUB"					return yy::parser::token::TOKEN_SUB;
 "SUBC"                  return yy::parser::token::TOKEN_SUBC;
-"MUL"					return yy::parser::token::TOKEN_MUL;
-"DIV"					return yy::parser::token::TOKEN_DIV;
 "OR"					return yy::parser::token::TOKEN_OR;
 "AND"					return yy::parser::token::TOKEN_AND;
 "XOR"					return yy::parser::token::TOKEN_XOR;

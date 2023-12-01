@@ -149,8 +149,8 @@ blocks:     block
 block:      expr
 ;
 
-expr:       binexpr SEMICOLON
-|           unexpr  SEMICOLON
+expr:       binexpr
+|           unexpr
 |           ID   COLON                                      {
                                                                 auto lbl = std::make_shared<Label>(mtasm.details.curCmd, std::get<std::string>($1));
                                                                 lbl->IncrAddr(static_cast<Address::Value>(mtasm.details.exprs.size()));
@@ -188,27 +188,6 @@ binexpr:    ADD binexprf                                    {
                                                             }
 |           SUBC binexprf                                   {
                                                                 binOp(mtasm, BinOp::Op::SUBC);
-                                                            }
-|           MUL REG COMMA REG COMMA REG COMMA REG           {
-                                                                Register r1(std::get<std::string>($2));
-                                                                Register r2(std::get<std::string>($4));
-                                                                Register r3(std::get<std::string>($6));
-                                                                Register r4(std::get<std::string>($8));
-                                                                if (r1 == r2 || r1 == r3 || r1 == r4 || r2 == r3 || r2 == r4 || r3 == r4)
-                                                                {
-                                                                    syntaxError(mtasm, SE::MUL_DIFF_REG);
-                                                                    break;
-                                                                }
-                                                                if (r1.isRQ() || r2.isRQ() || r3.isRQ() || r4.isRQ())
-                                                                {
-                                                                    syntaxError(mtasm, SE::MUL_Q_REG);
-                                                                    break;
-                                                                }
-                                                                BinCmd cmd(BinCmd::MulCmd, r1, r2, r3, r4);
-                                                                mtasm.details.exprs.insert(mtasm.details.exprs.end(), std::make_move_iterator(cmd.Get().begin()), std::make_move_iterator(cmd.Get().end()));
-                                                            }
-|           DIV binexprf                                    {
-                                                                syntaxError(mtasm, "Команда деления не поддерживается!");
                                                             }
 |           OR binexprf                                     {
                                                                 binOp(mtasm, BinOp::Op::OR);

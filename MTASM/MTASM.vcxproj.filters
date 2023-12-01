@@ -38,6 +38,6 @@
     <CustomBuild Include="Parser\Parser.y" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Debug\TestFile.txt" />
+    <Text Include="Debug\TestFile.mtasm" />
   </ItemGroup>
 </Project>

@@ -8,7 +8,8 @@ class Expression;
 using Value = uint32_t;
 using Expr = std::unique_ptr<Expression>;
 
-constexpr uint8_t WORD_SIZE = 4;
+constexpr uint8_t ADDR_SIZE = 4;
+constexpr uint8_t WORD_SIZE = 8;
 
 template <typename Enumeration>
 inline constexpr auto etoi(Enumeration const value) -> typename std::underlying_type<Enumeration>::type

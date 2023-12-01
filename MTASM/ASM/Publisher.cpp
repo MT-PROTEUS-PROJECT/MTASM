@@ -15,7 +15,8 @@ Address::Value Publisher::Push(std::vector<Expr> &qexpr, const std::string &cmd)
     _addrTocmd.emplace(blockBegin, cmd);
     for (auto &&expr : qexpr)
     {
-        expr->IncrAddr(blockBegin);
+        if (expr->DependOnAddr())
+            expr->IncrAddr(blockBegin);
         _qexpr.push_back(std::move(expr));
         ++_cexprs;
     }
@@ -29,7 +30,7 @@ void Publisher::Write()
     {
         if (_addrTocmd.contains(i))
             _out << ":" << _addrTocmd[i] << ":\n";
-        _out << std::hex << _qexpr[i]->NextAddr().value() << '\t' << std::hex << _qexpr[i]->ToMtemuFmt() << '\n';
+        _out << std::dec << _qexpr[i]->NextAddr().value() << '\t' << std::dec << _qexpr[i]->ToMtemuFmt() << '\n';
     }
 }
 

@@ -105,7 +105,7 @@ void BinOpIn::calcMtemu()
     _mtemuFmt <<= 4;
 
     // Тип операции I3-I5 (заполняется в другом классе)
-    _mtemuFmt <<= WORD_SIZE;
+    _mtemuFmt <<= 4;
     
     // Оставляем младшие WORD_SIZE бита у _value
     _value <<= (sizeof(_value) * 8) - WORD_SIZE;
@@ -117,13 +117,13 @@ void BinOpIn::calcMtemu()
         if (!_regs[1]->isRQ())
         {
             _mtemuFmt += _regs[1]->addr().value();
-            _mtemuFmt <<= WORD_SIZE;
         }
         else
         {
             _mtemuFmt += _regs[2]->addr().value();
-            _mtemuFmt <<= WORD_SIZE;
         }
+        _mtemuFmt <<= ADDR_SIZE;
+        
         if (_load && !_regs[0]->isRQ())
         {
             _mtemuFmt += _regs[0]->addr().value();
@@ -135,7 +135,7 @@ void BinOpIn::calcMtemu()
         if (!_load)
         {
             _mtemuFmt += _regs[1]->addr().value();
-            _mtemuFmt <<= WORD_SIZE;
+            _mtemuFmt <<= ADDR_SIZE;
 
             _mtemuFmt += _regs[2]->addr().value();
             _mtemuFmt <<= WORD_SIZE;
@@ -145,7 +145,7 @@ void BinOpIn::calcMtemu()
             if ((*_regs[0].get()) == (*_regs[1].get()))
             {
                 _mtemuFmt += _regs[2]->addr().value();
-                _mtemuFmt <<= WORD_SIZE;
+                _mtemuFmt <<= ADDR_SIZE;
 
                 _mtemuFmt += _regs[1]->addr().value();
                 _mtemuFmt <<= WORD_SIZE;
@@ -153,7 +153,7 @@ void BinOpIn::calcMtemu()
             else
             {
                 _mtemuFmt += _regs[1]->addr().value();
-                _mtemuFmt <<= WORD_SIZE;
+                _mtemuFmt <<= ADDR_SIZE;
 
                 _mtemuFmt += _regs[2]->addr().value();
                 _mtemuFmt <<= WORD_SIZE;
@@ -165,13 +165,13 @@ void BinOpIn::calcMtemu()
         if (_nullPos == 1)
         {
             _mtemuFmt += _regs[2]->addr().value();
-            _mtemuFmt <<= WORD_SIZE;
         }
         else
         {
             _mtemuFmt += _regs[1]->addr().value();
-            _mtemuFmt <<= WORD_SIZE;
         }
+        _mtemuFmt <<= ADDR_SIZE;
+        
         if (_load && !_regs[0]->isRQ())
         {
             _mtemuFmt += _regs[0]->addr().value();
@@ -181,7 +181,7 @@ void BinOpIn::calcMtemu()
     }
     else
     {
-        _mtemuFmt <<= WORD_SIZE;
+        _mtemuFmt <<= ADDR_SIZE;
         if (_load && !_regs[0]->isRQ())
         {
             _mtemuFmt += _regs[0]->addr().value();
