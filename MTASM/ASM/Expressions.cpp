@@ -8,17 +8,28 @@ Value Expression::ToMtemuFmt() const noexcept
 
 Address Expression::NextAddr() const noexcept
 {
-    return _addr;
+    return _next_addr;
+}
+void Expression::SetNextAddr(const Address &addr) noexcept
+{
+    _next_addr = addr;
+}
+void Expression::IncrNextAddr(const Address &addr) noexcept
+{
+    _next_addr += addr;
 }
 
-void Expression::SetAddr(const Address &addr) noexcept
+Address Expression::CurAddr() const noexcept
 {
-    _addr = addr;
+    return _cur_addr;
 }
-
-void Expression::IncrAddr(const Address &addr) noexcept
+void Expression::SetCurAddr(const Address& addr) noexcept
 {
-    _addr += addr;
+    _cur_addr = addr;
+}
+void Expression::IncrCurAddr(const Address& addr) noexcept
+{
+    _cur_addr += addr;
 }
 
 bool Expression::DependOnAddr() const noexcept
@@ -31,9 +42,13 @@ bool Expression::DependOnAddr() const noexcept
         9 - PUSH
         10 - POP
     */
-    uint32_t ca = _mtemuFmt & 0xF0000000;
-    ca >>= 28;
+    auto ca = GetCA();
     return !(ca == 2 || ca == 3 || ca == 6 || ca == 7 || ca == 9 || ca == 10);
+}
+
+uint8_t Expression::GetCA() const noexcept
+{
+    return ((_mtemuFmt & 0xF0000000) >> 28);
 }
 
 BinOp::BinOp(BinOp::Op opTag, const BinOpIn &in)
@@ -201,5 +216,5 @@ void UnOp::Init(UnOp::Jmp jmpTag) noexcept
 
 Address UnOp::NextAddr() const noexcept
 {
-    return _addr + (_lbl ? _lbl->GetAddr() : 0);
+    return _next_addr + (_lbl ? _lbl->GetAddr() : 0);
 }

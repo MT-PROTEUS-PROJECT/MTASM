@@ -10,15 +10,21 @@ class Expression
 {
 protected:
     Value _mtemuFmt = 2; // JNXT
-    Address _addr;
+    Address _next_addr;
+    Address _cur_addr;
 
 public:
     Expression() = default;
 
     virtual Address NextAddr() const noexcept;
-    void SetAddr(const Address &addr) noexcept;
-    void IncrAddr(const Address &addr) noexcept;
+    void SetNextAddr(const Address &addr) noexcept;
+    void IncrNextAddr(const Address &addr) noexcept;
+
+    Address CurAddr() const noexcept;
+    void SetCurAddr(const Address& addr) noexcept;
+    void IncrCurAddr(const Address& addr) noexcept;
     bool DependOnAddr() const noexcept;
+    uint8_t GetCA() const noexcept;
 
     Value ToMtemuFmt() const noexcept;
 
@@ -72,6 +78,7 @@ public:
         CLNZ = 4,
         CALL = 5,
         // Без меток
+        JNXT = 2,
         JSP = 7,
         JSNZ = 8,
         JSNC4 = 11,

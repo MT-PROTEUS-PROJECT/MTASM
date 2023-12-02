@@ -109,7 +109,7 @@ namespace GUI
             });
             this->menuStrip1->Location = System::Drawing::Point(0, 0);
             this->menuStrip1->Name = L"menuStrip1";
-            this->menuStrip1->Size = System::Drawing::Size(1300, 28);
+            this->menuStrip1->Size = System::Drawing::Size(1400, 28);
             this->menuStrip1->TabIndex = 1;
             this->menuStrip1->Text = L"menuStrip1";
             // 
@@ -180,7 +180,7 @@ namespace GUI
             this->tableLayoutPanel1->RowCount = 2;
             this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 85)));
             this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 15)));
-            this->tableLayoutPanel1->Size = System::Drawing::Size(1250, 713);
+            this->tableLayoutPanel1->Size = System::Drawing::Size(1350, 713);
             this->tableLayoutPanel1->TabIndex = 2;
             // 
             // infoBox
@@ -195,7 +195,7 @@ namespace GUI
             this->infoBox->Location = System::Drawing::Point(3, 609);
             this->infoBox->Name = L"infoBox";
             this->infoBox->ReadOnly = true;
-            this->infoBox->Size = System::Drawing::Size(1250, 101);
+            this->infoBox->Size = System::Drawing::Size(1350, 101);
             this->infoBox->TabIndex = 1;
             this->infoBox->Text = L"";
             this->infoBox->ZoomFactor = 2;
@@ -210,7 +210,7 @@ namespace GUI
             this->codeBox->Location = System::Drawing::Point(4, 4);
             this->codeBox->Margin = System::Windows::Forms::Padding(4);
             this->codeBox->Name = L"codeBox";
-            this->codeBox->Size = System::Drawing::Size(1250, 598);
+            this->codeBox->Size = System::Drawing::Size(1350, 598);
             this->codeBox->TabIndex = 0;
             this->codeBox->Text = L"";
             
@@ -221,7 +221,7 @@ namespace GUI
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)), static_cast<System::Int32>(static_cast<System::Byte>(255)),
                 static_cast<System::Int32>(static_cast<System::Byte>(255)));
-            this->ClientSize = System::Drawing::Size(1300, 753);
+            this->ClientSize = System::Drawing::Size(1400, 753);
             this->Controls->Add(this->tableLayoutPanel1);
             this->Controls->Add(this->menuStrip1);
             this->MainMenuStrip = this->menuStrip1;
@@ -270,9 +270,9 @@ namespace GUI
                     code = this->codeBox->get()->Text;
                     isTextView = false;
                     bool first = true;
-                    std::string total_code = "| ____AR____|_CA__|_M1|I6-I8_|_M0|I0-I2_|_C0|I3-I5_|__A__|__B__|____D___ |\n";
+                    std::string total_code = "|_ADDRESS__|____AR_____|_CA_ |_M1|I6-I8_|_M0|I0-I2_|_C0|I3-I5_|__A__|__B__|____D___ |\n";
                     std::string line;
-                    static std::regex reg(R"(([0-9]+)\t([0-9]+)[\r]*)");
+                    static std::regex reg(R"(([0-9]+)\t([0-9]+)\t([0-9]+)[\r]*)");
                     std::smatch match;
                     while (std::getline(out, line))
                     {
@@ -288,8 +288,10 @@ namespace GUI
                             std::bitset<10> addr_bits(std::stoul(match[1].str()));
                             total_code += "| " + addr_bits.to_string();
                             total_code += " | ";
+                            addr_bits = std::stoul(match[2].str());
+                            total_code += addr_bits.to_string() + " | ";
                             
-                            uint32_t mtemuFmt = std::stoul(match[2].str());
+                            uint32_t mtemuFmt = std::stoul(match[3].str());
                             uint32_t mask = 0xF0000000;
                             std::bitset<4> bits_4;
                             for (size_t i = 0; i < 6; ++i)
@@ -467,8 +469,9 @@ namespace GUI
             }
             else
             {
-                this->codeBox->get()->SaveFile(fileName, RichTextBoxStreamType::UnicodePlainText);
+                this->codeBox->get()->SaveFile(fileName, RichTextBoxStreamType::PlainText);
             }
+            LogToInfoBox("Файл: " + fileName + " сохранен");
         }
         catch (Exception ^ex)
         {

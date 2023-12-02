@@ -6,7 +6,7 @@
 class Expression;
 
 using Value = uint32_t;
-using Expr = std::unique_ptr<Expression>;
+using Expr = std::shared_ptr<Expression>;
 
 constexpr uint8_t ADDR_SIZE = 4;
 constexpr uint8_t WORD_SIZE = 8;

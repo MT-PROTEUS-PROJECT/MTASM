@@ -48,7 +48,7 @@ ID [a-zA-Z_][a-zA-Z_0-9]*
 "RET"                   return yy::parser::token::TOKEN_RET;
 "PUSH"                  return yy::parser::token::TOKEN_PUSH;
 "POP"                   return yy::parser::token::TOKEN_POP;
-"END_LDM"               return yy::parser::token::TOKEN_END_LDM;
+"END"                   return yy::parser::token::TOKEN_END_LDM;
 "LSL"                   return yy::parser::token::TOKEN_LSL;
 "LSR"                   return yy::parser::token::TOKEN_LSR;
 "CSL"                   return yy::parser::token::TOKEN_CSL;
@@ -65,7 +65,7 @@ ID [a-zA-Z_][a-zA-Z_0-9]*
 "CDSRQ"                 return yy::parser::token::TOKEN_CDSRQ;
 "ADSLQ"                 return yy::parser::token::TOKEN_ADSLQ;
 "ADSRQ"                 return yy::parser::token::TOKEN_ADSRQ;
-"SET"                   return yy::parser::token::TOKEN_SET;
+"MOV"                   return yy::parser::token::TOKEN_MOV;
 "GET"                   return yy::parser::token::TOKEN_GET;
 "MAIN"                  return yy::parser::token::TOKEN_MAIN;
 ","						return yy::parser::token::TOKEN_COMMA;

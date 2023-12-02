@@ -108,7 +108,7 @@
     CDSRQ
     ADSLQ
     ADSRQ
-    SET
+    MOV
     GET
 ;
 
@@ -242,6 +242,16 @@ binexprf:	REG COMMA REG COMMA REG                         {
 ;
 
 unexpr:     jumplbl ID                                      {
+                                                                auto cmd_id = std::get<std::string>($2);
+                                                                if (mtasm.details.cmdId.contains(cmd_id))
+                                                                {
+                                                                    if (mtasm.details.cmdId[cmd_id] != Address::INVALID)
+                                                                    {
+                                                                        mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), std::make_shared<Label>(cmd_id, mtasm.details.cmdId[cmd_id])));
+                                                                        break;
+                                                                    }
+                                                                }
+                                                    
                                                                 auto lbl = std::make_shared<Label>(mtasm.details.curCmd, std::get<std::string>($2));
                                                                 if (!mtasm.details.labels.contains(lbl))
                                                                 {
@@ -267,32 +277,17 @@ unexpr:     jumplbl ID                                      {
                                                                 mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Shift>($1), r));
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tSHIFT\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
-|           SET REG COMMA REG                               { 
+|           MOV REG COMMA REG                               { 
                                                                 mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4))));
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tSET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
-|           SET REG COMMA NUM                               { 
+|           MOV REG COMMA NUM                               { 
                                                                 mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4)));
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tSET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           GET REG                                         {
                                                                 mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::GetOp, Register(std::get<std::string>($2))));
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tGET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
-                                                            }
-|           ID                                              {
-                                                                auto cmd_id = std::get<std::string>($1);
-                                                                if (!mtasm.details.cmdId.contains(cmd_id))
-                                                                {
-                                                                    syntaxError(mtasm, SE::CMD_NOT_FOUND, cmd_id);
-                                                                    break;
-                                                                }
-                                                                if (mtasm.details.cmdId[cmd_id] == Address::INVALID)
-                                                                {
-                                                                    syntaxError(mtasm, SE::CMD_INVALID_ADDR, cmd_id);
-                                                                    break;
-                                                                }
-                                                                mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::Jmp::CALL, std::make_shared<Label>(cmd_id, mtasm.details.cmdId[cmd_id])));
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tCALL\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 ;
 
