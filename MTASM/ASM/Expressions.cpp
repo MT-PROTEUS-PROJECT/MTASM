@@ -115,12 +115,12 @@ void BinOp::CommutativeOp(BinOp::Op opTag, const BinOpIn &in)
     _mtemuFmt += in.ToMtemuFmt();
 }
 
-UnOp::UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label> &lbl) noexcept : _lbl(lbl)
+UnOp::UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label> &lbl, bool isCmdJmp) noexcept : _lbl(lbl), _isCmdJmp(isCmdJmp)
 {
     Init(jmpTag);
 }
 
-UnOp::UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl) noexcept : _lbl(std::move(lbl))
+UnOp::UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl, bool isCmdJmp) noexcept : _lbl(std::move(lbl)), _isCmdJmp(isCmdJmp)
 {
     Init(jmpTag);
 }
@@ -216,5 +216,22 @@ void UnOp::Init(UnOp::Jmp jmpTag) noexcept
 
 Address UnOp::NextAddr() const noexcept
 {
+    if (_isCmdJmp)
+    {
+        return _lbl ? _lbl->GetAddr() : 0;
+    }
     return _next_addr + (_lbl ? _lbl->GetAddr() : 0);
+}
+
+void UnOp::SetNextAddr(const Address& addr) noexcept
+{
+    if (_lbl)
+    {
+        _next_addr = 0;
+        _lbl->SetAddr(addr);
+    }
+    else
+    {
+        _next_addr = addr;
+    }
 }

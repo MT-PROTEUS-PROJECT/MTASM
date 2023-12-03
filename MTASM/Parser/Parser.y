@@ -247,7 +247,7 @@ unexpr:     jumplbl ID                                      {
                                                                 {
                                                                     if (mtasm.details.cmdId[cmd_id] != Address::INVALID)
                                                                     {
-                                                                        mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), std::make_shared<Label>(cmd_id, mtasm.details.cmdId[cmd_id])));
+                                                                        mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), std::make_shared<Label>(cmd_id, mtasm.details.cmdId[cmd_id]), true));
                                                                         break;
                                                                     }
                                                                 }

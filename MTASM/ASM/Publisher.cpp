@@ -16,7 +16,7 @@ Address::Value Publisher::Push(std::vector<Expr> &qexpr, const std::string &cmd)
     _addrTocmd.emplace(blockBegin, cmd);
     for (auto &&expr : qexpr)
     {
-        if (expr->DependOnAddr() && expr->GetCA() != etoi(UnOp::Jmp::CALL))
+        if (expr->DependOnAddr())
             expr->IncrNextAddr(blockBegin);
         expr->SetCurAddr(_cexprs);
         _qexpr.push_back(std::move(expr));

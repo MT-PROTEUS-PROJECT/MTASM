@@ -17,7 +17,7 @@ public:
     Expression() = default;
 
     virtual Address NextAddr() const noexcept;
-    void SetNextAddr(const Address &addr) noexcept;
+    virtual void SetNextAddr(const Address &addr) noexcept;
     void IncrNextAddr(const Address &addr) noexcept;
 
     Address CurAddr() const noexcept;
@@ -64,6 +64,7 @@ class UnOp final : public Expression
 {
 private:
     std::shared_ptr<Label> _lbl;
+    bool _isCmdJmp;
 
 public:
     enum class Jmp : uint8_t
@@ -118,8 +119,8 @@ private:
     void Init(UnOp::Jmp jmpTag) noexcept;
 
 public:
-    UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label> &lbl = nullptr) noexcept;
-    UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl) noexcept;
+    UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label> &lbl = nullptr, bool isCmdJmp = false) noexcept;
+    UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl, bool isCmdJmp = false) noexcept;
 
     UnOp(UnOp::Shift shiftTag, const Register &r) noexcept;
 
@@ -129,6 +130,7 @@ public:
     UnOp(UnOp::GetOpT, const Register &r) noexcept;
 
     Address NextAddr() const noexcept override;
+    void SetNextAddr(const Address& addr) noexcept override;
 
     ~UnOp() = default;
 };
