@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <regex>
 #include <bitset>
+#include <vector>
 #include <msclr/marshal_cppstd.h>
 
 #include "RTBWithLineNumber.h"
@@ -28,6 +29,7 @@ namespace GUI
         yy::ASM *asm_ = nullptr;
         String ^fileName = System::String::Empty;
         String ^extension = ".mtasm";
+
     public:
         MainForm(void)
         {
@@ -241,7 +243,7 @@ namespace GUI
         {
             try
             {
-                std::istringstream in(msclr::interop::marshal_as<std::string>(this->codeBox->get()->Text));
+                std::istringstream in(this->codeBox->getFullCode());
                 if (!in)
                 {
                     MessageBox::Show(this, "Не удалось прочитать код программы. Попробуйте снова.", "Ошибка", MessageBoxButtons::OK, MessageBoxIcon::Error);
@@ -261,6 +263,8 @@ namespace GUI
                 auto compilerErrors = this->asm_->GetEC().Get(ExceptionContainer::Tag::ICE);
                 auto unexpectedErrors = this->asm_->GetEC().Get(ExceptionContainer::Tag::OTHER);
                 auto syntaxErrors = this->asm_->GetEC().Get(ExceptionContainer::Tag::SE);
+                auto cmds = this->asm_->GetCmds();
+                this->codeBox->highlightCmds(cmds);
 
                 delete this->asm_;
                 this->asm_ = nullptr;
@@ -341,6 +345,7 @@ namespace GUI
         {
             this->codeBox->get()->Text = code;
             this->codeBox->get()->ReadOnly = false;
+            this->codeBox->highlighCmdsPos();
             isTextView = true;
         }
     }
@@ -349,11 +354,14 @@ namespace GUI
     {
         try
         {
-            std::istringstream in(msclr::interop::marshal_as<std::string>(this->codeBox->get()->Text));
-            if (!in)
+            std::stringstream in;
+            if (!isTextView)
             {
-                MessageBox::Show(this, "Не удалось прочитать код программы. Попробуйте снова.", "Ошибка", MessageBoxButtons::OK, MessageBoxIcon::Error);
-                return;
+                in << msclr::interop::marshal_as<std::string>(System::String::Copy(this->code));
+            }
+            else
+            {
+                in << this->codeBox->getFullCode();
             }
 
             System::String ^path;
@@ -388,6 +396,8 @@ namespace GUI
             auto compilerErrors = this->asm_->GetEC().Get(ExceptionContainer::Tag::ICE);
             auto unexpectedErrors = this->asm_->GetEC().Get(ExceptionContainer::Tag::OTHER);
             auto syntaxErrors = this->asm_->GetEC().Get(ExceptionContainer::Tag::SE);
+            auto cmds = this->asm_->GetCmds();
+            this->codeBox->highlightCmds(cmds);
 
             delete this->asm_;
             this->asm_ = nullptr;

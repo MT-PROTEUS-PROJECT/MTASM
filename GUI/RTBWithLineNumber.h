@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+#include <string>
+#include <sstream>
+
 namespace GUI {
 
 	using namespace System;
@@ -8,6 +12,7 @@ namespace GUI {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+    using namespace System::Collections::Generic;
 
     public enum LineNumberStyle { None, OffsetColors, Boxed };
 
@@ -16,11 +21,11 @@ namespace GUI {
     private:
         BufferedGraphics ^_bufferedGraphics;
         BufferedGraphicsContext ^_bufferContext;
-        RichTextBox ^_richTextBox;
         Brush ^_fontBrush;
         Brush ^_offsetBrush;
         LineNumberStyle _style;
         Pen ^_penBoxedLine;
+        
         float _fontHeight;
         const float _FONT_MODIFIER;
         bool _hideWhenNoLines, _speedBump;
@@ -30,6 +35,8 @@ namespace GUI {
         int _scrollingLineIncrement, _numPadding;
 
     public:
+        RichTextBox^ _richTextBox;
+
         LineNumberStrip(RichTextBox ^plainTextBox) : _bufferContext(BufferedGraphicsManager::Current), _offsetBrush(gcnew SolidBrush(Color::DarkSlateGray)), _FONT_MODIFIER(0.09f), _DRAWING_OFFSET(1), _lastYPos(-1), _scrollingLineIncrement(5), _numPadding(5)
         {
             _richTextBox = plainTextBox;
@@ -268,12 +275,39 @@ namespace GUI {
 	{
     private:
         LineNumberStrip ^_strip;
+        Dictionary<String^, String^>^ cmdBody;
+        Dictionary<String^, bool>^ cmdBodyState;
+
+        void highlightOne(const std::string& cmd, const std::string &text)
+        {
+            size_t pos = -1;
+            while ((pos = text.find(cmd, pos + 1)) != std::string::npos)
+            {
+                richTextBox1->SelectionStart = pos;
+                richTextBox1->SelectionLength = cmd.size();
+                richTextBox1->SelectionColor = Color::MediumVioletRed;
+
+                if (auto right_bracket_pos = std::find(text.begin() + pos + cmd.size() + 1, text.end(), '}'); right_bracket_pos != text.end())
+                {
+                    if (auto left_bracket_pos = std::find(text.begin() + pos + cmd.size() + 1, right_bracket_pos, '{'); left_bracket_pos != right_bracket_pos)
+                    {
+                        auto scmd = msclr::interop::marshal_as<System::String^>(cmd);
+                        if (!cmdBody->ContainsKey(scmd))
+                            cmdBody->Add(scmd, msclr::interop::marshal_as<System::String^>(std::string(left_bracket_pos, right_bracket_pos + 1)));
+                        if (!cmdBodyState->ContainsKey(scmd))
+                            cmdBodyState->Add(scmd, false);
+                    }
+                }
+            }
+        }
 
 	public:
 		RTBWithLineNumber(void)
 		{
 			InitializeComponent();
             this->_strip = gcnew GUI::LineNumberStrip(this->richTextBox1);
+            this->cmdBody = gcnew Dictionary<String^, String^>;
+            this->cmdBodyState = gcnew Dictionary<String^, bool>;
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->Controls->Add(_strip);
 		}
@@ -283,9 +317,69 @@ namespace GUI {
             return richTextBox1;
         }
 
-	protected:
-		/// <summary>
-		/// Освободить все используемые ресурсы.
+        void highlightCmds(const std::vector<std::string> &cmds)
+        {
+            this->cmdBody->Clear();
+
+            auto sel_start = richTextBox1->SelectionStart;
+            auto sel_len = richTextBox1->SelectionLength;
+
+            richTextBox1->SelectAll();
+            richTextBox1->SelectionColor = Color::Black;
+
+            auto text = msclr::interop::marshal_as<std::string>(richTextBox1->Text);
+
+            for (const auto& cmd : cmds)
+            {
+                highlightOne(cmd, text);
+            }
+
+            richTextBox1->SelectionStart = sel_start;
+            richTextBox1->SelectionLength = sel_len;
+
+            richTextBox1->Invalidate();
+        }
+
+        std::string getFullCode()
+        {
+            std::string fullCode;
+            std::stringstream ss;
+            ss << msclr::interop::marshal_as<std::string>(richTextBox1->Text);
+            std::string line;
+            while (std::getline(ss, line))
+            {
+                fullCode += line;
+                auto sline = msclr::interop::marshal_as<System::String^>(line);
+                if (cmdBodyState->ContainsKey(sline) && cmdBodyState[sline])
+                {
+                    fullCode += msclr::interop::marshal_as<std::string>(cmdBody[sline]);
+                }
+                fullCode += '\n';
+            }
+
+            return fullCode;
+        }
+
+        void highlighCmdsPos()
+        {
+            auto sel_start = richTextBox1->SelectionStart;
+            auto sel_len = richTextBox1->SelectionLength;
+
+            richTextBox1->SelectAll();
+            richTextBox1->SelectionColor = Color::Black;
+
+            std::string text = msclr::interop::marshal_as<std::string>(richTextBox1->Text);
+            for each(KeyValuePair<String ^, String ^> kvp in cmdBody)
+            {
+                highlightOne(msclr::interop::marshal_as<std::string>(kvp.Key), text);
+            }
+
+            richTextBox1->SelectionStart = sel_start;
+            richTextBox1->SelectionLength = sel_len;
+
+            richTextBox1->Invalidate();
+        }
+
 		/// </summary>
 		~RTBWithLineNumber()
 		{
@@ -322,6 +416,7 @@ namespace GUI {
 			this->richTextBox1->TabIndex = 0;
 			this->richTextBox1->Text = L"";
             this->richTextBox1->ContentsResized += gcnew System::Windows::Forms::ContentsResizedEventHandler(this, &RTBWithLineNumber::richTextBox1_ContentsResized);
+            this->richTextBox1->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RTBWithLineNumber::richtTextBox1_MouseClick);
 			// 
 			// RTBWithLineNumber
 			// 
@@ -339,8 +434,56 @@ namespace GUI {
         {
             if (this->richTextBox1->ZoomFactor > 3.f)
                 this->richTextBox1->ZoomFactor = 3.f;
-            else if (this->richTextBox1->ZoomFactor < 1.4f)
-                this->richTextBox1->ZoomFactor = 1.4f;
+            else if (this->richTextBox1->ZoomFactor < 1.f)
+                this->richTextBox1->ZoomFactor = 1.f;
+        }
+
+        System::Void richtTextBox1_MouseClick(System::Object^ sender, MouseEventArgs^ e)
+        {
+            if (e->Button.Equals(System::Windows::Forms::MouseButtons::Right))
+            {
+                int positionToSearch = _strip->_richTextBox->GetCharIndexFromPosition(Point(e->X, e->Y));
+                int begin = 0;
+                int end = 0;
+                for (int i = positionToSearch; i > 0; --i)
+                {
+                    if (_strip->_richTextBox->Text[i] == '\n')
+                    {
+                        begin = i;
+                        break;
+                    }
+                }
+
+                for (int i = positionToSearch; i < _strip->_richTextBox->Text->Length; ++i)
+                {
+                    if (_strip->_richTextBox->Text[i] == '\n')
+                    {
+                        end = i;
+                        break;
+                    }
+                }
+
+                for each (KeyValuePair<String^, String^> kvp in cmdBody)
+                {
+                    if (auto pos = _strip->_richTextBox->Text->Substring(begin, end - begin)->IndexOf(kvp.Key); pos != -1)
+                    {
+                        try
+                        {
+                            if (!cmdBodyState[kvp.Key])
+                                _strip->_richTextBox->Text = _strip->_richTextBox->Text->Remove(pos + begin + kvp.Key->Length, kvp.Value->Length + 1);
+                            else
+                                _strip->_richTextBox->Text = _strip->_richTextBox->Text->Insert(pos + begin + kvp.Key->Length + 1, cmdBody[kvp.Key] + "\n");
+                        }
+                        catch (System::ArgumentOutOfRangeException ^)
+                        {
+                            continue;
+                        }
+                        cmdBodyState[kvp.Key] = !cmdBodyState[kvp.Key];
+                        highlighCmdsPos();
+                        break;
+                    }
+                }
+            }
         }
 #pragma endregion
 	};

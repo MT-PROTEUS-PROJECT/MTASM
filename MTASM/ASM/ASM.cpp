@@ -36,6 +36,18 @@ namespace yy
         return -1;
     }
 
+    std::vector<std::string> ASM::GetCmds()
+    {
+        std::vector<std::string> cmds(details.cmdId.size());
+        size_t i = 0;
+        for (const auto& [key, value] : details.cmdId)
+        {
+            cmds[i++] = key;
+        }
+
+        return cmds;
+    }
+
     location ASM::GetLocation() const
     {
         return _lexer.getlocation();

@@ -5,6 +5,8 @@
 #include <ASM/Publisher.h>
 #include <ASM/Exceptions.h>
 
+#include <string>
+
 namespace yy
 {
     class ASM final
@@ -31,6 +33,8 @@ namespace yy
         Lexer &GetLexer() noexcept;
         ::Publisher &GetPublisher() noexcept;
         ::ExceptionContainer &GetEC() noexcept;
+
+        std::vector<std::string> GetCmds();
 
         int Parse();
         location GetLocation() const;
