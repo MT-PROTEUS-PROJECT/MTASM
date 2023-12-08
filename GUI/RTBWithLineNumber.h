@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <unordered_set>
 
 namespace GUI {
 
@@ -319,8 +320,6 @@ namespace GUI {
 
         void highlightCmds(const std::vector<std::string> &cmds)
         {
-            this->cmdBody->Clear();
-
             auto sel_start = richTextBox1->SelectionStart;
             auto sel_len = richTextBox1->SelectionLength;
 
@@ -328,10 +327,17 @@ namespace GUI {
             richTextBox1->SelectionColor = Color::Black;
 
             auto text = msclr::interop::marshal_as<std::string>(richTextBox1->Text);
-
+            std::unordered_set<std::string> all_cmds;
             for (const auto& cmd : cmds)
             {
                 highlightOne(cmd, text);
+                all_cmds.insert(cmd);
+            }
+
+            for each(KeyValuePair<String^, String^> kvp in cmdBody)
+            {
+                if (!all_cmds.count(msclr::interop::marshal_as<std::string>(kvp.Key)))
+                    cmdBody->Remove(kvp.Key);
             }
 
             richTextBox1->SelectionStart = sel_start;
