@@ -34,4 +34,10 @@ namespace SE
     constexpr auto CMD_EXISTS = "Команда {} уже существует!";
     constexpr auto CMD_NOT_FOUND = "Команда {} не найдена!";
     constexpr auto CMD_INVALID_ADDR = "Не удалось вычислить адрес команды {}!";
+
+    constexpr auto CMD_INVALID_ARGS = "Аргументы команды должны иметь вид R[a-z]!";
+    constexpr auto CMD_SAME_ARGS = "Аргументы команды должны иметь разные наименования!";
+    constexpr auto CMD_INVALID_INSTANCE = "При вызове функции передаваемые параметры должны иметь вид R[0-15] или RQ";
+    constexpr auto CMD_HAS_NOT_SPEC_ARGS = "Команда {} не содержит аргументы, используемые в микрокоманде!";
+    constexpr auto CMD_INVALID_ARGS_COUNT = "Неверное число аргументов при вызове команды";
 }

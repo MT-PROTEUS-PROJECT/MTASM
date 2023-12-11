@@ -152,8 +152,7 @@ args:       REG                                             {
                                                                 Register r(std::get<std::string>($1));
                                                                 if (!r.isTemplate())
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    syntaxError(mtasm, SE::CMD_INVALID_ARGS);
                                                                     break;
                                                                 }
                                                                 mtasm.details.curCmd->args.push_back(std::move(r)); 
@@ -163,14 +162,12 @@ args:       REG                                             {
                                                                 Register r2(std::get<std::string>($3));
                                                                 if (!r1.isTemplate() || !r2.isTemplate())
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    syntaxError(mtasm, SE::CMD_INVALID_ARGS);
                                                                     break;
                                                                 }
                                                                 if (r1 == r2)
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    syntaxError(mtasm, SE::CMD_SAME_ARGS);
                                                                     break;
                                                                 }
                                                                 mtasm.details.curCmd->args.push_back(std::move(r1));
@@ -182,14 +179,12 @@ args:       REG                                             {
                                                                 Register r3(std::get<std::string>($5));
                                                                 if (!r1.isTemplate() || !r2.isTemplate() || !r3.isTemplate())
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    syntaxError(mtasm, SE::CMD_INVALID_ARGS);
                                                                     break;
                                                                 }
                                                                 if (r1 == r2 || r1 == r3 || r2 == r3)
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    syntaxError(mtasm, SE::CMD_SAME_ARGS);
                                                                     break;
                                                                 }
                                                                 mtasm.details.curCmd->args.push_back(std::move(r1));
@@ -203,8 +198,7 @@ specargs:   REG                                             {
                                                                 Register r(std::get<std::string>($1));
                                                                 if (r.isTemplate() && !mtasm.details.curCmd->HasArg(r))
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    syntaxError(mtasm, SE::CMD_INVALID_INSTANCE);
                                                                     break;
                                                                 }
                                                                 mtasm.details.specArgs.push_back(std::move(r));
@@ -216,8 +210,7 @@ specargs:   REG                                             {
                                                                 if ((r1.isTemplate() && !mtasm.details.curCmd->HasArg(r1)) ||
                                                                     (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)))
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    syntaxError(mtasm, SE::CMD_INVALID_INSTANCE);
                                                                     break;
                                                                 }
                                                                 mtasm.details.specArgs.push_back(std::move(r1));
@@ -232,8 +225,7 @@ specargs:   REG                                             {
                                                                     (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)) ||
                                                                     (r3.isTemplate() && !mtasm.details.curCmd->HasArg(r3)))
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    syntaxError(mtasm, SE::CMD_INVALID_INSTANCE);
                                                                     break;
                                                                 }
                                                                 mtasm.details.specArgs.push_back(std::move(r1));
@@ -327,8 +319,7 @@ binexprf:	REG COMMA REG COMMA REG                         {
                                                                     (r3.isTemplate() && !mtasm.details.curCmd->HasArg(r3))
                                                                 )
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    syntaxError(mtasm, SE::CMD_HAS_NOT_SPEC_ARGS, mtasm.details.curCmd->name);
                                                                     break;
                                                                 }
                                     
@@ -340,8 +331,7 @@ binexprf:	REG COMMA REG COMMA REG                         {
                                                                 if ((r1.isTemplate() && !mtasm.details.curCmd->HasArg(r1)) ||
                                                                     (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)))
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    syntaxError(mtasm, SE::CMD_HAS_NOT_SPEC_ARGS, mtasm.details.curCmd->name);
                                                                     break;
                                                                 }
                                                                 mtasm.details.input = std::make_unique<BinOpIn>(r1, r2, std::get<Value>($5)); 
@@ -352,8 +342,7 @@ binexprf:	REG COMMA REG COMMA REG                         {
                                                                 if ((r1.isTemplate() && !mtasm.details.curCmd->HasArg(r1)) ||
                                                                     (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)))
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    syntaxError(mtasm, SE::CMD_HAS_NOT_SPEC_ARGS, mtasm.details.curCmd->name);
                                                                     break;
                                                                 }
                                                                 mtasm.details.input = std::make_unique<BinOpIn>(r1, std::get<Value>($3), r2);
@@ -369,8 +358,7 @@ binexprf:	REG COMMA REG COMMA REG                         {
                                                                 if ((r1.isTemplate() && !mtasm.details.curCmd->HasArg(r1)) ||
                                                                     (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)))
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    syntaxError(mtasm, SE::CMD_HAS_NOT_SPEC_ARGS, mtasm.details.curCmd->name);
                                                                     break;
                                                                 }
                                                                 mtasm.details.input = std::make_unique<BinOpIn>(r1, r2);
@@ -379,8 +367,7 @@ binexprf:	REG COMMA REG COMMA REG                         {
                                                                 Register r(std::get<std::string>($1));
                                                                 if ((r.isTemplate() && !mtasm.details.curCmd->HasArg(r)))
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    syntaxError(mtasm, SE::CMD_HAS_NOT_SPEC_ARGS, mtasm.details.curCmd->name);
                                                                     break;
                                                                 }
                                                                 mtasm.details.input = std::make_unique<BinOpIn>(r, std::get<Value>($3)); 
@@ -389,8 +376,7 @@ binexprf:	REG COMMA REG COMMA REG                         {
                                                                 Register r(std::get<std::string>($3));
                                                                 if ((r.isTemplate() && !mtasm.details.curCmd->HasArg(r)))
                                                                 {
-                                                                    // TODO: change error
-                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    syntaxError(mtasm, SE::CMD_HAS_NOT_SPEC_ARGS, mtasm.details.curCmd->name);
                                                                     break;
                                                                 }
                                                                 mtasm.details.input = std::make_unique<BinOpIn>(std::get<Value>($1), r);
@@ -428,8 +414,7 @@ unexpr:     jumplbl ID                                      {
                                                                 {
                                                                     if (mtasm.details.cmdId[cmd_id]->args.size() != mtasm.details.specArgs.size())
                                                                     {
-                                                                        // TODO: change error
-                                                                        syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                        syntaxError(mtasm, SE::CMD_INVALID_ARGS_COUNT);
                                                                         break;
                                                                     }
                                                                         
@@ -539,8 +524,7 @@ bool insertCmdId(yy::ASM &mtasm, const std::string &id)
     {
         if (!expr->CheckTemplates(mtasm.details.curCmd->args))
         {
-            // TODO change error
-            syntaxError(mtasm, SE::CMD_EXISTS, id);
+            syntaxError(mtasm, SE::CMD_HAS_NOT_SPEC_ARGS, mtasm.details.curCmd->name);
             return false;
         }
     }

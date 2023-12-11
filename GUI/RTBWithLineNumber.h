@@ -336,10 +336,16 @@ namespace GUI {
                 all_cmds.insert(cmd);
             }
 
+            std::vector<std::string> cmds_to_delete;
             for each(KeyValuePair<String^, String^> kvp in cmdBody)
             {
-                if (!all_cmds.count(msclr::interop::marshal_as<std::string>(kvp.Key)))
-                    cmdBody->Remove(kvp.Key);
+                auto ckey = msclr::interop::marshal_as<std::string>(kvp.Key);
+                if (!all_cmds.count(ckey))
+                    cmds_to_delete.push_back(ckey);
+            }
+            for (const auto& cmd : cmds_to_delete)
+            {
+                cmdBody->Remove(msclr::interop::marshal_as<System::String ^>(cmd));
             }
 
             richTextBox1->SelectionStart = sel_start;
