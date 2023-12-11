@@ -274,7 +274,7 @@ namespace GUI
                     code = this->codeBox->get()->Text;
                     isTextView = false;
                     bool first = true;
-                    std::string total_code = "|_ADDRESS__|____AR_____|_CA_ |_M1|I8-I6_|_M0|I2-I0_|_C0|I5-I3_|__A__|__B__|____D___ |\n";
+                    std::string total_code = "|_ADDRESS__|____AR_____|_CA__|_M1|I8-I6__|_M0|I2-I0_ |_C0|I5-I3__|__A__|__B__|____D___ |\n";
                     std::string line;
                     static std::regex reg(R"(([0-9]+)\t([0-9]+)\t([0-9]+)[\r]*)");
                     std::smatch match;

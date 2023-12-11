@@ -63,6 +63,8 @@
     COLON
     LEFT_CURLY_BRACE
     RIGHT_CURLY_BRACE
+    LEFT_BRACE
+    RIGHT_BRACE
     MAIN
     NUM
     REG
@@ -140,6 +142,104 @@ cmds:       cmd cmds
 cmd:        ID LEFT_CURLY_BRACE blocks RIGHT_CURLY_BRACE    {
                                                                 pushCmd(mtasm, std::get<std::string>($1));
                                                             }
+|           ID LEFT_BRACE args RIGHT_BRACE LEFT_CURLY_BRACE blocks RIGHT_CURLY_BRACE
+                                                            {
+                                                                pushCmd(mtasm, std::get<std::string>($1));
+                                                            }
+;
+
+args:       REG                                             {
+                                                                Register r(std::get<std::string>($1));
+                                                                if (!r.isTemplate())
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    break;
+                                                                }
+                                                                mtasm.details.curCmd->args.push_back(std::move(r)); 
+                                                            }
+|           REG COMMA REG                                   {
+                                                                Register r1(std::get<std::string>($1));
+                                                                Register r2(std::get<std::string>($3));
+                                                                if (!r1.isTemplate() || !r2.isTemplate())
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    break;
+                                                                }
+                                                                if (r1 == r2)
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    break;
+                                                                }
+                                                                mtasm.details.curCmd->args.push_back(std::move(r1));
+                                                                mtasm.details.curCmd->args.push_back(std::move(r2));
+                                                            }
+|           REG COMMA REG COMMA REG                         {
+                                                                Register r1(std::get<std::string>($1));
+                                                                Register r2(std::get<std::string>($3));
+                                                                Register r3(std::get<std::string>($5));
+                                                                if (!r1.isTemplate() || !r2.isTemplate() || !r3.isTemplate())
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    break;
+                                                                }
+                                                                if (r1 == r2 || r1 == r3 || r2 == r3)
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    break;
+                                                                }
+                                                                mtasm.details.curCmd->args.push_back(std::move(r1));
+                                                                mtasm.details.curCmd->args.push_back(std::move(r2));
+                                                                mtasm.details.curCmd->args.push_back(std::move(r3));
+                                                            }
+;
+
+specargs:   REG                                             {
+                                                                mtasm.details.specArgs.clear();
+                                                                Register r(std::get<std::string>($1));
+                                                                if (r.isTemplate() && !mtasm.details.curCmd->HasArg(r))
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    break;
+                                                                }
+                                                                mtasm.details.specArgs.push_back(std::move(r));
+                                                            }
+|           REG COMMA REG                                   {
+                                                                mtasm.details.specArgs.clear();
+                                                                Register r1(std::get<std::string>($1));
+                                                                Register r2(std::get<std::string>($3));
+                                                                if ((r1.isTemplate() && !mtasm.details.curCmd->HasArg(r1)) ||
+                                                                    (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)))
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    break;
+                                                                }
+                                                                mtasm.details.specArgs.push_back(std::move(r1));
+                                                                mtasm.details.specArgs.push_back(std::move(r2));
+                                                            }
+|           REG COMMA REG COMMA REG                         {   
+                                                                mtasm.details.specArgs.clear();
+                                                                Register r1(std::get<std::string>($1));
+                                                                Register r2(std::get<std::string>($3));
+                                                                Register r3(std::get<std::string>($5));
+                                                                if ((r1.isTemplate() && !mtasm.details.curCmd->HasArg(r1)) ||
+                                                                    (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)) ||
+                                                                    (r3.isTemplate() && !mtasm.details.curCmd->HasArg(r3)))
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                    break;
+                                                                }
+                                                                mtasm.details.specArgs.push_back(std::move(r1));
+                                                                mtasm.details.specArgs.push_back(std::move(r2));
+                                                                mtasm.details.specArgs.push_back(std::move(r3));
+                                                            }
 ;
 
 blocks:     block
@@ -152,7 +252,7 @@ block:      expr
 expr:       binexpr
 |           unexpr
 |           ID   COLON                                      {
-                                                                auto lbl = std::make_shared<Label>(mtasm.details.curCmd, std::get<std::string>($1));
+                                                                auto lbl = std::make_shared<Label>(mtasm.details.curCmdId, std::get<std::string>($1));
                                                                 lbl->IncrAddr(static_cast<Address::Value>(mtasm.details.exprs.size()));
                                                                 if (mtasm.details.labels.contains(lbl))
                                                                 {
@@ -222,11 +322,42 @@ binexprf:	REG COMMA REG COMMA REG                         {
                                                                     syntaxError(mtasm, SE::BIN_Q_L_R);
                                                                     break;
                                                                 }
+                                                                if ((r1.isTemplate() && !mtasm.details.curCmd->HasArg(r1)) ||
+                                                                    (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)) ||
+                                                                    (r3.isTemplate() && !mtasm.details.curCmd->HasArg(r3))
+                                                                )
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    break;
+                                                                }
                                     
                                                                 mtasm.details.input = std::make_unique<BinOpIn>(r1, r2, r3);
                                                             }
-|           REG COMMA REG COMMA NUM                         { mtasm.details.input = std::make_unique<BinOpIn>(Register(std::get<std::string>($1)), Register(std::get<std::string>($3)), std::get<Value>($5)); }
-|           REG COMMA NUM COMMA REG                         { mtasm.details.input = std::make_unique<BinOpIn>(Register(std::get<std::string>($1)), std::get<Value>($3), Register(std::get<std::string>($5))); }
+|           REG COMMA REG COMMA NUM                         {
+                                                                Register r1(std::get<std::string>($1));
+                                                                Register r2(std::get<std::string>($3));
+                                                                if ((r1.isTemplate() && !mtasm.details.curCmd->HasArg(r1)) ||
+                                                                    (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)))
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    break;
+                                                                }
+                                                                mtasm.details.input = std::make_unique<BinOpIn>(r1, r2, std::get<Value>($5)); 
+                                                            }
+|           REG COMMA NUM COMMA REG                         { 
+                                                                Register r1(std::get<std::string>($1));
+                                                                Register r2(std::get<std::string>($5));
+                                                                if ((r1.isTemplate() && !mtasm.details.curCmd->HasArg(r1)) ||
+                                                                    (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)))
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    break;
+                                                                }
+                                                                mtasm.details.input = std::make_unique<BinOpIn>(r1, std::get<Value>($3), r2);
+                                                            }
 |           REG COMMA REG                                   {
                                                                 Register r1(std::get<std::string>($1));
                                                                 Register r2(std::get<std::string>($3));
@@ -235,38 +366,94 @@ binexprf:	REG COMMA REG COMMA REG                         {
                                                                     syntaxError(mtasm, SE::BIN_Q_L_R);
                                                                     break;
                                                                 }
+                                                                if ((r1.isTemplate() && !mtasm.details.curCmd->HasArg(r1)) ||
+                                                                    (r2.isTemplate() && !mtasm.details.curCmd->HasArg(r2)))
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    break;
+                                                                }
                                                                 mtasm.details.input = std::make_unique<BinOpIn>(r1, r2);
                                                             }
-|           REG COMMA NUM                                   { mtasm.details.input = std::make_unique<BinOpIn>(Register(std::get<std::string>($1)), std::get<Value>($3)); }
-|           NUM COMMA REG                                   { mtasm.details.input = std::make_unique<BinOpIn>(std::get<Value>($1), Register(std::get<std::string>($3))); }
+|           REG COMMA NUM                                   { 
+                                                                Register r(std::get<std::string>($1));
+                                                                if ((r.isTemplate() && !mtasm.details.curCmd->HasArg(r)))
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    break;
+                                                                }
+                                                                mtasm.details.input = std::make_unique<BinOpIn>(r, std::get<Value>($3)); 
+                                                            }
+|           NUM COMMA REG                                   { 
+                                                                Register r(std::get<std::string>($3));
+                                                                if ((r.isTemplate() && !mtasm.details.curCmd->HasArg(r)))
+                                                                {
+                                                                    // TODO: change error
+                                                                    syntaxError(mtasm, SE::BIN_Q_L_R);
+                                                                    break;
+                                                                }
+                                                                mtasm.details.input = std::make_unique<BinOpIn>(std::get<Value>($1), r);
+                                                            }
 ;
 
 unexpr:     jumplbl ID                                      {
                                                                 auto cmd_id = std::get<std::string>($2);
                                                                 if (mtasm.details.cmdId.contains(cmd_id))
                                                                 {
-                                                                    if (mtasm.details.cmdId[cmd_id] != Address::INVALID)
+                                                                    if (mtasm.details.cmdId[cmd_id]->addr != Address::INVALID)
                                                                     {
-                                                                        mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), std::make_shared<Label>(cmd_id, mtasm.details.cmdId[cmd_id]), true));
+                                                                        mtasm.details.exprs.push_back(std::make_shared<UnOp>(std::get<UnOp::Jmp>($1), std::make_shared<Label>(cmd_id, mtasm.details.cmdId[cmd_id]->addr), true));
                                                                         break;
                                                                     }
                                                                 }
                                                     
-                                                                auto lbl = std::make_shared<Label>(mtasm.details.curCmd, std::get<std::string>($2));
+                                                                auto lbl = std::make_shared<Label>(mtasm.details.curCmdId, std::get<std::string>($2));
                                                                 if (!mtasm.details.labels.contains(lbl))
                                                                 {
                                                                     mtasm.details.labels.emplace(lbl, Address::INVALID);
-                                                                    mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), lbl));
+                                                                    mtasm.details.exprs.push_back(std::make_shared<UnOp>(std::get<UnOp::Jmp>($1), lbl));
                                                                 }
                                                                 else
                                                                 {
                                                                     auto node = mtasm.details.labels.extract(lbl);
-                                                                    mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1), node.key()));
+                                                                    mtasm.details.exprs.push_back(std::make_shared<UnOp>(std::get<UnOp::Jmp>($1), node.key()));
                                                                     mtasm.details.labels.insert(std::move(node));
                                                                 }
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tJUMP\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
-|           jumpnolbl                                       { mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Jmp>($1))); }
+|           jumplbl ID LEFT_BRACE specargs RIGHT_BRACE      {
+                                                                auto cmd_id = std::get<std::string>($2);
+                                                                if (mtasm.details.cmdId.contains(cmd_id))
+                                                                {
+                                                                    if (mtasm.details.cmdId[cmd_id]->args.size() != mtasm.details.specArgs.size())
+                                                                    {
+                                                                        // TODO: change error
+                                                                        syntaxError(mtasm, SE::BIN_3_DIFF_REG);
+                                                                        break;
+                                                                    }
+                                                                        
+                                                                    std::string cmd_id_with_args = cmd_id + "(";
+                                                                    for (const auto &arg : mtasm.details.specArgs)
+                                                                        cmd_id_with_args += arg.get() + ",";
+                                                                    cmd_id_with_args.pop_back();
+                                                                    cmd_id_with_args += ")";
+
+                                                                    if (!mtasm.details.cmdId.count(cmd_id_with_args))
+                                                                    {
+                                                                        auto specCmd = std::make_shared<yy::ASM::cmd>(*mtasm.details.cmdId[cmd_id].get());
+                                                                        specCmd->specArgs = mtasm.details.specArgs;
+                                                                        specCmd->SpecTemplates();
+                                                                        specCmd->name = cmd_id_with_args;
+                                                                        specCmd->addr = mtasm.GetPublisher().Push(specCmd->exprs, specCmd->name);
+
+                                                                        mtasm.details.cmdId[cmd_id_with_args] = specCmd;
+                                                                    }
+                                                                    
+                                                                    mtasm.details.exprs.push_back(std::make_shared<UnOp>(std::get<UnOp::Jmp>($1), std::make_shared<Label>(cmd_id_with_args, mtasm.details.cmdId[cmd_id_with_args]->addr), true));
+                                                                }
+                                                            }
+|           jumpnolbl                                       { mtasm.details.exprs.push_back(std::make_shared<UnOp>(std::get<UnOp::Jmp>($1))); }
 |           shift REG                                       { 
                                                                 Register r(std::get<std::string>($2));
                                                                 if (r.isRQ())
@@ -274,19 +461,19 @@ unexpr:     jumplbl ID                                      {
                                                                     syntaxError(mtasm, SE::SHIFT_Q);
                                                                     break;
                                                                 }
-                                                                mtasm.details.exprs.push_back(std::make_unique<UnOp>(std::get<UnOp::Shift>($1), r));
+                                                                mtasm.details.exprs.push_back(std::make_shared<UnOp>(std::get<UnOp::Shift>($1), r));
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tSHIFT\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           MOV REG COMMA REG                               { 
-                                                                mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4))));
+                                                                mtasm.details.exprs.push_back(std::make_shared<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4))));
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tSET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           MOV REG COMMA NUM                               { 
-                                                                mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4)));
+                                                                mtasm.details.exprs.push_back(std::make_shared<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4)));
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tSET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           GET REG                                         {
-                                                                mtasm.details.exprs.push_back(std::make_unique<UnOp>(UnOp::GetOp, Register(std::get<std::string>($2))));
+                                                                mtasm.details.exprs.push_back(std::make_shared<UnOp>(UnOp::GetOp, Register(std::get<std::string>($2))));
                                                                 LOG(DEBUG) << mtasm.GetLocation() << "\tGET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 ;
@@ -348,11 +535,25 @@ bool insertCmdId(yy::ASM &mtasm, const std::string &id)
         syntaxError(mtasm, SE::CMD_EXISTS, id);
         return false;
     }
-    if (auto [it, ok] = mtasm.details.cmdId.emplace(id, Address::INVALID); !ok)
+    for (const auto &expr : mtasm.details.exprs)
+    {
+        if (!expr->CheckTemplates(mtasm.details.curCmd->args))
+        {
+            // TODO change error
+            syntaxError(mtasm, SE::CMD_EXISTS, id);
+            return false;
+        }
+    }
+    mtasm.details.curCmd->name = id;
+    mtasm.details.curCmd->addr = Address::INVALID;
+    mtasm.details.curCmd->exprs = mtasm.details.exprs;
+
+    if (auto [it, ok] = mtasm.details.cmdId.emplace(id, mtasm.details.curCmd); !ok)
         throw InternalCompilerError("Не удалось добавить название команды в хэш-таблицу");
 
-    *(mtasm.details.curCmd.get()) = id;
-    mtasm.details.curCmd = std::make_shared<std::string>();
+    *(mtasm.details.curCmdId.get()) = id;
+    mtasm.details.curCmdId = std::make_shared<std::string>();
+    mtasm.details.curCmd = std::make_shared<yy::ASM::cmd>();
 
     return true;
 }
@@ -361,7 +562,9 @@ void pushCmd(yy::ASM &mtasm, const std::string &id)
 {
     if (!insertCmdId(mtasm, id))
         return;
-    mtasm.details.cmdId[id] = flushExprs(mtasm, id);
+    if (mtasm.details.cmdId[id]->args.empty())
+        mtasm.details.cmdId[id]->addr = flushExprs(mtasm, id);
+    mtasm.details.exprs.clear();
 }
 
 Address::Value flushExprs(yy::ASM &mtasm, const std::string &cmd)
@@ -371,7 +574,6 @@ Address::Value flushExprs(yy::ASM &mtasm, const std::string &cmd)
         return addr;
 
     addr = mtasm.GetPublisher().Push(mtasm.details.exprs, cmd);
-    mtasm.details.exprs.clear();
 
     return addr;
 }
@@ -380,7 +582,7 @@ void binOp(yy::ASM &mtasm, BinOp::Op tag)
 {
     if (!mtasm.details.input)
         return;
-    mtasm.details.exprs.push_back(std::make_unique<BinOp>(tag, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
+    mtasm.details.exprs.push_back(std::make_shared<BinOp>(tag, *(dynamic_cast<BinOpIn *>(mtasm.details.input.get()))));
     mtasm.details.input.reset();
     LOG(DEBUG) << mtasm.GetLocation() << "\t" << [tag]()
     {

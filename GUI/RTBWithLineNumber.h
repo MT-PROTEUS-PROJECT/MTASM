@@ -288,6 +288,8 @@ namespace GUI {
                 richTextBox1->SelectionLength = cmd.size();
                 richTextBox1->SelectionColor = Color::MediumVioletRed;
 
+                if (pos + cmd.size() + 1 >= text.size())
+                    continue;
                 if (auto right_bracket_pos = std::find(text.begin() + pos + cmd.size() + 1, text.end(), '}'); right_bracket_pos != text.end())
                 {
                     if (auto left_bracket_pos = std::find(text.begin() + pos + cmd.size() + 1, right_bracket_pos, '{'); left_bracket_pos != right_bracket_pos)
@@ -450,7 +452,7 @@ namespace GUI {
             {
                 int positionToSearch = _strip->_richTextBox->GetCharIndexFromPosition(Point(e->X, e->Y));
                 int begin = 0;
-                int end = 0;
+                int end = _strip->_richTextBox->Text->Length;
                 for (int i = positionToSearch; i > 0; --i)
                 {
                     if (_strip->_richTextBox->Text[i] == '\n')
@@ -478,7 +480,11 @@ namespace GUI {
                             if (!cmdBodyState[kvp.Key])
                                 _strip->_richTextBox->Text = _strip->_richTextBox->Text->Remove(pos + begin + kvp.Key->Length, kvp.Value->Length + 1);
                             else
+                            {
+                                while (pos + begin + kvp.Key->Length + 1 >= _strip->_richTextBox->Text->Length)
+                                    _strip->_richTextBox->Text += "\n";
                                 _strip->_richTextBox->Text = _strip->_richTextBox->Text->Insert(pos + begin + kvp.Key->Length + 1, cmdBody[kvp.Key] + "\n");
+                            }
                         }
                         catch (System::ArgumentOutOfRangeException ^)
                         {

@@ -13,17 +13,17 @@ protected:
     Value _mtemuFmt = 0;
 
 protected:
-    virtual void calcMtemu() = 0;
+    virtual void calcMtemu(bool force) = 0;
 
 public:
     Input() = default;
-    
+
     Value ToMtemuFmt() const;
-    
+
     virtual ~Input() = default;
 };
 
-class BinOpIn final: public Input
+class BinOpIn final : public Input
 {
 public:
     using RegContainer = std::vector<std::shared_ptr<Register>>;
@@ -34,8 +34,9 @@ private:
     int _nullPos;
     Value _value;
     RegContainer _regs;
-    
-    void calcMtemu() override;
+    RegContainer _template_regs;
+
+    void calcMtemu(bool force = false) override;
 public:
     BinOpIn(Register r1, Register r2, Register r3);
     BinOpIn(Register r1, Register r2, Value v);
@@ -45,7 +46,10 @@ public:
     BinOpIn(Value v, Register r1);
 
     int GetNullPos() const noexcept;
-    const RegContainer &GetRegs() const noexcept;
+    const RegContainer& GetRegs() const noexcept;
+    RegContainer& GetRegs() noexcept;
+    const RegContainer& GetTemplateRegs() const noexcept;
+    void Update(const RegContainer &regs);
 
     ~BinOpIn() = default;
 };

@@ -40,5 +40,6 @@ public:
 
 public:
     void Push(Expr &&expr);
-    Address::Value Push(std::vector<Expr> &qexpr, const std::string &cmd);
+    Address::Value Push(const std::vector<Expr> &qexpr, const std::string &cmd);
+    Address::Value GetAddr() const noexcept;
 };

@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <unordered_set>
+#include <memory>
 
 class Expression
 {
@@ -25,6 +26,9 @@ public:
     void IncrCurAddr(const Address& addr) noexcept;
     bool DependOnAddr() const noexcept;
     uint8_t GetCA() const noexcept;
+
+    virtual bool CheckTemplates(const std::vector<Register>& templates) const = 0;
+    virtual void SpecTemplates(const std::vector<Register>& args, const std::vector<Register>& spec) = 0;
 
     Value ToMtemuFmt() const noexcept;
 
@@ -48,6 +52,7 @@ public:
         NXOR = 7
     };
 
+    std::shared_ptr<BinOpIn> _in;
 private:
     void CommutativeOp(BinOp::Op opTag, const BinOpIn &in);
 
@@ -55,6 +60,8 @@ private:
 
 public:
     BinOp(BinOp::Op opTag, const BinOpIn &in);
+    bool CheckTemplates(const std::vector<Register>& templates) const override;
+    void SpecTemplates(const std::vector<Register>& args, const std::vector<Register>& spec) override;
 
     ~BinOp() = default;
 };
@@ -65,6 +72,12 @@ class UnOp final : public Expression
 private:
     std::shared_ptr<Label> _lbl;
     bool _isCmdJmp;
+    struct In
+    {
+        std::vector<Register> regs;
+        Value v;
+    } _in;
+    uint8_t tag;
 
 public:
     enum class Jmp : uint8_t
@@ -116,7 +129,19 @@ public:
     struct GetOpT { explicit GetOpT() = default; };
     static inline constexpr GetOpT GetOp{};
 private:
-    void Init(UnOp::Jmp jmpTag) noexcept;
+    enum class Type : uint8_t
+    {
+        JMP,
+        SHIFT,
+        SET,
+        GET
+    } _type;
+
+private:
+    void calcMtemuJmp();
+    void calcMtemuShift();
+    void calcMtemuSet();
+    void calcMtemuGet();
 
 public:
     UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label> &lbl = nullptr, bool isCmdJmp = false) noexcept;
@@ -131,6 +156,8 @@ public:
 
     Address NextAddr() const noexcept override;
     void SetNextAddr(const Address& addr) noexcept override;
+    bool CheckTemplates(const std::vector<Register>& templates) const override;
+    void SpecTemplates(const std::vector<Register>& args, const std::vector<Register>& spec) override;
 
     ~UnOp() = default;
 };

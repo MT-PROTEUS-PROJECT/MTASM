@@ -16,10 +16,11 @@
 %option yyclass = "yy::Lexer"
 
 WS [ \t\r\n]
-REG Q|[0-9]|1[0-5]
+REG Q|[0-9]|1[0-5]|[a-z]{1}
 DIGIT [0-9]
 DIGIT1 [1-9]
 ID [a-zA-Z_][a-zA-Z_0-9]*
+V [a-z]{1}
 
 %%
 
@@ -73,6 +74,8 @@ ID [a-zA-Z_][a-zA-Z_0-9]*
 ":"                     return yy::parser::token::TOKEN_COLON;
 "{"                     return yy::parser::token::TOKEN_LEFT_CURLY_BRACE;
 "}"                     return yy::parser::token::TOKEN_RIGHT_CURLY_BRACE;
+"("                     return yy::parser::token::TOKEN_LEFT_BRACE;
+")"                     return yy::parser::token::TOKEN_RIGHT_BRACE;
 {ID}                    { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_ID; }
 .						throw yy::parser::syntax_error(*yyloc, "invalid character: " + std::string(YYText(), YYLeng()));
 <<EOF>>                 return yy::parser::token::TOKEN_END;

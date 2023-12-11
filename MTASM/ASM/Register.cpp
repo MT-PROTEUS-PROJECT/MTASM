@@ -21,6 +21,16 @@ bool Register::isRQ() const
     return (_reg[1] == 'Q');
 }
 
+const std::string& Register::get() const
+{
+    return _reg;
+}
+
+bool Register::isTemplate() const noexcept
+{
+    return (_reg.size() == 2 && 'a' <= _reg[1] && _reg[1] <= 'z');
+}
+
 Register Register::Next(const Register &r)
 {
     if (r.isRQ())

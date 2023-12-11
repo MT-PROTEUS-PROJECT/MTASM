@@ -29,6 +29,8 @@ public:
 public:
     Address addr() const;
     bool isRQ() const;
+    bool isTemplate() const noexcept;
+    const std::string &get() const;
 
     static Register Next(const Register &r);
 

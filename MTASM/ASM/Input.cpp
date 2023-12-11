@@ -54,13 +54,26 @@ BinOpIn::BinOpIn(Value v, Register r1) : _load(false), _hasRQ(r1.isRQ()), _nullP
     calcMtemu();
 }
 
-void BinOpIn::calcMtemu()
+void BinOpIn::calcMtemu(bool force)
 {
     //         M1 I6-I8                             M0 I0-I2                 C0 I3-I5                  A                  B            D
     //   8388608  4194304 2097152 1048576  524286 262144 131072 65536   32768 16384 8192 4096   2048 1024 512 256   128 64 32 16    8 4 2 1    
     //      0   '    0   '   0   '   0        0  '   0  '   0  '  0        0 '  0  ' 0 '  0       0 '  0 ' 0 ' 0     0 ' 0' 0' 0    0'0'0'0
     _mtemuFmt = 0;
 
+    if (!force)
+    {
+        for (const auto& reg : _regs)
+        {
+            if (reg && reg->isTemplate())
+            {
+                _template_regs.push_back(reg);
+            }
+        }
+
+        if (!_template_regs.empty())
+            return;
+    }
     // Загрузка (I6-I8)
     // 000 - Загрузка в PQ
     // 001 - Нет загрузки
@@ -106,7 +119,7 @@ void BinOpIn::calcMtemu()
 
     // Тип операции I3-I5 (заполняется в другом классе)
     _mtemuFmt <<= 4;
-    
+
     // Оставляем младшие WORD_SIZE бита у _value
     _value <<= (sizeof(_value) * 8) - WORD_SIZE;
     _value >>= (sizeof(_value) * 8) - WORD_SIZE;
@@ -123,7 +136,7 @@ void BinOpIn::calcMtemu()
             _mtemuFmt += _regs[2]->addr().value();
         }
         _mtemuFmt <<= ADDR_SIZE;
-        
+
         if (_load && !_regs[0]->isRQ())
         {
             _mtemuFmt += _regs[0]->addr().value();
@@ -171,7 +184,7 @@ void BinOpIn::calcMtemu()
             _mtemuFmt += _regs[1]->addr().value();
         }
         _mtemuFmt <<= ADDR_SIZE;
-        
+
         if (_load && !_regs[0]->isRQ())
         {
             _mtemuFmt += _regs[0]->addr().value();
@@ -196,7 +209,23 @@ int BinOpIn::GetNullPos() const noexcept
     return _nullPos;
 }
 
-const BinOpIn::RegContainer &BinOpIn::GetRegs() const noexcept
+BinOpIn::RegContainer& BinOpIn::GetRegs() noexcept
 {
     return _regs;
+}
+
+const BinOpIn::RegContainer& BinOpIn::GetRegs() const noexcept
+{
+    return _regs;
+}
+
+void BinOpIn::Update(const BinOpIn::RegContainer& regs)
+{
+    _regs = regs;
+    calcMtemu(true);
+}
+
+const BinOpIn::RegContainer& BinOpIn::GetTemplateRegs() const noexcept
+{
+    return _template_regs;
 }

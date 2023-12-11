@@ -10,19 +10,24 @@ void Publisher::Push(Expr &&expr)
     ++_cexprs;
 }
 
-Address::Value Publisher::Push(std::vector<Expr> &qexpr, const std::string &cmd)
+Address::Value Publisher::Push(const std::vector<Expr> &qexpr, const std::string &cmd)
 {
     auto blockBegin = _cexprs;
     _addrTocmd.emplace(blockBegin, cmd);
-    for (auto &&expr : qexpr)
+    for (const auto &expr : qexpr)
     {
         if (expr->DependOnAddr())
             expr->IncrNextAddr(blockBegin);
         expr->SetCurAddr(_cexprs);
-        _qexpr.push_back(std::move(expr));
+        _qexpr.push_back(expr);
         ++_cexprs;
     }
     return blockBegin;
+}
+
+Address::Value Publisher::GetAddr() const noexcept
+{
+    return _cexprs;
 }
 
 void Publisher::Write()
