@@ -18,6 +18,10 @@ void Expression::IncrNextAddr(const Address &addr) noexcept
 {
     _next_addr += addr;
 }
+bool Expression::isBP() const noexcept
+{
+    return _isBP;
+}
 
 Address Expression::CurAddr() const noexcept
 {
@@ -198,6 +202,12 @@ UnOp::UnOp(UnOp::GetOpT, const Register &r) noexcept : _type(Type::GET)
 {
     _in.regs.push_back(r);
     calcMtemuGet();
+}
+
+UnOp::UnOp(UnOp::BPT) noexcept
+{
+    _isBP = true;
+    _mtemuFmt <<= 28;
 }
 
 void UnOp::calcMtemuJmp()

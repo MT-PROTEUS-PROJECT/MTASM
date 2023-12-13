@@ -27,6 +27,7 @@ V [a-z]{1}
 {WS}+                   
 "R"{REG}                { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_REG; }
 0|{DIGIT1}{DIGIT}*      { yylval->emplace<Value>(std::stoul(yytext)); return yy::parser::token::TOKEN_NUM; }
+"BP"                    return yy::parser::token::TOKEN_BP;
 "ADD"					return yy::parser::token::TOKEN_ADD;
 "ADDC"					return yy::parser::token::TOKEN_ADDC;
 "SUB"					return yy::parser::token::TOKEN_SUB;

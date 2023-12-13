@@ -65,6 +65,7 @@
     RIGHT_CURLY_BRACE
     LEFT_BRACE
     RIGHT_BRACE
+    BP
     MAIN
     NUM
     REG
@@ -447,19 +448,18 @@ unexpr:     jumplbl ID                                      {
                                                                     break;
                                                                 }
                                                                 mtasm.details.exprs.push_back(std::make_shared<UnOp>(std::get<UnOp::Shift>($1), r));
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tSHIFT\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           MOV REG COMMA REG                               { 
                                                                 mtasm.details.exprs.push_back(std::make_shared<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), Register(std::get<std::string>($4))));
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tSET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           MOV REG COMMA NUM                               { 
                                                                 mtasm.details.exprs.push_back(std::make_shared<UnOp>(UnOp::SetOp, Register(std::get<std::string>($2)), std::get<Value>($4)));
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tSET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
                                                             }
 |           GET REG                                         {
                                                                 mtasm.details.exprs.push_back(std::make_shared<UnOp>(UnOp::GetOp, Register(std::get<std::string>($2))));
-                                                                LOG(DEBUG) << mtasm.GetLocation() << "\tGET\t" << mtasm.details.exprs.back()->ToMtemuFmt() << std::endl;
+                                                            }
+|           BP                                              {
+                                                                mtasm.details.exprs.push_back(std::make_shared<UnOp>(UnOp::BP));
                                                             }
 ;
 

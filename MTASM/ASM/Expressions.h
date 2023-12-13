@@ -13,9 +13,12 @@ protected:
     Value _mtemuFmt = 2; // JNXT
     Address _next_addr;
     Address _cur_addr;
+    bool _isBP = false;
 
 public:
     Expression() = default;
+
+    bool isBP() const noexcept;
 
     virtual Address NextAddr() const noexcept;
     virtual void SetNextAddr(const Address &addr) noexcept;
@@ -128,6 +131,9 @@ public:
 
     struct GetOpT { explicit GetOpT() = default; };
     static inline constexpr GetOpT GetOp{};
+
+    struct BPT { explicit BPT() = default; };
+    static inline constexpr BPT BP{};
 private:
     enum class Type : uint8_t
     {
@@ -153,6 +159,8 @@ public:
     UnOp(UnOp::SetOpT, const Register &r, Value v) noexcept;
 
     UnOp(UnOp::GetOpT, const Register &r) noexcept;
+
+    UnOp(UnOp::BPT) noexcept;
 
     Address NextAddr() const noexcept override;
     void SetNextAddr(const Address& addr) noexcept override;

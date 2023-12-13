@@ -69,7 +69,11 @@ void Publisher::Write()
     {
         if (realAddrToCmd.contains(addr))
             _out << ":" << realAddrToCmd[addr] << ":\n";
-        _out << std::dec << addr << '\t' << std::dec << expr->NextAddr().value() << '\t' << std::dec << expr->ToMtemuFmt() << '\n';
+        if (expr->isBP())
+            _out << 1;
+        else
+            _out << 0;
+        _out << '\t' << std::dec << addr << '\t' << std::dec << expr->NextAddr().value() << '\t' << std::dec << expr->ToMtemuFmt() << '\n';
     }
 }
 
