@@ -43,7 +43,20 @@ namespace yy
         return std::find(args.begin(), args.end(), r) != args.end();
     }
 
-    ASM::ASM(std::istream &in, std::ostream &out) : _lexer(in), _parser(*this), _publisher(out) {}
+    ASM::ASM(std::istream &in, std::ostream &out) : _lexer(in), _parser(*this), _publisher(out)
+    {
+        translator["COMMA"] = ",";
+        translator["SEMICOLON"] = ";";
+        translator["COLON"] = ":";
+        translator["LEFT_CURLY_BRACE"] = "{";
+        translator["RIGHT_CURLY_BRACE"] = "}";
+        translator["LEFT_BRACE"] = "(";
+        translator["RIGHT_BRACE"] = ")";
+        translator["NUM"] = "◊»—ÀŒ";
+        translator["ID"] = "»ƒ≈Õ“»‘» ¿“Œ–";
+        translator["REG"] = "POH";
+        translator["END"] = " ŒÕ≈÷ œ–Œ√–¿ÃÃ€";
+    }
 
     yy::Lexer &ASM::GetLexer() noexcept
     {

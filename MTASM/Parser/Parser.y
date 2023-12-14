@@ -14,6 +14,7 @@
     #include <sstream>
     #include <format>
     #include <string_view>
+    #include <regex>
 
     #include <ASM/TypeDefs.h>
     #include <ASM/Expressions.h>
@@ -74,8 +75,6 @@
     ADDC
     SUB
     SUBC
-    MUL
-    DIV
     OR
     AND
     XOR
@@ -510,7 +509,107 @@ void syntaxError(yy::ASM &mtasm, std::string_view fmt, Args&&... args)
 
 void yy::parser::error(const location_type &, const std::string &err_message)
 {
-    mtasm.GetEC().Push(ExceptionContainer::Tag::SE, mtasm.GetLocation(), err_message);
+    static std::regex syntax_err(R"(syntax error)");
+    static std::regex syntax_err_1(R"(syntax error, unexpected ([A-Z]+))");
+    static std::regex syntax_err_2(R"(syntax error, unexpected ([A-Z]+), expecting ([A-Z]+))");
+    static std::regex syntax_err_3(R"(syntax error, unexpected ([A-Z]+), expecting ([A-Z]+) or ([A-Z]+))");
+    static std::regex syntax_err_4(R"(syntax error, unexpected ([A-Z]+), expecting ([A-Z]+) or ([A-Z]+) or ([A-Z]+))");
+    static std::regex syntax_err_5(R"(syntax error, unexpected ([A-Z]+), expecting ([A-Z]+) or ([A-Z]+) or ([A-Z]+) or ([A-Z]+))");
+    std::string translated_msg;
+    std::smatch match;
+    if (std::regex_match(err_message, match, syntax_err))
+    {
+        translated_msg = "синтаксическая ошибка";
+    }
+    else if (std::regex_match(err_message, match, syntax_err_1))
+    {
+        translated_msg = "синтаксическая ошибка, неожиданный символ '";
+        if (!mtasm.translator.count(match[1].str()))
+            translated_msg += match[1].str();
+        else
+            translated_msg += mtasm.translator[match[1].str()];
+        translated_msg += "'";
+    }
+    else if (std::regex_match(err_message, match, syntax_err_2))
+    {
+        translated_msg = "синтаксическая ошибка, неожиданный символ '";
+        for (size_t i = 1; i < 3; ++i)
+        {
+            if (!mtasm.translator.count(match[i].str()))
+                translated_msg += match[i].str();
+            else
+                translated_msg += mtasm.translator[match[i].str()];
+            if (i == 1)
+            {
+                translated_msg += "', ожидается символ '";
+            }
+        }
+        translated_msg += "'";
+    }
+    else if (std::regex_match(err_message, match, syntax_err_3))
+    {
+        translated_msg = "синтаксическая ошибка, неожиданный символ '";
+        for (size_t i = 1; i < 4; ++i)
+        {
+            if (!mtasm.translator.count(match[i].str()))
+                translated_msg += match[i].str();
+            else
+                translated_msg += mtasm.translator[match[i].str()];
+            if (i == 1)
+            {
+                translated_msg += "', ожидается символ '";
+            }
+            else if (i == 2)
+            {
+                translated_msg += "' или '";
+            }
+        }
+        translated_msg += "'";
+    }
+    else if (std::regex_match(err_message, match, syntax_err_4))
+    {
+        translated_msg = "синтаксическая ошибка, неожиданный символ '";
+        for (size_t i = 1; i < 5; ++i)
+        {
+            if (!mtasm.translator.count(match[i].str()))
+                translated_msg += match[i].str();
+            else
+                translated_msg += mtasm.translator[match[i].str()];
+            if (i == 1)
+            {
+                translated_msg += "', ожидается символ '";
+            }
+            else if (i > 1 && i < 4)
+            {
+                translated_msg += "' или '";
+            }
+        }
+        translated_msg += "'";
+    }
+    else if (std::regex_match(err_message, match, syntax_err_5))
+    {
+        translated_msg = "синтаксическая ошибка, неожиданный символ '";
+        for (size_t i = 1; i < 6; ++i)
+        {
+            if (!mtasm.translator.count(match[i].str()))
+                translated_msg += match[i].str();
+            else
+                translated_msg += mtasm.translator[match[i].str()];
+            if (i == 1)
+            {
+                translated_msg += "', ожидается символ '";
+            }
+            else if (i > 1 && i < 5)
+            {
+                translated_msg += "' или '";
+            }
+        }
+        translated_msg += "'";
+    }
+    if (translated_msg.empty())
+        mtasm.GetEC().Push(ExceptionContainer::Tag::SE, mtasm.GetLocation(), err_message);
+    else
+        mtasm.GetEC().Push(ExceptionContainer::Tag::SE, mtasm.GetLocation(), translated_msg);
 }
 
 bool insertCmdId(yy::ASM &mtasm, const std::string &id)

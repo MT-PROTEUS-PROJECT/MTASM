@@ -44,7 +44,7 @@ namespace yy
             std::string curSpecCmd;
             std::unordered_map<std::shared_ptr<Label>, Address::Value, Label::PtrHash, Label::PtrEqual> labels;
         } details;
-
+        std::unordered_map<std::string, std::string> translator;
     private:
         Lexer _lexer;
         parser _parser;
