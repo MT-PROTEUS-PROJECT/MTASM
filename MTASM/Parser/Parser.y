@@ -510,11 +510,11 @@ void syntaxError(yy::ASM &mtasm, std::string_view fmt, Args&&... args)
 void yy::parser::error(const location_type &, const std::string &err_message)
 {
     static std::regex syntax_err(R"(syntax error)");
-    static std::regex syntax_err_1(R"(syntax error, unexpected ([A-Z]+))");
-    static std::regex syntax_err_2(R"(syntax error, unexpected ([A-Z]+), expecting ([A-Z]+))");
-    static std::regex syntax_err_3(R"(syntax error, unexpected ([A-Z]+), expecting ([A-Z]+) or ([A-Z]+))");
-    static std::regex syntax_err_4(R"(syntax error, unexpected ([A-Z]+), expecting ([A-Z]+) or ([A-Z]+) or ([A-Z]+))");
-    static std::regex syntax_err_5(R"(syntax error, unexpected ([A-Z]+), expecting ([A-Z]+) or ([A-Z]+) or ([A-Z]+) or ([A-Z]+))");
+    static std::regex syntax_err_1(R"(syntax error, unexpected ([A-Z_]+))");
+    static std::regex syntax_err_2(R"(syntax error, unexpected ([A-Z_]+), expecting ([A-Z_]+))");
+    static std::regex syntax_err_3(R"(syntax error, unexpected ([A-Z_]+), expecting ([A-Z_]+) or ([A-Z_]+))");
+    static std::regex syntax_err_4(R"(syntax error, unexpected ([A-Z_]+), expecting ([A-Z_]+) or ([A-Z_]+) or ([A-Z_]+))");
+    static std::regex syntax_err_5(R"(syntax error, unexpected ([A-Z_]+), expecting ([A-Z_]+) or ([A-Z_]+) or ([A-Z_]+) or ([A-Z_]+))");
     std::string translated_msg;
     std::smatch match;
     if (std::regex_match(err_message, match, syntax_err))

@@ -14,6 +14,7 @@
 %option nounistd
 %option yylineno
 %option yyclass = "yy::Lexer"
+%x comment
 
 WS [ \t\r\n]
 REG Q|[0-9]|1[0-5]|[a-z]{1}
@@ -23,6 +24,9 @@ ID [a-zA-Z_][a-zA-Z_0-9]*
 V [a-z]{1}
 
 %%
+";"                     BEGIN(comment);
+<comment>[^\n]*
+<comment>\n	BEGIN(INITIAL); yyloc->lines();
 
 {WS}+                   
 "R"{REG}                { yylval->emplace<std::string>(yytext); return yy::parser::token::TOKEN_REG; }
