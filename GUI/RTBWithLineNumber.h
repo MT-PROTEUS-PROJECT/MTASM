@@ -275,6 +275,7 @@ namespace GUI {
 	public ref class RTBWithLineNumber : public System::Windows::Forms::UserControl
 	{
     private:
+        int prevLineLength = 0;
         LineNumberStrip ^_strip;
         Dictionary<String^, String^>^ cmdBody;
         Dictionary<String^, bool>^ cmdBodyState;
@@ -388,7 +389,7 @@ namespace GUI {
                 highlightOne(msclr::interop::marshal_as<std::string>(kvp.Key), text);
             }
 
-            richTextBox1->SelectionStart = sel_start;
+            richTextBox1->SelectionStart = 0;
             richTextBox1->SelectionLength = sel_len;
 
             richTextBox1->Invalidate();
@@ -431,6 +432,7 @@ namespace GUI {
 			this->richTextBox1->Text = L"";
             this->richTextBox1->ContentsResized += gcnew System::Windows::Forms::ContentsResizedEventHandler(this, &RTBWithLineNumber::richTextBox1_ContentsResized);
             this->richTextBox1->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RTBWithLineNumber::richtTextBox1_MouseClick);
+            this->richTextBox1->TextChanged += gcnew System::EventHandler(this, &RTBWithLineNumber::richTextBox1_TextChanged);
 			// 
 			// RTBWithLineNumber
 			// 
@@ -444,6 +446,15 @@ namespace GUI {
             
 
 		}
+        System::Void richTextBox1_TextChanged(System::Object^ sender, EventArgs^ e)
+        {
+            if (prevLineLength != richTextBox1->Lines->Length)
+            {
+                highlighCmdsPos();
+            }
+            prevLineLength = richTextBox1->Lines->Length;
+        }
+
         System::Void richTextBox1_ContentsResized(System::Object ^sender, ContentsResizedEventArgs ^e)
         {
             if (this->richTextBox1->ZoomFactor > 3.f)

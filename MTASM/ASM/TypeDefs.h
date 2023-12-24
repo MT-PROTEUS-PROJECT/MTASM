@@ -22,14 +22,11 @@ namespace SE
     constexpr auto LBL_EXISTS = "Метка {} уже существует!";
     constexpr auto LBL_NOT_FOUND = "Метка {} не найдена!";
     
-    constexpr auto MUL_DIFF_REG = "Все регистры в команде умножения должны быть различны!";
-    constexpr auto MUL_Q_REG = "Использование регистра Q в команде умножения не поддерживается!";
-
     constexpr auto BIN_3_DIFF_REG = "Использование 3 различных регистров общего назначения в бинарных (микро)командах не поддерживается!";
     constexpr auto BIN_1_L_R = "Использование регистра отличного от регистра загрузки в качестве левого и правого операнда в бинарных(микро)командах не поддерживается!";
     constexpr auto BIN_Q_L_R = "Регистр Q не может быть одновременно левым и правым операндом бинарной (микро)команды!";
 
-    constexpr auto SHIFT_Q = "Регистр Q не может быть операндом сдвига";
+    constexpr auto SHIFT_Q = "Регистр Q не может быть операндом сдвига!";
 
     constexpr auto CMD_EXISTS = "Команда {} уже существует!";
     constexpr auto CMD_NOT_FOUND = "Команда {} не найдена!";
@@ -37,7 +34,7 @@ namespace SE
 
     constexpr auto CMD_INVALID_ARGS = "Аргументы команды должны иметь вид R[a-z]!";
     constexpr auto CMD_SAME_ARGS = "Аргументы команды должны иметь разные наименования!";
-    constexpr auto CMD_INVALID_INSTANCE = "При вызове функции передаваемые параметры должны иметь вид R[0-15] или RQ";
+    constexpr auto CMD_INVALID_INSTANCE = "При вызове функции передаваемые параметры должны иметь вид R[0-15] или RQ!";
     constexpr auto CMD_HAS_NOT_SPEC_ARGS = "Команда {} не содержит аргументы, используемые в микрокоманде!";
-    constexpr auto CMD_INVALID_ARGS_COUNT = "Неверное число аргументов при вызове команды";
+    constexpr auto CMD_INVALID_ARGS_COUNT = "Неверное число аргументов при вызове команды!";
 }
