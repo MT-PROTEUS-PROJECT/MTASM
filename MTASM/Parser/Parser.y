@@ -412,6 +412,11 @@ unexpr:     jumplbl ID                                      {
                                                                 auto cmd_id = std::get<std::string>($2);
                                                                 if (mtasm.details.cmdId.contains(cmd_id))
                                                                 {
+                                                                    if (std::any_of(mtasm.details.specArgs.begin(), mtasm.details.specArgs.end(), [](const Register &r) { return r.isTemplate(); }))
+                                                                    {
+                                                                        syntaxError(mtasm, SE::CMD_INVALID_INSTANCE);
+                                                                        break;
+                                                                    }
                                                                     if (mtasm.details.cmdId[cmd_id]->args.size() != mtasm.details.specArgs.size())
                                                                     {
                                                                         syntaxError(mtasm, SE::CMD_INVALID_ARGS_COUNT);
@@ -437,6 +442,11 @@ unexpr:     jumplbl ID                                      {
                                                                     
                                                                     mtasm.details.exprs.push_back(std::make_shared<UnOp>(std::get<UnOp::Jmp>($1), std::make_shared<Label>(cmd_id_with_args, mtasm.details.cmdId[cmd_id_with_args]->addr), true));
                                                                 }
+                                                            }
+|           jumplbl NUM                                     {
+                                                                auto lbl = std::make_shared<Label>("_L" + std::to_string(mtasm.details.lbl_counter++));
+                                                                lbl->SetAddr(std::get<Value>($2));
+                                                                mtasm.details.exprs.push_back(std::make_shared<UnOp>(std::get<UnOp::Jmp>($1), lbl));
                                                             }
 |           jumpnolbl                                       { mtasm.details.exprs.push_back(std::make_shared<UnOp>(std::get<UnOp::Jmp>($1))); }
 |           shift REG                                       { 

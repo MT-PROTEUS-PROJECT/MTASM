@@ -171,6 +171,13 @@ UnOp::UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label> &lbl, bool isCmdJmp) n
     calcMtemuJmp();
 }
 
+UnOp::UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label>& lbl, const std::vector<Register>& args) noexcept : _lbl(lbl), _isCmdJmp(true), _type(Type::JMP)
+{
+    tag = etoi(jmpTag);
+    _in.regs = args;
+    calcMtemuJmp();
+}
+
 UnOp::UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl, bool isCmdJmp) noexcept : _lbl(std::move(lbl)), _isCmdJmp(isCmdJmp), _type(Type::JMP)
 {
     tag = etoi(jmpTag);

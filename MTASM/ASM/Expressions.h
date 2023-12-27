@@ -151,6 +151,7 @@ private:
 
 public:
     UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label> &lbl = nullptr, bool isCmdJmp = false) noexcept;
+    UnOp(UnOp::Jmp jmpTag, const std::shared_ptr<Label>& lbl, const std::vector<Register> &args) noexcept;
     UnOp(UnOp::Jmp jmpTag, std::shared_ptr<Label> &&lbl, bool isCmdJmp = false) noexcept;
 
     UnOp(UnOp::Shift shiftTag, const Register &r) noexcept;

@@ -43,6 +43,7 @@ namespace yy
             std::vector<Register> specArgs;
             std::string curSpecCmd;
             std::unordered_map<std::shared_ptr<Label>, Address::Value, Label::PtrHash, Label::PtrEqual> labels;
+            size_t lbl_counter = 0;
         } details;
         std::unordered_map<std::string, std::string> translator;
     private:
